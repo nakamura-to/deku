@@ -134,20 +134,19 @@
     },
 
     createContext: function (parent, data) {
-      var proxy = {};
-      if (!parent[core.tempuraProp]) {
-        throw new Error('illegal parent context.');
+      var context = data;
+      if (!data[core.tempuraProp]) {
+        if (!parent[core.tempuraProp]) {
+          throw new Error('illegal parent context.');
+        }
+        context = {};
+        context[core.tempuraProp] = parent[core.tempuraProp];
+        context[core.rootProp] = parent[core.rootProp];
+        context[core.parentProp] = parent;
+        context[core.dataProp] = data;
+        util.extend(context, data);
       }
-      if (data[core.tempuraProp]) {
-        proxy = data;
-      } else {
-        proxy[core.tempuraProp] = parent[core.tempuraProp];
-        proxy[core.rootProp] = parent[core.rootProp];
-        proxy[core.parentProp] = parent;
-        proxy[core.dataProp] = data;
-        util.extend(proxy, data);
-      }
-      return proxy;
+      return context;
     },
 
     transformTags: (function () {
@@ -237,16 +236,15 @@
     },
 
     createInitialContext: function (data) {
-      var proxy = {};
-      proxy[core.tempuraProp] = true;
-      proxy[core.rootProp] = data;
-      proxy[core.parentProp] = null;
-      proxy[core.dataProp] = data;
-      util.extend(proxy, data);
-      return proxy;
+      var context = {};
+      context[core.tempuraProp] = true;
+      context[core.rootProp] = data;
+      context[core.parentProp] = null;
+      context[core.dataProp] = data;
+      util.extend(context, data);
+      return context;
     },
 
-    // todo
     render: function (container, data) {
       if (typeof container === 'string') {
         container = document.getElementById(container);
@@ -257,6 +255,7 @@
 
   };
 
+  //noinspection JSUnusedGlobalSymbols
   global.tempura = {
 
     // public
