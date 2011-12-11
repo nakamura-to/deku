@@ -6,6 +6,8 @@
 
     toString: Object.prototype.toString,
 
+    hasOwnProperty: Object.prototype.hasOwnProperty,
+
     slice: Array.prototype.slice,
 
     isObject: function (obj) {
@@ -40,8 +42,10 @@
       for (i = 0; i < len; i++) {
         source = args[i];
         for (prop in source) {
-          if (obj[prop] === undefined) {
-            obj[prop] = source[prop];
+          if (util.hasOwnProperty.call(source, prop)) {
+            if (obj[prop] === undefined) {
+              obj[prop] = source[prop];
+            }
           }
         }
       }
@@ -210,11 +214,6 @@
               }
               if (util.isObject(value)) {
                 return core.transform(content, core.createContext(context, value));
-              }
-              if (util.isFunction(value)) {
-                return value.call(context, content, function (text) {
-                  return core.transform(text, context);
-                });
               }
               if (value) {
                 return core.transform(content, context);
