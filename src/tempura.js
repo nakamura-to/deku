@@ -52,10 +52,10 @@
       return obj;
     },
 
-    escapeHtml: (function () {
+    encodeHtml: (function () {
       var regex = /[&"'<>]/g;
       return function (html) {
-        html = util.isString(html) ? html : '';
+        html = (html === null || html === undefined) ? '' : String(html);
         return html.replace(regex, function (s) {
           switch (s) {
           case '&': return '&amp;';
@@ -133,8 +133,7 @@
 
     find: function (name, object) {
       var n = util.trim(name);
-      var value = n.length > 1 ? core.walkObject(n, object) : n;
-      return value === undefined ? '' : value;
+      return core.walkObject(n, object);
     },
 
     createContext: function (parent, data) {
@@ -160,13 +159,18 @@
         '}}'
       ].join(''), 'g');
       return function (template, context) {
+        var find = function (name) {
+          var value = core.find(name, context);
+          // todo how to handle undefined ?
+          return value === undefined ? '' : value;
+        };
         var callback = function (match, directive, name) {
           switch (directive) {
           case '#': return '{{#' + name + '}}';
           case '/': return '{{/' + name + '}}';
           case '!': return '';
-          case '{': return util.escapeHtml(core.find(name, context));
-          default: return core.find(name, context);
+          case '{': return find(name);
+          default: return util.encodeHtml(find(name));
           }
         };
         var lines = template.split('\n');

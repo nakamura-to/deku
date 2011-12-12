@@ -45,13 +45,15 @@ testCase('core', {
   },
 
   'test find': function () {
-    var object = {
+    var obj = {
       person: {
-        name: 'hoge'
+        name: 'hoge',
+        age: null
       }
     };
-    assertEquals('hoge', this.core.find(' person.name ', object));
-    assertEquals('', this.core.find('unknown', object));
+    assertEquals('hoge', this.core.find(' person.name ', obj));
+    assertEquals(null, this.core.find(' person.age ', obj));
+    assertEquals(undefined, this.core.find('unknown', obj));
   },
 
   'test includes': function () {
@@ -94,7 +96,7 @@ testCase('core', {
       '{{#child}}{{$root.rootName}},{{$parent.parentName}},{{$data.childName}},{{childName}}{{/child}}{{/parent}}'
     ].join('');
     var result = this.core.transformSection(template, context);
-    assertEquals('aaa,null,aaa,aaa|aaa,aaa,bbb,bbb|aaa,bbb,ccc,ccc', result);
+    assertEquals('aaa,,aaa,aaa|aaa,aaa,bbb,bbb|aaa,bbb,ccc,ccc', result);
   },
 
   'test transformSection: array of object': function () {

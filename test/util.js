@@ -86,13 +86,17 @@ testCase('util', {
     assertEquals('2011/12/11', obj.birthday);
   },
 
-  'test escapeHtml': function () {
-    assertEquals('&amp;', this.util.escapeHtml('&'));
-    assertEquals('&quot;', this.util.escapeHtml('"'));
-    assertEquals('&#39;', this.util.escapeHtml("'"));
-    assertEquals('&lt;', this.util.escapeHtml('<'));
-    assertEquals('&gt;', this.util.escapeHtml('>'));
-    assertEquals('a&amp;b&quot;c&#39;d&lt;e&gt;f', this.util.escapeHtml('a&b"c\'d<e>f'));
+  'test encodeHtml': function () {
+    assertEquals('&amp;', this.util.encodeHtml('&'));
+    assertEquals('&quot;', this.util.encodeHtml('"'));
+    assertEquals('&#39;', this.util.encodeHtml("'"));
+    assertEquals('&lt;', this.util.encodeHtml('<'));
+    assertEquals('&gt;', this.util.encodeHtml('>'));
+    assertEquals('a&amp;b&quot;c&#39;d&lt;e&gt;f', this.util.encodeHtml('a&b"c\'d<e>f'));
+    assertEquals('abc', this.util.encodeHtml('abc'));
+    assertEquals('123', this.util.encodeHtml(123));
+    assertEquals('', this.util.encodeHtml(null));
+    assertEquals('', this.util.encodeHtml(undefined));
   }
 
 });
