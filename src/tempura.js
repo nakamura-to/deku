@@ -169,13 +169,13 @@
           default: return core.find(name, context);
           }
         };
-        var lines = template.split('¥n');
+        var lines = template.split('\n');
         var len = lines.length;
         var i;
         for (i = 0; i < len; i++) {
           lines[i] = lines[i].replace(regex, callback);
         }
-        return lines.join('¥n');
+        return lines.join('\n');
       };
     }()),
 
@@ -185,7 +185,7 @@
         '{{',
         '(#)\\s*(.+)\\s*', // $2, $3
         '}}',
-        '¥n*([\\s\\S]*?)', // $4
+        '\n*([\\s\\S]*?)', // $4
         '{{',
         '\\/\\s*\\3\\s*',
         '}}',
