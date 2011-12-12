@@ -105,13 +105,13 @@
 
   var core = {
 
-    tempuraProp: '$tempura',
+    TEMPURA_CONTEXT: '$tempura',
 
-    rootProp: '$root',
+    ROOT_CONTEXT: '$root',
 
-    parentProp: '$parent',
+    PARENT_CONTEXT: '$parent',
 
-    dataProp: '$data',
+    THIS_CONTEXT: '$this',
 
     includes: function (directive, template) {
       return template.indexOf('{{' + directive) !== -1;
@@ -138,15 +138,15 @@
 
     createContext: function (parent, data) {
       var context = data;
-      if (!data[core.tempuraProp]) {
-        if (!parent[core.tempuraProp]) {
+      if (!data[core.TEMPURA_CONTEXT]) {
+        if (!parent[core.TEMPURA_CONTEXT]) {
           throw new Error('illegal parent context.');
         }
         context = {};
-        context[core.tempuraProp] = parent[core.tempuraProp];
-        context[core.rootProp] = parent[core.rootProp];
-        context[core.parentProp] = parent;
-        context[core.dataProp] = data;
+        context[core.TEMPURA_CONTEXT] = true;
+        context[core.ROOT_CONTEXT] = parent[core.ROOT_CONTEXT];
+        context[core.PARENT_CONTEXT] = parent;
+        context[core.THIS_CONTEXT] = data;
         util.extend(context, data);
       }
       return context;
@@ -240,10 +240,10 @@
 
     createInitialContext: function (data) {
       var context = {};
-      context[core.tempuraProp] = true;
-      context[core.rootProp] = data;
-      context[core.parentProp] = null;
-      context[core.dataProp] = data;
+      context[core.TEMPURA_CONTEXT] = true;
+      context[core.ROOT_CONTEXT] = data;
+      context[core.PARENT_CONTEXT] = null;
+      context[core.THIS_CONTEXT] = data;
       util.extend(context, data);
       return context;
     },

@@ -91,9 +91,9 @@ testCase('core', {
     };
     var context = this.core.createInitialContext(obj);
     var template = [
-      '{{$root.rootName}},{{$parent.rootName}},{{$data.rootName}},{{rootName}}|',
-      '{{#parent}}{{$root.rootName}},{{$parent.rootName}},{{$data.parentName}},{{parentName}}|',
-      '{{#child}}{{$root.rootName}},{{$parent.parentName}},{{$data.childName}},{{childName}}{{/child}}{{/parent}}'
+      '{{$root.rootName}},{{$parent.rootName}},{{$this.rootName}},{{rootName}}|',
+      '{{#parent}}{{$root.rootName}},{{$parent.rootName}},{{$this.parentName}},{{parentName}}|',
+      '{{#child}}{{$root.rootName}},{{$parent.parentName}},{{$this.childName}},{{childName}}{{/child}}{{/parent}}'
     ].join('');
     var result = this.core.transformSection(template, context);
     assertEquals('aaa,,aaa,aaa|aaa,aaa,bbb,bbb|aaa,bbb,ccc,ccc', result);
@@ -122,7 +122,7 @@ testCase('core', {
       ]
     };
     var context = this.core.createInitialContext(obj);
-    var result = this.core.transformSection('[ {{#people}}{{$data}}\n{{/people}} ]', context);
+    var result = this.core.transformSection('[ {{#people}}{{$this}}\n{{/people}} ]', context);
     assertEquals('[ aaa\nbbb\n]', result);
   },
 
