@@ -156,7 +156,7 @@
       var regex = new RegExp([
         '{{',
         '([#/!{])?(.+?)\\1?', // $1, $2
-        '}}'
+        '}}+'
       ].join(''), 'g');
       return function (template, context) {
         var find = function (name) {
@@ -248,12 +248,17 @@
       return context;
     },
 
+    toHtml: function (template, data) {
+      var context = core.createInitialContext(data);
+      return core.transform(template, context);
+    },
+
     render: function (container, data) {
       if (typeof container === 'string') {
         container = document.getElementById(container);
       }
       var template = core.parse(container);
-      return core.transform(template, core.createInitialContext(data));
+      return core.toHtml(template, data);
     }
 
   };

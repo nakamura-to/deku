@@ -156,6 +156,18 @@ testCase('core', {
     var context = this.core.createInitialContext(obj);
     var result = this.core.transform('[ {{#person}}{{name}} is {{age}} years old.{{/person}} ]', context);
     assertEquals('[ aaa is 1 years old.]', result);
+  },
+
+  'test toHtml : encode': function () {
+    var obj = { value: '<b>' };
+    var result = this.core.transform('{{value}}', obj);
+    assertEquals('&lt;b&gt;', result);
+  },
+
+  'test toHtml : disable encode': function () {
+    var obj = { value: '<b>' };
+    var result = this.core.transform('{{{value}}}', obj);
+    assertEquals('<b>', result);
   }
 
 });
