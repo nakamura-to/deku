@@ -97,6 +97,13 @@ testCase('util', {
     assertEquals('123', this.util.encodeHtml(123));
     assertEquals('', this.util.encodeHtml(null));
     assertEquals('', this.util.encodeHtml(undefined));
+  },
+
+  'test uniqueId': function () {
+    var id1 = this.util.uniqueId();
+    var id2 = this.util.uniqueId();
+    assertEquals(1, id2 - id1);
+    assertEquals('hoge' + (id2 + 1), this.util.uniqueId('hoge'));
   }
 
 });

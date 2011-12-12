@@ -67,6 +67,14 @@
           }
         });
       };
+    }()),
+
+    uniqueId: (function () {
+      var counter = 0;
+      return function (prefix) {
+        var id = counter++;
+        return prefix ? prefix + id : id;
+      };
     }())
 
   };
@@ -253,12 +261,9 @@
       return core.transform(template, context);
     },
 
-    render: function (container, data) {
-      if (typeof container === 'string') {
-        container = document.getElementById(container);
-      }
-      var template = core.parse(container);
-      return core.toHtml(template, data);
+    render: function (element, data) {
+      var template = core.parse(element);
+      var html = core.toHtml(template, data);
     }
 
   };
