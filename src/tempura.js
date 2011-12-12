@@ -107,6 +107,10 @@
           }
         }
       }
+    },
+
+    isElement: function (obj) {
+      return obj.nodeType && obj.nodeType === 1;
     }
 
   };
@@ -261,9 +265,35 @@
       return core.transform(template, context);
     },
 
+    getTemplate: (function () {
+      var TEMPURA_ID = "__tempura__";
+      var cache = {};
+      return function (element) {
+        var template;
+        var id = element[TEMPURA_ID];
+        if (!id) {
+          id = util.uniqueId('tempura');
+          element[TEMPURA_ID] = id;
+        }
+        template = cache[id];
+        if (template === null || template === undefined) {
+          template = element.innerHTML;
+          cache[id] = template;
+        }
+        return template;
+      };
+    }()),
+
     render: function (element, data) {
-      var template = core.parse(element);
-      var html = core.toHtml(template, data);
+      var template;
+      var html;
+      if (!dom.isElement(element)) {
+        throw new Error('argument "element" is not an element.');
+      }
+      template = core.getTemplate(element);
+      html = core.toHtml(template, data);
+      // todo. we needs to remove children before set html ?
+      element.innerHTML = html;
     }
 
   };

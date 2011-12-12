@@ -167,16 +167,26 @@ testCase('core', {
     assertEquals('[ aaa is 1 years old.]', result);
   },
 
-  'test toHtml : encode': function () {
+  'test toHtml: encode': function () {
     var obj = { value: '<b>' };
     var result = this.core.transform('{{value}}', obj);
     assertEquals('&lt;b&gt;', result);
   },
 
-  'test toHtml : disable encode': function () {
+  'test toHtml: disable encode': function () {
     var obj = { value: '<b>' };
     var result = this.core.transform('{{{value}}}', obj);
     assertEquals('<b>', result);
+  },
+
+  'test getTemplate: ': function () {
+    /*:DOC +=
+     <div id="template"><div>Hello {{name}}</div></div>
+     */
+    var element = document.getElementById('template');
+    assertEquals('<div>Hello {{name}}</div>', this.core.getTemplate(element));
+    element.appendChild(document.createElement('div'));
+    assertEquals('<div>Hello {{name}}</div>', this.core.getTemplate(element));
   }
 
 });
