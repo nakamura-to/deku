@@ -69,6 +69,20 @@ testCase('util', {
     assertFalse(this.util.isString(undefined));
   },
 
+  'test isElement': function () {
+    /*:DOC += <div id="foo"></div> */
+    assertTrue(this.util.isElement(document.getElementById('foo')));
+    assertFalse(this.util.isElement({}));
+    assertFalse(this.util.isElement([]));
+    assertFalse(this.util.isElement(function () {}));
+    assertFalse(this.util.isElement('aaa'));
+    assertFalse(this.util.isElement(1));
+    assertFalse(this.util.isElement(new Date()));
+    assertFalse(this.util.isElement(/aaa/));
+    assertFalse(this.util.isElement(null));
+    assertFalse(this.util.isElement(undefined));
+  },
+
   'test trim': function () {
     assertEquals('abc', this.util.trim('  abc  '));
   },

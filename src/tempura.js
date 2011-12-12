@@ -26,6 +26,13 @@
       return util.toString.call(obj) === '[object String]';
     },
 
+    isElement: function (obj) {
+      if (obj && obj.nodeType !== undefined && obj.nodeType === 1) {
+        return true;
+      }
+      return false;
+    },
+
     trim: (function () {
       var regex = /^¥s*|¥s*$/g;
       return function (s) {
@@ -76,42 +83,6 @@
         return prefix ? prefix + id : id;
       };
     }())
-
-  };
-
-  var dom = {
-
-    hasTempuraAttr: function (el) {
-      return el && el.hasAttribute && el.hasAttribute('data-tempura');
-    },
-
-    isNested: function (el) {
-      var p = el.parentNode;
-      while (p) {
-        if (dom.hasTempuraAttr(p)) {
-          return true;
-        }
-        p = p.parentNode;
-      }
-      return false;
-    },
-
-    clear: function (el) {
-      var i;
-      var child;
-      if (el && el.childNodes) {
-        for (i = el.childNodes.length; i >= 0; i--) {
-          child = el.childNodes[i];
-          if (child && dom.hasTempuraAttr(child)) {
-            el.removeChild(child);
-          }
-        }
-      }
-    },
-
-    isElement: function (obj) {
-      return obj.nodeType && obj.nodeType === 1;
-    }
 
   };
 
@@ -287,7 +258,7 @@
     render: function (element, data) {
       var template;
       var html;
-      if (!dom.isElement(element)) {
+      if (!util.isElement(element)) {
         throw new Error('argument "element" is not an element.');
       }
       template = core.getTemplate(element);
@@ -308,7 +279,6 @@
     // internal
     internal: {
       util: util,
-      dom: dom,
       core: core
     }
   };
