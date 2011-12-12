@@ -117,13 +117,13 @@
 
   var core = {
 
-    TEMPURA_MARK: '$tempura',
+    TEMPURA_CONTEXT_MARK: '__tempura__',
 
     ROOT_CONTEXT: '$root',
 
     PARENT_CONTEXT: '$parent',
 
-    THIS_CONTEXT: '$this',
+    THIS: '$this',
 
     includes: function (directive, template) {
       return template.indexOf('{{' + directive) !== -1;
@@ -150,15 +150,15 @@
 
     createContext: function (parent, data) {
       var context = data;
-      if (!data[core.TEMPURA_MARK]) {
-        if (!parent[core.TEMPURA_MARK]) {
+      if (!data[core.TEMPURA_CONTEXT_MARK]) {
+        if (!parent[core.TEMPURA_CONTEXT_MARK]) {
           throw new Error('illegal parent context.');
         }
         context = {};
-        context[core.TEMPURA_MARK] = true;
+        context[core.TEMPURA_CONTEXT_MARK] = true;
         context[core.ROOT_CONTEXT] = parent[core.ROOT_CONTEXT];
         context[core.PARENT_CONTEXT] = parent;
-        context[core.THIS_CONTEXT] = data;
+        context[core.THIS] = data;
         util.extend(context, data);
       }
       return context;
@@ -252,10 +252,10 @@
 
     createInitialContext: function (data) {
       var context = {};
-      context[core.TEMPURA_MARK] = true;
-      context[core.ROOT_CONTEXT] = data;
+      context[core.TEMPURA_CONTEXT_MARK] = true;
+      context[core.ROOT_CONTEXT] = context;
       context[core.PARENT_CONTEXT] = null;
-      context[core.THIS_CONTEXT] = data;
+      context[core.THIS] = data;
       util.extend(context, data);
       return context;
     },

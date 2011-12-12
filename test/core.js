@@ -64,10 +64,10 @@ testCase('core', {
   'test createInitialContext': function () {
     var obj = {};
     var context = this.core.createInitialContext(obj);
-    assertTrue(context[this.core.TEMPURA_MARK]);
-    assertEquals(obj, context[this.core.ROOT_CONTEXT]);
+    assertTrue(context[this.core.TEMPURA_CONTEXT_MARK]);
+    assertSame(context, context[this.core.ROOT_CONTEXT]);
     assertNull(context[this.core.PARENT_CONTEXT]);
-    assertEquals(obj, context[this.core.THIS_CONTEXT]);
+    assertEquals(obj, context[this.core.THIS]);
   },
 
   'test transformTags': function () {
