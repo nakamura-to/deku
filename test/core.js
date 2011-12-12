@@ -61,6 +61,15 @@ testCase('core', {
     assertFalse(this.core.includes('#', '<div>name</div>'));
   },
 
+  'test createInitialContext': function () {
+    var obj = {};
+    var context = this.core.createInitialContext(obj);
+    assertTrue(context[this.core.TEMPURA_MARK]);
+    assertEquals(obj, context[this.core.ROOT_CONTEXT]);
+    assertNull(context[this.core.PARENT_CONTEXT]);
+    assertEquals(obj, context[this.core.THIS_CONTEXT]);
+  },
+
   'test transformTags': function () {
     var obj = {
       name: 'hoge',

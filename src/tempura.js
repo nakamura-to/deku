@@ -105,7 +105,7 @@
 
   var core = {
 
-    TEMPURA_CONTEXT: '$tempura',
+    TEMPURA_MARK: '$tempura',
 
     ROOT_CONTEXT: '$root',
 
@@ -138,12 +138,12 @@
 
     createContext: function (parent, data) {
       var context = data;
-      if (!data[core.TEMPURA_CONTEXT]) {
-        if (!parent[core.TEMPURA_CONTEXT]) {
+      if (!data[core.TEMPURA_MARK]) {
+        if (!parent[core.TEMPURA_MARK]) {
           throw new Error('illegal parent context.');
         }
         context = {};
-        context[core.TEMPURA_CONTEXT] = true;
+        context[core.TEMPURA_MARK] = true;
         context[core.ROOT_CONTEXT] = parent[core.ROOT_CONTEXT];
         context[core.PARENT_CONTEXT] = parent;
         context[core.THIS_CONTEXT] = data;
@@ -240,7 +240,7 @@
 
     createInitialContext: function (data) {
       var context = {};
-      context[core.TEMPURA_CONTEXT] = true;
+      context[core.TEMPURA_MARK] = true;
       context[core.ROOT_CONTEXT] = data;
       context[core.PARENT_CONTEXT] = null;
       context[core.THIS_CONTEXT] = data;
