@@ -27,7 +27,7 @@
     },
 
     isElement: function (obj) {
-      if (obj && obj.nodeType !== undefined && obj.nodeType === 1) {
+      if (obj && typeof obj.nodeType !== 'undefined' && obj.nodeType === 1) {
         return true;
       }
       return false;
@@ -50,7 +50,7 @@
         source = args[i];
         for (prop in source) {
           if (util.hasOwnProperty.call(source, prop)) {
-            if (obj[prop] === undefined) {
+            if (typeof obj[prop] === 'undefined') {
               obj[prop] = source[prop];
             }
           }
@@ -62,7 +62,7 @@
     encodeHtml: (function () {
       var regex = /[&"'<>]/g;
       return function (html) {
-        html = (html === null || html === undefined) ? '' : String(html);
+        html = (html === null || typeof html === 'undefined') ? '' : String(html);
         return html.replace(regex, function (s) {
           switch (s) {
           case '&': return '&amp;';
@@ -104,7 +104,7 @@
       var path = name.split('.');
       var context = object;
       var value = context[path.shift()];
-      while (value !== undefined && value !== null && path.length > 0) {
+      while (value !== null && typeof value !== 'undefined' && path.length > 0) {
         context = value;
         value = context[path.shift()];
       }
@@ -145,7 +145,7 @@
         var find = function (name) {
           var value = core.find(name, context);
           // todo how to handle undefined ?
-          return value === undefined ? '' : value;
+          return typeof value === 'undefined' ? '' : value;
         };
         var callback = function (match, directive, name) {
           switch (directive) {
@@ -247,7 +247,7 @@
           element[TEMPURA_ID] = id;
         }
         template = cache[id];
-        if (template === null || template === undefined) {
+        if (template === null || typeof template === 'undefined') {
           template = element.innerHTML;
           cache[id] = template;
         }
