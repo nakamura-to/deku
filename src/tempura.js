@@ -27,18 +27,12 @@
     },
 
     isElement: function (obj) {
-      if (obj && typeof obj.nodeType !== 'undefined' && obj.nodeType === 1) {
-        return true;
-      }
-      return false;
+      return obj !== null && typeof obj !== 'undefined' && obj.nodeType === 1;
     },
 
-    trim: (function () {
-      var regex = /^¥s*|¥s*$/g;
-      return function (s) {
-        return s.replace(regex, '');
-      };
-    }()),
+    trim: function (s) {
+      return s.replace(/^¥s*|¥s*$/g, '');
+    },
 
     extend: function (obj) {
       var args = util.slice.call(arguments, 1);
