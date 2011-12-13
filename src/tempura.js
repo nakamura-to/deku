@@ -153,7 +153,7 @@
     transformTags: (function () {
       var regex = new RegExp([
         '{{',
-        '([#/!{])?(.+?)\\1?', // $1, $2
+        '([#\\^/!{])?(.+?)\\1?', // $1, $2
         '}}+'
       ].join(''), 'g');
       return function (template, context) {
@@ -168,6 +168,7 @@
         var callback = function (match, directive, name) {
           switch (directive) {
           case '#': return '{{#' + name + '}}';
+          case '^': return '{{^' + name + '}}';
           case '/': return '{{/' + name + '}}';
           case '!': return '';
           case '{': return find(name);
@@ -188,7 +189,7 @@
       var regex = new RegExp([
         '^([\\s\\S]*?)',   // $1
         '{{',
-        '(#)\\s*(.+)\\s*', // $2, $3
+        '([#\\^])\\s*(.+)\\s*', // $2, $3
         '}}',
         '\n*([\\s\\S]*?)', // $4
         '{{',
@@ -197,12 +198,12 @@
         '\\s*([\\s\\S]*)$' // $5
       ].join(''), 'g');
       return function (template, context) {
-        if (!core.includes('#', template)) {
+        if (!core.includes('#', template) && !core.includes('^', template)) {
           return false;
         }
         return template.replace(regex, function (match, before, type, name, content, after) {
           var renderedBefore = before ? core.transformTags(before, context) : '';
-          var renderedAfter = after ? core.transformTags(after, context) : '';
+          var renderedAfter = after ? core.transform(after, context) : '';
           var value = core.find(name, context);
           var renderedContent = (function () {
             if (type === '#') {
@@ -216,11 +217,13 @@
                   }
                   return array.join('');
                 }());
-              }
-              if (util.isObject(value)) {
+              } else if (util.isObject(value)) {
                 return core.transform(content, core.createContext(context, value));
+              } else if (value) {
+                return core.transform(content, context);
               }
-              if (value) {
+            } else if (type === '^') {
+              if ((util.isArray(value) && value.length === 0) || !value) {
                 return core.transform(content, context);
               }
             }
@@ -284,6 +287,12 @@
       html = core.toHtml(template, data, options);
       // todo. we need to remove children before set html ?
       element.innerHTML = html;
+    },
+
+    prepare: function (template, options) {
+      return function (data) {
+        return core.toHtml(template, data, options);
+      };
     }
 
   };
@@ -306,6 +315,12 @@
       opts = util.extend({}, opts, core.options);
       core.render(element, data, opts);
       opts.afterRender(element);
+    },
+
+    prepare: function (template, options) {
+      var opts = options || {};
+      opts = util.extend({}, opts, core.options);
+      return core.prepare(template, opts);
     },
 
     // internal

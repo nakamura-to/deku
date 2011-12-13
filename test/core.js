@@ -147,6 +147,15 @@ testCase('core', {
     assertEquals('[ aaa is 1 years old.]', result);
   },
 
+  'test transformSection: bool': function () {
+    var obj = {
+      value: true
+    };
+    var context = this.core.createInitialContext(obj);
+    var result = this.core.transformSection('[ {{#value}}aaa{{/value}}{{^value}}bbb{{/value}} ]', context);
+    assertEquals('[ aaa]', result);
+  },
+
   'test transform: tags': function () {
     var obj = {
       name: 'hoge',

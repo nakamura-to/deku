@@ -14,13 +14,22 @@
         {{/people}}
         </ul>
     </div>
+    <div id="view3" style="display: none;">
+        {{#value}}
+        aaa
+        {{/value}}
+        {{^value}}
+        bbb
+        {{/value}}
+    </div>
     <script src="src/tempura.js"></script>
     <script>
         function el(id) {
             return document.getElementById(id);
         };
-        tempura.render(el('view'), {name:'hoge'});
+        tempura.render(el('view'), {name: 'hoge'});
         tempura.render(el('view2'), {people: [{name: 'aaa'}, {name: 'bbb'}, {name: 'ccc'}]});
+        tempura.render(el('view3'), {value: false});
     </script>
 </body>
 </html>
