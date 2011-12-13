@@ -168,15 +168,21 @@ testCase('core', {
   },
 
   'test toHtml: encode': function () {
-    var obj = { value: '<b>' };
-    var result = this.core.transform('{{value}}', obj);
-    assertEquals('&lt;b&gt;', result);
+    var obj = { str: '<a>', num: 1, f : function () { return '<b>'; } };
+    var result = this.core.toHtml('{{str}},{{num}},{{f}}', obj);
+    assertEquals('&lt;a&gt;,1,&lt;b&gt;', result);
   },
 
   'test toHtml: disable encode': function () {
-    var obj = { value: '<b>' };
-    var result = this.core.transform('{{{value}}}', obj);
-    assertEquals('<b>', result);
+    var obj = { str: '<a>', num: 1, f : function () { return '<b>'; } };
+    var result = this.core.toHtml('{{{str}}},{{{num}}},{{{f}}}', obj);
+    assertEquals('<a>,1,<b>', result);
+  },
+
+  'test toHtml: function': function () {
+    var obj = { str: '<a>', num: 1, f : function () { return this.$root.str; } };
+    var result = this.core.toHtml('{{f}}', obj);
+    assertEquals('&lt;a&gt;', result);
   },
 
   'test getTemplate: ': function () {

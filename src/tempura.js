@@ -94,7 +94,11 @@
 
     options: {
       convert: function (name, value, context) {
-        return typeof value === 'undefined' ? '' : value;
+        var result = value;
+        if (util.isFunction(value)) {
+          result = value.call(context);
+        }
+        return typeof result === 'undefined' ? '' : result;
       },
       afterRender: function (element) {
         // todo
