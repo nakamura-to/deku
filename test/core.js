@@ -120,7 +120,7 @@ testCase('core', {
     };
     var context = this.core.createInitialContext(obj);
     var result = this.core.transformSection('[ {{#people}}{{name}} is {{age}} years old.\n{{/people}} ]', context);
-    assertEquals('[ aaa is 1 years old.\nbbb is 2 years old.\n]', result);
+    assertEquals('[ aaa is 1 years old.\nbbb is 2 years old.\n ]', result);
   },
 
   'test transformSection: array of string': function () {
@@ -132,7 +132,7 @@ testCase('core', {
     };
     var context = this.core.createInitialContext(obj);
     var result = this.core.transformSection('[ {{#people}}{{$this}}\n{{/people}} ]', context);
-    assertEquals('[ aaa\nbbb\n]', result);
+    assertEquals('[ aaa\nbbb\n ]', result);
   },
 
   'test transformSection: object': function () {
@@ -144,7 +144,7 @@ testCase('core', {
     };
     var context = this.core.createInitialContext(obj);
     var result = this.core.transformSection('[ {{#person}}{{name}} is {{age}} years old.{{/person}} ]', context);
-    assertEquals('[ aaa is 1 years old.]', result);
+    assertEquals('[ aaa is 1 years old. ]', result);
   },
 
   'test transformSection: bool': function () {
@@ -153,7 +153,7 @@ testCase('core', {
     };
     var context = this.core.createInitialContext(obj);
     var result = this.core.transformSection('[ {{#value}}aaa{{/value}}{{^value}}bbb{{/value}} ]', context);
-    assertEquals('[ aaa]', result);
+    assertEquals('[ aaa ]', result);
   },
 
   'test transform: tags': function () {
@@ -173,7 +173,7 @@ testCase('core', {
     };
     var context = this.core.createInitialContext(obj);
     var result = this.core.transform('[ {{#person}}{{name}} is {{age}} years old.{{/person}} ]', context);
-    assertEquals('[ aaa is 1 years old.]', result);
+    assertEquals('[ aaa is 1 years old. ]', result);
   },
 
   'test toHtml: encode': function () {

@@ -195,7 +195,7 @@
         '{{',
         '\\/\\s*\\3\\s*',
         '}}',
-        '\\s*([\\s\\S]*)$' // $5
+        '\n*([\\s\\S]*)$' // $5
       ].join(''), 'g');
       return function (template, context) {
         if (!core.includes('#', template) && !core.includes('^', template)) {
