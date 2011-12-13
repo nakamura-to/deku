@@ -84,11 +84,27 @@
 
     TEMPURA_CONTEXT_MARK: '__tempura__',
 
+    TEMPURA_OPTIONS: '__tempura__options',
+
     ROOT_CONTEXT: '$root',
 
     PARENT_CONTEXT: '$parent',
 
     THIS: '$this',
+
+    options: {
+      convert: function (name, value, context) {
+        return typeof value === 'undefined' ? '' : value;
+      },
+      afterRender: function (element) {
+        // todo
+        if (element.style.removeAttribute) {
+          element.style.removeAttribute('display');
+        } else {
+          element.style.removeProperty('display');
+        }
+      }
+    },
 
     includes: function (directive, template) {
       return template.indexOf('{{' + directive) !== -1;
@@ -121,6 +137,7 @@
         }
         context = {};
         context[core.TEMPURA_CONTEXT_MARK] = true;
+        context[core.TEMPURA_OPTIONS] = parent[core.TEMPURA_OPTIONS];
         context[core.ROOT_CONTEXT] = parent[core.ROOT_CONTEXT];
         context[core.PARENT_CONTEXT] = parent;
         context[core.THIS] = data;
@@ -138,8 +155,11 @@
       return function (template, context) {
         var find = function (name) {
           var value = core.find(name, context);
-          // todo how to handle undefined ?
-          return typeof value === 'undefined' ? '' : value;
+          var options = context[core.TEMPURA_OPTIONS];
+          if (typeof options === 'undefined') {
+            options = core.options;
+          }
+          return options.convert(name, value, context);
         };
         var callback = function (match, directive, name) {
           switch (directive) {
@@ -215,9 +235,10 @@
       return html;
     },
 
-    createInitialContext: function (data) {
+    createInitialContext: function (data, options) {
       var context = {};
       context[core.TEMPURA_CONTEXT_MARK] = true;
+      context[core.TEMPURA_OPTIONS] = options;
       context[core.ROOT_CONTEXT] = context;
       context[core.PARENT_CONTEXT] = null;
       context[core.THIS] = data;
@@ -225,8 +246,8 @@
       return context;
     },
 
-    toHtml: function (template, data) {
-      var context = core.createInitialContext(data);
+    toHtml: function (template, data, options) {
+      var context = core.createInitialContext(data, options);
       return core.transform(template, context);
     },
 
@@ -249,15 +270,15 @@
       };
     }()),
 
-    render: function (element, data) {
+    render: function (element, data, options) {
       var template;
       var html;
       if (!util.isElement(element)) {
         throw new Error('argument "element" is not an element.');
       }
       template = core.getTemplate(element);
-      html = core.toHtml(template, data);
-      // todo. we needs to remove children before set html ?
+      html = core.toHtml(template, data, options);
+      // todo. we need to remove children before set html ?
       element.innerHTML = html;
     }
 
@@ -266,9 +287,22 @@
   //noinspection JSUnusedGlobalSymbols
   global.tempura = {
 
-    // public
     version: '0.0.1',
-    render: core.render,
+
+    setGlobalOptions: function (options) {
+      core.options = options;
+    },
+
+    getGlobalOptions: function () {
+      return core.options;
+    },
+
+    render: function (element, data, options) {
+      var opts = options || {};
+      opts = util.extend({}, opts, core.options);
+      core.render(element, data, opts);
+      opts.afterRender(element);
+    },
 
     // internal
     internal: {

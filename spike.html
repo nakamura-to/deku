@@ -4,10 +4,10 @@
     <title></title>
 </head>
 <body>
-    <div id="template">
+    <div id="view">
         <input type="text" value="{{name}}">
     </div>
-    <div id="template2">
+    <div id="view2" style="display: none;">
         <ul>
         {{#people}}
             <li>{{name}}</li>
@@ -16,11 +16,11 @@
     </div>
     <script src="src/tempura.js"></script>
     <script>
-        function get(id) {
+        function el(id) {
             return document.getElementById(id);
         }
-        tempura.render(get('template'), {name:'hoge'});
-        tempura.render(get('template2'), {people: [{name: 'aaa'}, {name: 'bbb'}, {name: 'ccc'}]});
+        tempura.render(el('view'), {name:'hoge'});
+        tempura.render(el('view2'), {people: [{name: 'aaa'}, {name: 'bbb'}, {name: 'ccc'}]});
     </script>
 </body>
 </html>
