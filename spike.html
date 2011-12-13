@@ -7,14 +7,14 @@
     <div id="view">
         <input type="text" value="{{name}}">
     </div>
-    <div id="view2" style="display: none;">
+    <div id="view2">
         <ul>
         {{#people}}
             <li>{{name}}</li>
         {{/people}}
         </ul>
     </div>
-    <div id="view3" style="display: none;">
+    <div id="view3">
         {{#value}}
         aaa
         {{/value}}
@@ -27,9 +27,20 @@
         function el(id) {
             return document.getElementById(id);
         };
-        tempura.render(el('view'), {name: 'hoge'});
-        tempura.render(el('view2'), {people: [{name: 'aaa'}, {name: 'bbb'}, {name: 'ccc'}]});
-        tempura.render(el('view3'), {value: false});
+        function getHtml(id) {
+            return el(id).innerHTML;
+        };
+        function setHtml(id, html) {
+            return el(id).innerHTML = html;
+        };
+        var template = tempura.prepare(getHtml('view'));
+        setHtml('view', template({name: 'hoge'}));
+
+        template = tempura.prepare(getHtml('view2'));
+        setHtml('view2', template({people: [{name: 'aaa'}, {name: 'bbb'}, {name: 'ccc'}]}));
+
+        template = tempura.prepare(getHtml('view3'));
+        setHtml('view3', template({value: true}));
     </script>
 </body>
 </html>

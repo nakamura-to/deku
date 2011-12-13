@@ -258,40 +258,10 @@
       return core.transform(template, context);
     },
 
-    getTemplate: (function () {
-      var TEMPURA_ID = "__tempura__";
-      var cache = {};
-      return function (element) {
-        var template;
-        var id = element[TEMPURA_ID];
-        if (!id) {
-          id = util.uniqueId('tempura');
-          element[TEMPURA_ID] = id;
-        }
-        template = cache[id];
-        if (template === null || typeof template === 'undefined') {
-          template = element.innerHTML;
-          cache[id] = template;
-        }
-        return template;
-      };
-    }()),
-
-    render: function (element, data, options) {
-      var template;
-      var html;
-      if (!util.isElement(element)) {
-        throw new Error('argument "element" is not an element.');
-      }
-      template = core.getTemplate(element);
-      html = core.toHtml(template, data, options);
-      // todo. we need to remove children before set html ?
-      element.innerHTML = html;
-    },
-
     prepare: function (template, options) {
       return function (data) {
-        return core.toHtml(template, data, options);
+        var html = core.toHtml(template, data, options);
+        return html;
       };
     }
 
@@ -308,13 +278,6 @@
 
     getGlobalOptions: function () {
       return core.options;
-    },
-
-    render: function (element, data, options) {
-      var opts = options || {};
-      opts = util.extend({}, opts, core.options);
-      core.render(element, data, opts);
-      opts.afterRender(element);
     },
 
     prepare: function (template, options) {

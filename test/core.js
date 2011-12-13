@@ -192,16 +192,6 @@ testCase('core', {
     var obj = { str: '<a>', num: 1, f : function () { return this.$root.str; } };
     var result = this.core.toHtml('{{f}}', obj);
     assertEquals('&lt;a&gt;', result);
-  },
-
-  'test getTemplate: ': function () {
-    /*:DOC +=
-     <div id="template"><div>Hello {{name}}</div></div>
-     */
-    var element = document.getElementById('template');
-    assertEquals('<div>Hello {{name}}</div>', this.core.getTemplate(element));
-    element.appendChild(document.createElement('div'));
-    assertEquals('<div>Hello {{name}}</div>', this.core.getTemplate(element));
   }
 
 });
