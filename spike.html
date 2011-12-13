@@ -15,12 +15,14 @@
         </ul>
     </div>
     <div id="view3">
-        {{#value}}
-        aaa
-        {{/value}}
-        {{^value}}
-        bbb
-        {{/value}}
+        {{! comment }}
+        {{#value}}aaa{{/value}} ccc
+        {{^value}}bbb{{/value}} ddd
+    </div>
+    <div id="view4">
+        {{! comment }}
+        {{#value}}aaa{{/value}} ccc
+        {{^value}}bbb{{/value}} ddd
     </div>
     <script src="src/tempura.js"></script>
     <script>
@@ -41,6 +43,9 @@
 
         template = tempura.prepare(getHtml('view3'));
         setHtml('view3', template({value: true}));
+
+        template = tempura.prepare(getHtml('view4'));
+        setHtml('view4', template({value: false}));
     </script>
 </body>
 </html>

@@ -26,10 +26,6 @@
       return util.toString.call(obj) === '[object String]';
     },
 
-    isElement: function (obj) {
-      return obj !== null && typeof obj !== 'undefined' && obj.nodeType === 1;
-    },
-
     trim: function (s) {
       return s.replace(/^¥s*|¥s*$/g, '');
     },
@@ -40,10 +36,13 @@
       var i;
       var source;
       var prop;
+      if (obj === null || typeof obj === 'undefined') {
+        return obj;
+      }
       for (i = 0; i < len; i++) {
         source = args[i];
-        for (prop in source) {
-          if (util.hasOwnProperty.call(source, prop)) {
+        if (source !== null && typeof source !== 'undefined') {
+          for (prop in source) {
             if (typeof obj[prop] === 'undefined') {
               obj[prop] = source[prop];
             }
@@ -68,14 +67,6 @@
           }
         });
       };
-    }()),
-
-    uniqueId: (function () {
-      var counter = 0;
-      return function (prefix) {
-        var id = counter++;
-        return prefix ? prefix + id : id;
-      };
     }())
 
   };
@@ -99,14 +90,6 @@
           result = value.call(context);
         }
         return typeof result === 'undefined' ? '' : result;
-      },
-      afterRender: function (element) {
-        // todo
-        if (element.style.removeAttribute) {
-          element.style.removeAttribute('display');
-        } else {
-          element.style.removeProperty('display');
-        }
       }
     },
 
@@ -114,9 +97,9 @@
       return template.indexOf('{{' + directive) !== -1;
     },
 
-    walkObject: function (name, object) {
+    walkObject: function (name, obj) {
       var path = name.split('.');
-      var context = object;
+      var context = obj;
       var value = context[path.shift()];
       while (value !== null && typeof value !== 'undefined' && path.length > 0) {
         context = value;
@@ -128,9 +111,9 @@
       return value;
     },
 
-    find: function (name, object) {
+    find: function (name, obj) {
       var n = util.trim(name);
-      return core.walkObject(n, object);
+      return core.walkObject(n, obj);
     },
 
     createContext: function (parent, data) {
@@ -259,8 +242,9 @@
     },
 
     prepare: function (template, options) {
+      var opts = util.extend({}, options, core.options);
       return function (data) {
-        var html = core.toHtml(template, data, options);
+        var html = core.toHtml(template, data, opts);
         return html;
       };
     }
@@ -273,7 +257,8 @@
     version: '0.0.1',
 
     setGlobalOptions: function (options) {
-      core.options = options;
+      var original = core.options;
+      core.options = util.extend({}, options, original);
     },
 
     getGlobalOptions: function () {
@@ -281,9 +266,7 @@
     },
 
     prepare: function (template, options) {
-      var opts = options || {};
-      opts = util.extend({}, opts, core.options);
-      return core.prepare(template, opts);
+      return core.prepare(template, options);
     },
 
     // internal

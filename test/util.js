@@ -69,20 +69,6 @@ testCase('util', {
     assertFalse(this.util.isString(undefined));
   },
 
-  'test isElement': function () {
-    /*:DOC += <div id="foo"></div> */
-    assertTrue(this.util.isElement(document.getElementById('foo')));
-    assertFalse(this.util.isElement({}));
-    assertFalse(this.util.isElement([]));
-    assertFalse(this.util.isElement(function () {}));
-    assertFalse(this.util.isElement('aaa'));
-    assertFalse(this.util.isElement(1));
-    assertFalse(this.util.isElement(new Date()));
-    assertFalse(this.util.isElement(/aaa/));
-    assertFalse(this.util.isElement(null));
-    assertFalse(this.util.isElement(undefined));
-  },
-
   'test trim': function () {
     assertEquals('abc', this.util.trim('  abc  '));
   },
@@ -111,13 +97,6 @@ testCase('util', {
     assertEquals('123', this.util.encodeHtml(123));
     assertEquals('', this.util.encodeHtml(null));
     assertEquals('', this.util.encodeHtml(undefined));
-  },
-
-  'test uniqueId': function () {
-    var id1 = this.util.uniqueId();
-    var id2 = this.util.uniqueId();
-    assertEquals(1, id2 - id1);
-    assertEquals('hoge' + (id2 + 1), this.util.uniqueId('hoge'));
   }
 
 });
