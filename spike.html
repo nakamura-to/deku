@@ -5,7 +5,7 @@
 </head>
 <body>
     <div id="view">
-        <input type="text" value="{{name}}">
+        {{name | enclose }}
     </div>
     <div id="view2">
         <ul>
@@ -35,17 +35,23 @@
         function setHtml(id, html) {
             return el(id).innerHTML = html;
         };
-        var template = tempura.prepare(getHtml('view'));
+        var template = tempura.prepare(getHtml('view'), {
+            formatters: {
+                enclose: function (value) {
+                    return '[' + value + ']';
+                }
+            }
+        });
         setHtml('view', template({name: 'hoge'}));
 
-        template = tempura.prepare(getHtml('view2'));
-        setHtml('view2', template({people: [{name: 'aaa'}, {name: 'bbb'}, {name: 'ccc'}]}));
+        //template = tempura.prepare(getHtml('view2'));
+        //setHtml('view2', template({people: [{name: 'aaa'}, {name: 'bbb'}, {name: 'ccc'}]}));
 
-        template = tempura.prepare(getHtml('view3'));
-        setHtml('view3', template({value: true}));
+        //template = tempura.prepare(getHtml('view3'));
+        //setHtml('view3', template({value: true}));
 
-        template = tempura.prepare(getHtml('view4'));
-        setHtml('view4', template({value: false}));
+        //template = tempura.prepare(getHtml('view4'));
+        //setHtml('view4', template({value: false}));
     </script>
 </body>
 </html>

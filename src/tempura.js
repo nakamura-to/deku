@@ -83,18 +83,17 @@
 
     THIS: '$this',
 
-    options: {},
-
     includes: function (directive, template) {
       return template.indexOf('{{' + directive) !== -1;
     },
 
-    walk: function (name, context) {
-      var path = name.split('.');
-      var value = context[path.shift()];
-      while (value !== null && value !== undef && path.length > 0) {
+    walk: function (path, context) {
+      var nomalizedPath = util.trim(path);
+      var names = nomalizedPath.split('.');
+      var value = context[names.shift()];
+      while (value !== null && value !== undef && names.length > 0) {
         context = value;
-        value = context[path.shift()];
+        value = context[names.shift()];
       }
       if (util.isFunction(value)) {
         return value.call(context);
@@ -102,9 +101,8 @@
       return value;
     },
 
-    find: function (name, obj) {
-      var n = util.trim(name);
-      return core.walk(n, obj);
+    find: function (path, obj) {
+      return core.walk(path, obj);
     },
 
     createContext: function (parent, data) {
@@ -127,36 +125,57 @@
     transformTags: (function () {
       var regex = new RegExp([
         '{{',
-        '([#\\^/!{])?(.+?)\\1?', // $1, $2
+        '([#\\^/!{])?(.+?)(?:\\|(.*?))?', // $1, $2, $3
         '}}+'
       ].join(''), 'g');
-      var getValue = function (name, context) {
-        var value = core.find(name, context);
+      var format = function (value, fmtName, context) {
+        var formatter;
+        var globalFormatter;
         var options = context[core.TEMPURA_OPTIONS];
         if (options === undef) {
-          options = core.options;
+          return value;
         }
+        if (options.formatters !== undef) {
+          formatter = options.formatters[fmtName];
+        }
+        globalFormatter = options.globalFormatter;
+        if (util.isFunction(formatter)) {
+          value = formatter.call(context, value);
+        }
+        if (util.isFunction(globalFormatter)) {
+          value = globalFormatter.call(context, value);
+        }
+        return value;
+      };
+      var getValue = function (path, fmtName, context) {
+        var value = core.find(path, context);
         if (util.isFunction(value)) {
           value = value.call(context);
         }
-        return value === undef ? '' : value;
+        if (util.isString(fmtName)) {
+          fmtName = util.trim(fmtName);
+          value = format(value, fmtName, context);
+        }
+        return value;
       };
       return function (template, context) {
-        var callback = function (match, directive, name) {
+        var callback = function (match, directive, path, fmtName) {
           var value;
           switch (directive) {
           case '#':
-            return '{{#' + name + '}}';
+            return '{{#' + path + '}}';
           case '^':
-            return '{{^' + name + '}}';
+            return '{{^' + path + '}}';
           case '/':
-            return '{{/' + name + '}}';
+            return '{{/' + path + '}}';
           case '!':
             return '';
           case '{':
-            return getValue(name, context);
+            // todo
+            return getValue(path, fmtName, context);
           default:
-            value = getValue(name, context);
+            // todo
+            value = getValue(path, fmtName, context);
             return util.encodeHtml(value);
           }
         };
@@ -246,9 +265,8 @@
     },
 
     prepare: function (template, options) {
-      var opts = util.extend({}, options, core.options);
       return function (data) {
-        var html = core.toHtml(template, data, opts);
+        var html = core.toHtml(template, data, options);
         return html;
       };
     }
@@ -256,20 +274,22 @@
   };
 
   //noinspection JSUnusedGlobalSymbols
-  global.tempura = {
+  var tempura = {
 
     version: '0.0.1',
 
-    setGlobalOptions: function (options) {
-      var original = core.options;
-      core.options = util.extend({}, options, original);
-    },
+    formatters: {},
 
-    getGlobalOptions: function () {
-      return core.options;
+    globalFormatter: function (value) {
+      return typeof value === 'undefined' ? '' : value;
     },
 
     prepare: function (template, options) {
+      var opts = {
+        formatters: {},
+        globalFormatter: tempura.globalFormatter
+      };
+      util.extend(opts.formatters, options.formatters, tempura.formatters);
       return core.prepare(template, options);
     },
 
@@ -279,5 +299,7 @@
       core: core
     }
   };
+
+  global.tempura = tempura;
 
 }(window));

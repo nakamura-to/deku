@@ -75,7 +75,26 @@ testCase('core', {
       name: 'hoge',
       age: 20
     };
-    assertEquals('hoge is 20 years old.', this.core.transformTags('{{name}} is {{age}} years old.', obj));
+    var context = this.core.createInitialContext(obj);
+    var result = this.core.transformTags('{{name}} is {{age}} years old.', context);
+    assertEquals('hoge is 20 years old.', result);
+  },
+
+  'test transformTags: format': function () {
+    var obj = {
+      name: 'hoge',
+      age: 20
+    };
+    var options = {
+      formatters: {
+        enclose: function (value) {
+          return '[' + value + ']';
+        }
+      }
+    };
+    var context = this.core.createInitialContext(obj, options);
+    var result = this.core.transformTags('{{name | enclose}} is {{age | enclose}} years old.', context);
+    assertEquals('[hoge] is [20] years old.', result);
   },
 
   'test transformSection: template does not contain #': function () {
