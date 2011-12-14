@@ -105,8 +105,10 @@
     },
 
     createContext: function (parent, data) {
-      var context = data;
-      if (!data[core.TEMPURA_CONTEXT_MARK]) {
+      var context;
+      if (data[core.TEMPURA_CONTEXT_MARK]) {
+        return data;
+      } else {
         if (!parent[core.TEMPURA_CONTEXT_MARK]) {
           throw new Error('illegal parent context.');
         }
@@ -116,9 +118,8 @@
         context[core.ROOT_CONTEXT] = parent[core.ROOT_CONTEXT];
         context[core.PARENT_CONTEXT] = parent;
         context[core.THIS] = data;
-        util.extend(context, data);
+        return util.extend(context, data);
       }
-      return context;
     },
 
     format: function (value, fmtName, context) {

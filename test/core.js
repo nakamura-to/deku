@@ -46,6 +46,30 @@ testCase('core', {
     assertEquals(undefined, this.core.find('unknown', context).value);
   },
 
+  'test createContext. data should be returned when it is a tempura context.' : function () {
+    var parent = {};
+    var data = {};
+    data[this.core.TEMPURA_CONTEXT_MARK] = true;
+    assertEquals(data, this.core.createContext(parent, data));
+  },
+
+  'test createContext. a new context should be returned when data is a plain object.' : function () {
+    var parent = {};
+    var data = {};
+    var context;
+    parent[this.core.TEMPURA_CONTEXT_MARK] = true;
+    parent[this.core.TEMPURA_OPTIONS] = {};
+    parent[this.core.ROOT_CONTEXT] = {};
+    parent[this.core.PARENT_CONTEXT] = {};
+    parent[this.core.THIS] = {};
+    context = this.core.createContext(parent, data);
+    assertTrue(context[this.core.TEMPURA_CONTEXT_MARK]);
+    assertSame(parent[this.core.TEMPURA_OPTIONS], context[this.core.TEMPURA_OPTIONS]);
+    assertSame(parent[this.core.ROOT_CONTEXT], context[this.core.ROOT_CONTEXT]);
+    assertSame(parent, context[this.core.PARENT_CONTEXT]);
+    assertSame(data, context[this.core.THIS]);
+  },
+
   'test includes': function () {
     assertTrue(this.core.includes('#', '<div>{{#name}}</div>'));
     assertFalse(this.core.includes('#', '<div>name</div>'));
