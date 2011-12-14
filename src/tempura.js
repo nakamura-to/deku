@@ -1,6 +1,8 @@
 /*jslint browser: true, forin: true, indent:2, plusplus: true, vars: true */
-(function (global, undef) {
+(function (global) {
   'use strict';
+
+  var undef;
 
   var util = {
 
