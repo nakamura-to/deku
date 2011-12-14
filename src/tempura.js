@@ -30,7 +30,7 @@
       if (!util.isString(s)) {
         throw new Error('"' + s + '" is not string.');
       }
-      return s.replace(/^¥s*|¥s*$/g, '');
+      return s.replace(/^\s*|\s*$/g, '');
     },
 
     extend: function (obj) {
