@@ -201,6 +201,18 @@ testCase('core', {
     assertEquals('[ aaa\nbbb\n ]', result);
   },
 
+  'test transformSection: function': function () {
+    var obj = {
+      value: 'hoge',
+      isOk: function () {
+        return true;
+      }
+    };
+    var context = this.core.createInitialContext(obj);
+    var result = this.core.transformSection('[ {{#isOk}}{{value}}{{/isOk}} ]', context);
+    assertEquals('[ hoge ]', result);
+  },
+
   'test transformSection: object': function () {
     var obj = {
       person: {

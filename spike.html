@@ -5,7 +5,9 @@
 </head>
 <body>
     <div id="view">
-        {{ name | enclose }}
+        {{#go}}
+            {{name}}
+        {{/go}}
     </div>
     <div id="view2">
         <ul>
@@ -35,17 +37,11 @@
         function setHtml(id, html) {
             return el(id).innerHTML = html;
         };
-        var template = tempura.prepare(getHtml('view'), {
-            formatters: {
-                enclose: function (value) {
-                    return '[' + value + ']';
-                }
-            }
-        });
+        var template = tempura.prepare(getHtml('view'));
         setHtml('view', template(
                 {name: 'hoge',
-                enclose: function(value) {
-                    return '$' + value + '$'
+                go: function() {
+                    return 123;
                 }}));
 
         //template = tempura.prepare(getHtml('view2'));

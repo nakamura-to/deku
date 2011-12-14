@@ -85,9 +85,11 @@
     },
 
     walk: function (path, context) {
-      var nomalizedPath = util.trim(path);
-      var names = nomalizedPath.split('.');
-      var value = context[names.shift()];
+      var names;
+      var value;
+      path = util.trim(path);
+      names = path.split('.');
+      value = context[names.shift()];
       while (value !== null && value !== undef && names.length > 0) {
         context = value;
         value = context[names.shift()];
@@ -125,7 +127,7 @@
       var formatter;
       var globalFormatter;
       var options = context[core.TEMPURA_OPTIONS];
-      fmtName = util.isString(fmtName) ?  util.trim(fmtName) : '';
+      fmtName = util.trim(fmtName);
       if (options !== undef) {
         if (options.formatters !== undef) {
           formatter = options.formatters[fmtName];
@@ -225,6 +227,11 @@
                   }
                   return array.join('');
                 }());
+              } else if (util.isFunction(value)) {
+                var bool = value.call(context);
+                if (bool) {
+                  return core.transform(content, context);
+                }
               } else if (util.isObject(value)) {
                 return core.transform(content, core.createContext(context, value));
               } else if (value) {
