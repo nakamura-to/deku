@@ -130,33 +130,43 @@
         '([#\\^/!{])?(.+?)\\1?', // $1, $2
         '}}+'
       ].join(''), 'g');
+      var getValue = function (name, context) {
+        var value = core.find(name, context);
+        var options = context[core.TEMPURA_OPTIONS];
+        if (options === undef) {
+          options = core.options;
+        }
+        if (util.isFunction(value)) {
+          value = value.call(context);
+        }
+        return value === undef ? '' : value;
+      };
       return function (template, context) {
-        var find = function (name) {
-          var value = core.find(name, context);
-          var options = context[core.TEMPURA_OPTIONS];
-          if (options === undef) {
-            options = core.options;
-          }
-          if (util.isFunction(value)) {
-            value = value.call(context);
-          }
-          return value === undef ? '' : value;
-        };
         var callback = function (match, directive, name) {
+          var value;
           switch (directive) {
-          case '#': return '{{#' + name + '}}';
-          case '^': return '{{^' + name + '}}';
-          case '/': return '{{/' + name + '}}';
-          case '!': return '';
-          case '{': return find(name);
-          default: return util.encodeHtml(find(name));
+          case '#':
+            return '{{#' + name + '}}';
+          case '^':
+            return '{{^' + name + '}}';
+          case '/':
+            return '{{/' + name + '}}';
+          case '!':
+            return '';
+          case '{':
+            return getValue(name, context);
+          default:
+            value = getValue(name, context);
+            return util.encodeHtml(value);
           }
         };
         var lines = template.split('\n');
-        var len = lines.length;
+        var line;
         var i;
+        var len = lines.length;
         for (i = 0; i < len; i++) {
-          lines[i] = lines[i].replace(regex, callback);
+          line = lines[i];
+          lines[i] = line.replace(regex, callback);
         }
         return lines.join('\n');
       };
