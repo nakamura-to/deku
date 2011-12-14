@@ -6,8 +6,6 @@
 
     toString: Object.prototype.toString,
 
-    hasOwnProperty: Object.prototype.hasOwnProperty,
-
     slice: Array.prototype.slice,
 
     isObject: function (obj) {
