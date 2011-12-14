@@ -1,5 +1,5 @@
 /*jslint browser: true, forin: true, indent:2, plusplus: true, vars: true */
-(function (global) {
+(function (global, undef) {
   'use strict';
 
   var util = {
@@ -36,14 +36,14 @@
       var i;
       var source;
       var prop;
-      if (obj === null || typeof obj === 'undefined') {
+      if (obj === null || obj === undef) {
         return obj;
       }
       for (i = 0; i < len; i++) {
         source = args[i];
-        if (source !== null && typeof source !== 'undefined') {
+        if (source !== null && source !== undef) {
           for (prop in source) {
-            if (typeof obj[prop] === 'undefined') {
+            if (obj[prop] === undef) {
               obj[prop] = source[prop];
             }
           }
@@ -55,7 +55,7 @@
     encodeHtml: (function () {
       var regex = /[&"'<>]/g;
       return function (html) {
-        html = (html === null || typeof html === 'undefined') ? '' : String(html);
+        html = (html === null || html === undef) ? '' : String(html);
         return html.replace(regex, function (s) {
           switch (s) {
           case '&': return '&amp;';
@@ -89,7 +89,7 @@
         if (util.isFunction(value)) {
           result = value.call(context);
         }
-        return typeof result === 'undefined' ? '' : result;
+        return result === undef ? '' : result;
       }
     },
 
@@ -101,7 +101,7 @@
       var path = name.split('.');
       var context = obj;
       var value = context[path.shift()];
-      while (value !== null && typeof value !== 'undefined' && path.length > 0) {
+      while (value !== null && value !== undef && path.length > 0) {
         context = value;
         value = context[path.shift()];
       }
@@ -143,7 +143,7 @@
         var find = function (name) {
           var value = core.find(name, context);
           var options = context[core.TEMPURA_OPTIONS];
-          if (typeof options === 'undefined') {
+          if (options === undef) {
             options = core.options;
           }
           return options.convert(name, value, context);
