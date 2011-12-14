@@ -83,15 +83,7 @@
 
     THIS: '$this',
 
-    options: {
-      convert: function (name, value, context) {
-        var result = value;
-        if (util.isFunction(value)) {
-          result = value.call(context);
-        }
-        return result === undef ? '' : result;
-      }
-    },
+    options: {},
 
     includes: function (directive, template) {
       return template.indexOf('{{' + directive) !== -1;
@@ -145,7 +137,10 @@
           if (options === undef) {
             options = core.options;
           }
-          return options.convert(name, value, context);
+          if (util.isFunction(value)) {
+            value = value.call(context);
+          }
+          return value === undef ? '' : value;
         };
         var callback = function (match, directive, name) {
           switch (directive) {
