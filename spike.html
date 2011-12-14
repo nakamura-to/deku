@@ -5,7 +5,7 @@
 </head>
 <body>
     <div id="view">
-        {{name | enclose }}
+        {{ name | enclose }}
     </div>
     <div id="view2">
         <ul>
@@ -42,7 +42,11 @@
                 }
             }
         });
-        setHtml('view', template({name: 'hoge'}));
+        setHtml('view', template(
+                {name: 'hoge',
+                enclose: function(value) {
+                    return '$' + value + '$'
+                }}));
 
         //template = tempura.prepare(getHtml('view2'));
         //setHtml('view2', template({people: [{name: 'aaa'}, {name: 'bbb'}, {name: 'ccc'}]}));

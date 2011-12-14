@@ -95,10 +95,10 @@
         context = value;
         value = context[names.shift()];
       }
-      if (util.isFunction(value)) {
-        return value.call(context);
-      }
-      return value;
+      return {
+        value: value,
+        context: context
+      };
     },
 
     find: function (path, obj) {
@@ -122,42 +122,49 @@
       return context;
     },
 
+    format: function (value, fmtName, context) {
+      var valueContext;
+      var defaultFormatter;
+      var formatter;
+      var globalFormatter;
+      var options = context[core.TEMPURA_OPTIONS];
+      fmtName = util.isString(fmtName) ?  util.trim(fmtName) : '';
+      if (options !== undef) {
+        if (options.formatters !== undef) {
+          formatter = options.formatters[fmtName];
+        }
+        globalFormatter = options.globalFormatter;
+      }
+      valueContext = core.find(fmtName, context);
+      defaultFormatter = valueContext.value;
+      if (util.isFunction(defaultFormatter)) {
+        value = defaultFormatter.call(context, value);
+      } else if (util.isFunction(formatter)) {
+        value = formatter.call(context, value);
+      }
+      if (util.isFunction(globalFormatter)) {
+        value = globalFormatter.call(context, value);
+      }
+      return value;
+    },
+
+    getValue: function (path, fmtName, context) {
+      var valueContext = core.find(path, context);
+      var value = valueContext.value;
+      context = valueContext.context;
+      if (util.isFunction(value)) {
+        value = value.call(context);
+      }
+      value = core.format(value, fmtName, context);
+      return value;
+    },
+
     transformTags: (function () {
       var regex = new RegExp([
         '{{',
         '([#\\^/!{])?(.+?)(?:\\|(.*?))?', // $1, $2, $3
         '}}+'
       ].join(''), 'g');
-      var format = function (value, fmtName, context) {
-        var formatter;
-        var globalFormatter;
-        var options = context[core.TEMPURA_OPTIONS];
-        if (options === undef) {
-          return value;
-        }
-        if (options.formatters !== undef) {
-          formatter = options.formatters[fmtName];
-        }
-        globalFormatter = options.globalFormatter;
-        if (util.isFunction(formatter)) {
-          value = formatter.call(context, value);
-        }
-        if (util.isFunction(globalFormatter)) {
-          value = globalFormatter.call(context, value);
-        }
-        return value;
-      };
-      var getValue = function (path, fmtName, context) {
-        var value = core.find(path, context);
-        if (util.isFunction(value)) {
-          value = value.call(context);
-        }
-        if (util.isString(fmtName)) {
-          fmtName = util.trim(fmtName);
-          value = format(value, fmtName, context);
-        }
-        return value;
-      };
       return function (template, context) {
         var callback = function (match, directive, path, fmtName) {
           var value;
@@ -171,11 +178,9 @@
           case '!':
             return '';
           case '{':
-            // todo
-            return getValue(path, fmtName, context);
+            return core.getValue(path, fmtName, context);
           default:
-            // todo
-            value = getValue(path, fmtName, context);
+            value = core.getValue(path, fmtName, context);
             return util.encodeHtml(value);
           }
         };
@@ -210,8 +215,8 @@
         return template.replace(regex, function (match, before, type, name, content, after) {
           var renderedBefore = before ? core.transformTags(before, context) : '';
           var renderedAfter = after ? core.transform(after, context) : '';
-          var value = core.find(name, context);
-          var renderedContent = (function () {
+          var valueContext = core.find(name, context);
+          var renderedContent = (function (value, context) {
             if (type === '#') {
               if (util.isArray(value)) {
                 return (function () {
@@ -234,7 +239,7 @@
               }
             }
             return '';
-          }());
+          }(valueContext.value, valueContext.context));
           return renderedBefore + renderedContent + renderedAfter;
         });
       };

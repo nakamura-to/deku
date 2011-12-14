@@ -21,27 +21,16 @@ testCase('core', {
     assertNotUndefined(this.core);
   },
 
-  'test walkObject: simple value': function () {
-    var object = {
+  'test walk': function () {
+    var obj = {
       person: {
         name: 'hoge'
       },
       name : 'foo'
     };
-    assertEquals('hoge', this.core.walk('person.name', object));
-    assertEquals('foo', this.core.walk('name', object));
-  },
-
-  'test walkObject: function value': function () {
-    var object = {
-      person: {
-        name: function () {
-          return 'hoge, ' + this.age;
-        },
-        age: 20
-      }
-    };
-    assertEquals('hoge, 20', this.core.walk('person.name', object));
+    var context = this.core.createInitialContext(obj);
+    assertEquals('hoge', this.core.walk('person.name', context).value);
+    assertEquals('foo', this.core.walk('name', context).value);
   },
 
   'test find': function () {
@@ -51,9 +40,10 @@ testCase('core', {
         age: null
       }
     };
-    assertEquals('hoge', this.core.find(' person.name ', obj));
-    assertEquals(null, this.core.find(' person.age ', obj));
-    assertEquals(undefined, this.core.find('unknown', obj));
+    var context = this.core.createInitialContext(obj);
+    assertEquals('hoge', this.core.find(' person.name ', context).value);
+    assertEquals(null, this.core.find(' person.age ', context).value);
+    assertEquals(undefined, this.core.find('unknown', context).value);
   },
 
   'test includes': function () {
@@ -68,6 +58,63 @@ testCase('core', {
     assertSame(context, context[this.core.ROOT_CONTEXT]);
     assertNull(context[this.core.PARENT_CONTEXT]);
     assertEquals(obj, context[this.core.THIS]);
+  },
+
+  'test format: default formatter': function () {
+    var obj = {
+      enclose: function (value) {
+        return '$' + value + '$';
+      }
+    };
+    var options = {
+      formatters: {
+        enclose: function (value) {
+          return '[' + value + ']';
+        }
+      }
+    };
+    var context = this.core.createInitialContext(obj, options);
+    var result = this.core.format('hoge', 'enclose', context);
+    assertEquals('$hoge$', result);
+  },
+
+  'test format: option formatter': function () {
+    var obj = {
+    };
+    var options = {
+      formatters: {
+        enclose: function (value) {
+          return '[' + value + ']';
+        }
+      }
+    };
+    var context = this.core.createInitialContext(obj, options);
+    var result = this.core.format('hoge', 'enclose', context);
+    assertEquals('[hoge]', result);
+  },
+
+  'test format: global formatter': function () {
+    var options = {
+      globalFormatter: function (value) {
+        return '[' + value + ']';
+      }
+    };
+    var context = this.core.createInitialContext({}, options);
+    var result = this.core.format('hoge', null, context);
+    assertEquals('[hoge]', result);
+  },
+
+  'test getValue: function value': function () {
+    var obj = {
+      person: {
+        name: function () {
+          return 'hoge, ' + this.age;
+        },
+        age: 20
+      }
+    };
+    var context = this.core.createInitialContext(obj);
+    assertEquals('hoge, 20', this.core.getValue('person.name', null, context));
   },
 
   'test transformTags': function () {
