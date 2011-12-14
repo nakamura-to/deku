@@ -71,11 +71,9 @@ testCase('util', {
   },
 
   'test trim': function () {
-    var trim = this.util.trim;
-    assertEquals('abc', trim('  abc  '));
-    assertException(function () {trim(123); }, 'Error');
-    assertException(function () {trim(null); }, 'Error');
-    assertException(function () {trim(undefined); }, 'Error');
+    assertEquals('abc', this.util.trim('  abc  '));
+    assertEquals('', this.util.trim(null))
+    assertEquals('', this.util.trim(undefined))
   },
 
   'test extend': function () {

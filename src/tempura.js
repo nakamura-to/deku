@@ -27,10 +27,7 @@
     },
 
     trim: function (s) {
-      if (!util.isString(s)) {
-        throw new Error('"' + s + '" is not string.');
-      }
-      return s.replace(/^\s*|\s*$/g, '');
+      return (s === null || s === undef) ? '' :  s.replace(/^\s*|\s*$/g, '')
     },
 
     extend: function (obj) {
@@ -294,7 +291,9 @@
         formatters: {},
         globalFormatter: tempura.globalFormatter
       };
-      util.extend(opts.formatters, options.formatters, tempura.formatters);
+      if (options) {
+        util.extend(opts.formatters, options.formatters, tempura.formatters);
+      }
       return core.prepare(template, options);
     },
 
