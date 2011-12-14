@@ -27,6 +27,9 @@
     },
 
     trim: function (s) {
+      if (!util.isString(s)) {
+        throw new Error('"' + s + '" is not string.');
+      }
       return s.replace(/^¥s*|¥s*$/g, '');
     },
 

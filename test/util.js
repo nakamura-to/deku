@@ -3,6 +3,7 @@
  tempura: false,
  TestCase: false,
  assertEquals: false,
+ assertException: false,
  assertFalse: false,
  assertNotNull: false,
  assertNotUndefined: false,
@@ -70,7 +71,11 @@ testCase('util', {
   },
 
   'test trim': function () {
-    assertEquals('abc', this.util.trim('  abc  '));
+    var trim = this.util.trim;
+    assertEquals('abc', trim('  abc  '));
+    assertException(function () {trim(123); }, 'Error');
+    assertException(function () {trim(null); }, 'Error');
+    assertException(function () {trim(undefined); }, 'Error');
   },
 
   'test extend': function () {
