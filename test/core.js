@@ -21,19 +21,39 @@ testCase('core', {
     assertNotUndefined(this.core);
   },
 
-  'test walk': function () {
+  'test walk. it should accept a simple property name.': function () {
+    var obj = {
+      name : 'hoge'
+    };
+    var context = this.core.createInitialContext(obj);
+    var wrapper = this.core.walk('name', context);
+    assertEquals('hoge', wrapper.value);
+    assertEquals(context, wrapper.context);
+  },
+
+  'test walk. it should accept a simple property name which includes leading and trailing whitespaces.': function () {
+    var obj = {
+      name : 'hoge'
+    };
+    var context = this.core.createInitialContext(obj);
+    var wrapper = this.core.walk('   name   ', context);
+    assertEquals('hoge', wrapper.value);
+    assertEquals(context, wrapper.context);
+  },
+
+  'test walk. it should accept a navigation path.': function () {
     var obj = {
       person: {
         name: 'hoge'
-      },
-      name : 'foo'
+      }
     };
     var context = this.core.createInitialContext(obj);
-    assertEquals('hoge', this.core.walk('person.name', context).value);
-    assertEquals('foo', this.core.walk('name', context).value);
+    var wrapper = this.core.walk('person.name', context);
+    assertEquals('hoge', wrapper.value);
+    assertNotNull(obj.person, wrapper.context.$this);
   },
 
-  'test find': function () {
+  'test walk': function () {
     var obj = {
       person: {
         name: 'hoge',
@@ -41,9 +61,9 @@ testCase('core', {
       }
     };
     var context = this.core.createInitialContext(obj);
-    assertEquals('hoge', this.core.find(' person.name ', context).value);
-    assertEquals(null, this.core.find(' person.age ', context).value);
-    assertEquals(undefined, this.core.find('unknown', context).value);
+    assertEquals('hoge', this.core.walk(' person.name ', context).value);
+    assertEquals(null, this.core.walk(' person.age ', context).value);
+    assertEquals(undefined, this.core.walk('unknown', context).value);
   },
 
   'test createContext. data should be returned when it is a tempura context.' : function () {

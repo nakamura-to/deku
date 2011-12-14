@@ -84,26 +84,6 @@
       return template.indexOf('{{' + directive) !== -1;
     },
 
-    walk: function (path, context) {
-      var names;
-      var value;
-      path = util.trim(path);
-      names = path.split('.');
-      value = context[names.shift()];
-      while (value !== null && value !== undef && names.length > 0) {
-        context = value;
-        value = context[names.shift()];
-      }
-      return {
-        value: value,
-        context: context
-      };
-    },
-
-    find: function (path, obj) {
-      return core.walk(path, obj);
-    },
-
     createContext: function (parent, data) {
       var context;
       if (data[core.TEMPURA_CONTEXT_MARK]) {
@@ -122,8 +102,24 @@
       }
     },
 
+    walk: function (path, context) {
+      var names;
+      var value;
+      path = util.trim(path);
+      names = path.split('.');
+      value = context[names.shift()];
+      while (value !== null && value !== undef && names.length > 0) {
+        context = core.createContext(context, value);
+        value = context[names.shift()];
+      }
+      return {
+        value: value,
+        context: context
+      };
+    },
+
     format: function (value, fmtName, context) {
-      var valueContext;
+      var wrapper;
       var defaultFormatter;
       var formatter;
       var globalFormatter;
@@ -135,8 +131,8 @@
         }
         globalFormatter = options.globalFormatter;
       }
-      valueContext = core.find(fmtName, context);
-      defaultFormatter = valueContext.value;
+      wrapper = core.walk(fmtName, context);
+      defaultFormatter = wrapper.value;
       if (util.isFunction(defaultFormatter)) {
         value = defaultFormatter.call(context, value);
       } else if (util.isFunction(formatter)) {
@@ -149,9 +145,9 @@
     },
 
     getValue: function (path, fmtName, context) {
-      var valueContext = core.find(path, context);
-      var value = valueContext.value;
-      context = valueContext.context;
+      var wrapper = core.walk(path, context);
+      var value = wrapper.value;
+      context = wrapper.context;
       if (util.isFunction(value)) {
         value = value.call(context);
       }
@@ -215,7 +211,7 @@
         return template.replace(regex, function (match, before, type, name, content, after) {
           var renderedBefore = before ? core.transformTags(before, context) : '';
           var renderedAfter = after ? core.transform(after, context) : '';
-          var valueContext = core.find(name, context);
+          var valueContext = core.walk(name, context);
           var renderedContent = (function (value, context) {
             if (type === '#') {
               if (util.isArray(value)) {
