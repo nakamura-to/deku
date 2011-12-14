@@ -52,7 +52,7 @@
       return obj;
     },
 
-    encodeHtml: function (html) {
+    encode: function (html) {
       html = (html === null || html === undef) ? '' : String(html);
       return html.replace(/[&"'<>]/g, function (s) {
         switch (s) {
@@ -178,7 +178,7 @@
             return core.getValue(path, fmtName, context);
           default:
             value = core.getValue(path, fmtName, context);
-            return util.encodeHtml(value);
+            return util.encode(value);
           }
         };
         var lines = template.split('\n');

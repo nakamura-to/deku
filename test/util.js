@@ -72,8 +72,8 @@ testCase('util', {
 
   'test trim': function () {
     assertEquals('abc', this.util.trim('  abc  '));
-    assertEquals('', this.util.trim(null))
-    assertEquals('', this.util.trim(undefined))
+    assertEquals('', this.util.trim(null));
+    assertEquals('', this.util.trim(undefined));
   },
 
   'test extend': function () {
@@ -89,17 +89,17 @@ testCase('util', {
     assertEquals('2011/12/11', obj.birthday);
   },
 
-  'test encodeHtml': function () {
-    assertEquals('&amp;', this.util.encodeHtml('&'));
-    assertEquals('&quot;', this.util.encodeHtml('"'));
-    assertEquals('&#39;', this.util.encodeHtml("'"));
-    assertEquals('&lt;', this.util.encodeHtml('<'));
-    assertEquals('&gt;', this.util.encodeHtml('>'));
-    assertEquals('a&amp;b&quot;c&#39;d&lt;e&gt;f', this.util.encodeHtml('a&b"c\'d<e>f'));
-    assertEquals('abc', this.util.encodeHtml('abc'));
-    assertEquals('123', this.util.encodeHtml(123));
-    assertEquals('', this.util.encodeHtml(null));
-    assertEquals('', this.util.encodeHtml(undefined));
+  'test encode': function () {
+    assertEquals('&amp;', this.util.encode('&'));
+    assertEquals('&quot;', this.util.encode('"'));
+    assertEquals('&#39;', this.util.encode("'"));
+    assertEquals('&lt;', this.util.encode('<'));
+    assertEquals('&gt;', this.util.encode('>'));
+    assertEquals('a&amp;b&quot;c&#39;d&lt;e&gt;f', this.util.encode('a&b"c\'d<e>f'));
+    assertEquals('abc', this.util.encode('abc'));
+    assertEquals('123', this.util.encode(123));
+    assertEquals('', this.util.encode(null));
+    assertEquals('', this.util.encode(undefined));
   }
 
 });
