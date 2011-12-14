@@ -28,8 +28,8 @@ testCase('core', {
       },
       name : 'foo'
     };
-    assertEquals('hoge', this.core.walkObject('person.name', object));
-    assertEquals('foo', this.core.walkObject('name', object));
+    assertEquals('hoge', this.core.walk('person.name', object));
+    assertEquals('foo', this.core.walk('name', object));
   },
 
   'test walkObject: function value': function () {
@@ -41,7 +41,7 @@ testCase('core', {
         age: 20
       }
     };
-    assertEquals('hoge, 20', this.core.walkObject('person.name', object));
+    assertEquals('hoge, 20', this.core.walk('person.name', object));
   },
 
   'test find': function () {

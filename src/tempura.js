@@ -97,9 +97,8 @@
       return template.indexOf('{{' + directive) !== -1;
     },
 
-    walkObject: function (name, obj) {
+    walk: function (name, context) {
       var path = name.split('.');
-      var context = obj;
       var value = context[path.shift()];
       while (value !== null && value !== undef && path.length > 0) {
         context = value;
@@ -113,7 +112,7 @@
 
     find: function (name, obj) {
       var n = util.trim(name);
-      return core.walkObject(n, obj);
+      return core.walk(n, obj);
     },
 
     createContext: function (parent, data) {
