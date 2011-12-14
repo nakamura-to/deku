@@ -27,7 +27,7 @@
     },
 
     trim: function (s) {
-      return (s === null || s === undef) ? '' :  s.replace(/^\s*|\s*$/g, '')
+      return (s === null || s === undef) ? '' :  s.replace(/^\s*|\s*$/g, '');
     },
 
     extend: function (obj) {
