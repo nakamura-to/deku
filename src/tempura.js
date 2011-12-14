@@ -52,22 +52,19 @@
       return obj;
     },
 
-    encodeHtml: (function () {
-      var regex = /[&"'<>]/g;
-      return function (html) {
-        html = (html === null || html === undef) ? '' : String(html);
-        return html.replace(regex, function (s) {
-          switch (s) {
-          case '&': return '&amp;';
-          case '"': return '&quot;';
-          case "'": return '&#39;';
-          case '<': return '&lt;';
-          case '>': return '&gt;';
-          default: return s;
-          }
-        });
-      };
-    }())
+    encodeHtml: function (html) {
+      html = (html === null || html === undef) ? '' : String(html);
+      return html.replace(/[&"'<>]/g, function (s) {
+        switch (s) {
+        case '&': return '&amp;';
+        case '"': return '&quot;';
+        case "'": return '&#39;';
+        case '<': return '&lt;';
+        case '>': return '&gt;';
+        default: return s;
+        }
+      });
+    }
 
   };
 
