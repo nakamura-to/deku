@@ -118,51 +118,77 @@
       };
     },
 
-    format: function (value, fmtName, context) {
+    applyPipes: function (value, pipeNames, context) {
+      var options = context[core.TEMPURA_OPTIONS] || {};
+      var pipes = options.pipes || {};
       var wrapper;
-      var contextFormatter;
-      var optionFormatter;
-      var globalFormatter;
-      var options = context[core.TEMPURA_OPTIONS];
-      fmtName = util.trim(fmtName);
-      if (options !== undef) {
-        if (options.formatters !== undef) {
-          optionFormatter = options.formatters[fmtName];
+      var contextPipe;
+      var optionPipe;
+      var finalPipe = options.finalPipe;
+      var i;
+      var len = pipeNames.length;
+      var pipeName;      
+      for (i = 0; i < len; i++) {
+        pipeName = pipeNames[i];
+        wrapper = core.walk(pipeName, context);
+        contextPipe = wrapper.value;
+        if (util.isFunction(contextPipe)) {
+          value = contextPipe.call(wrapper.context, value);
+        } else {
+          optionPipe = pipes[pipeName];
+          if (util.isFunction(optionPipe)) {
+            value = optionPipe.call(context, value);
+          } 
         }
-        globalFormatter = options.globalFormatter;
       }
-      wrapper = core.walk(fmtName, context);
-      contextFormatter = wrapper.value;
-      if (util.isFunction(contextFormatter)) {
-        value = contextFormatter.call(wrapper.context, value);
-      } else if (util.isFunction(optionFormatter)) {
-        value = optionFormatter.call(context, value);
-      }
-      if (util.isFunction(globalFormatter)) {
-        value = globalFormatter.call(context, value);
+      if (util.isFunction(finalPipe)) {
+        value = finalPipe.call(context, value);
       }
       return value;
     },
 
-    resolve: function (path, fmtName, context) {
+    resolveValue: function (path, pipeNames, context) {
       var wrapper = core.walk(path, context);
       var value = wrapper.value;
-      context = wrapper.context;
       if (util.isFunction(value)) {
-        value = value.call(context);
+        value = value.call(wrapper.context);
       }
-      return core.format(value, fmtName, context);
+      return core.applyPipes(value, pipeNames, context);
     },
 
     transformTags: (function () {
       var regex = new RegExp([
         '{{',
-        '([#\\^/!{])?(.+?)(?:\\|(.*?))?', // $1, $2, $3
+        '([#\\^/!{])?(.+?)(?:\\|(.*?))?', // $1, $2, $3, $4
         '}}+'
       ].join(''), 'g');
+      var getPipeNames = function (pipeNamesDef) {
+        var names;
+        var i;
+        var len;
+        var name;
+        var results;
+        if (pipeNamesDef === null || pipeNamesDef === undef) {
+          return [];
+        }
+        names = pipeNamesDef.split('|');
+        len = names.length;
+        results = [];
+        for (i = 0; i < len; i++) {
+          name = util.trim(names[i]);
+          if (name) {
+            results.push(name);
+          }
+        }
+        return results;
+      };
+      var getValue = function (path, pipeNamesDef, context) {
+        var pipeNames = getPipeNames(pipeNamesDef);
+        var value = core.resolveValue(path, pipeNames, context);
+        return (value === null || value === undef) ? '' : String(value);
+      };
       return function (template, context) {
-        var callback = function (match, directive, path, fmtName) {
-          var value;
+        var callback = function (match, directive, path, pipeNamesDef) {
           switch (directive) {
           case '#':
             return '{{#' + path + '}}';
@@ -173,10 +199,9 @@
           case '!':
             return '';
           case '{':
-            return core.resolve(path, fmtName, context);
+            return getValue(path, pipeNamesDef, context);
           default:
-            value = core.resolve(path, fmtName, context);
-            return util.encode(value);
+            return util.encode(getValue(path, pipeNamesDef, context));
           }
         };
         var lines = template.split('\n');
@@ -284,19 +309,19 @@
 
     version: '0.0.1',
 
-    formatters: {},
+    pipes: {},
 
-    globalFormatter: function (value) {
+    finalPipe: function (value) {
       return typeof value === 'undefined' ? '' : value;
     },
 
     prepare: function (template, options) {
       var opts = {
-        formatters: {},
-        globalFormatter: tempura.globalFormatter
+        pipes: {},
+        finalPipe: tempura.finalPipe
       };
       if (options) {
-        util.extend(opts.formatters, options.formatters, tempura.formatters);
+        util.extend(opts.pipes, options.pipes, tempura.pipes);
       }
       return core.prepare(template, options);
     },

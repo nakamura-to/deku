@@ -114,25 +114,25 @@ testCase('core', {
     assertSame(obj, context.$this);
   },
 
-  'test format: it should use a context formatter, if the formatter exists': function () {
+  'test applyPipe: it should use a context pipe, if the pipe exists': function () {
     var obj = {
       enclose: function (value) {
         return '$' + value + '$';
       }
     };
     var options = {
-      formatters: {
+      pipes: {
         enclose: function (value) {
           return '[' + value + ']';
         }
       }
     };
     var context = this.core.createInitialContext(obj, options);
-    var value = this.core.format('hoge', 'enclose', context);
+    var value = this.core.applyPipes('hoge', ['enclose'], context);
     assertSame('$hoge$', value);
   },
 
-  'test format: it should use a context formatter, if the formatter exists: the formatter name can be path form': function () {
+  'test applyPipes: it should use a context pipe, if the pipe exists: the pipe name can be path form': function () {
     var obj = {
       person: {
         age: 20,
@@ -142,59 +142,59 @@ testCase('core', {
       }
     };
     var context = this.core.createInitialContext(obj);
-    var value = this.core.format('hoge', 'person.appendAge', context);
+    var value = this.core.applyPipes('hoge', ['person.appendAge'], context);
     assertSame('hoge20', value);
   },
 
-  'test format: it should use option formatter, if the same name formatter does not in the context': function () {
+  'test applyPipes: it should use a option pipe, if the same name pipe does not in the context': function () {
     var obj = {
     };
     var options = {
-      formatters: {
+      pipes: {
         enclose: function (value) {
           return '[' + value + ']';
         }
       }
     };
     var context = this.core.createInitialContext(obj, options);
-    var value = this.core.format('hoge', 'enclose', context);
+    var value = this.core.applyPipes('hoge', ['enclose'], context);
     assertSame('[hoge]', value);
   },
 
-  'test format: it should use a global formatter always, if the formatter exists': function () {
+  'test applyPipes: it should use a final pipe always, if the pipe exists': function () {
     var options = {
-      globalFormatter: function (value) {
+      finalPipe: function (value) {
         return '[' + value + ']';
       }
     };
     var context = this.core.createInitialContext({}, options);
-    var result = this.core.format('hoge', null, context);
+    var result = this.core.applyPipes('hoge', [], context);
     assertSame('[hoge]', result);
   },
 
-  'test resolve: it should evaluate a string': function () {
+  'test resolveValue: it should evaluate a string': function () {
     var obj = {
       person: {
         name: 'hoge'
       }
     };
     var context = this.core.createInitialContext(obj);
-    var value = this.core.resolve('person.name', null, context);
+    var value = this.core.resolveValue('person.name', [], context);
     assertSame('hoge', value);
   },
 
-  'test resolve: it should evaluate a number': function () {
+  'test resolveValue: it should evaluate a number': function () {
     var obj = {
       person: {
         age: 20
       }
     };
     var context = this.core.createInitialContext(obj);
-    var value = this.core.resolve('person.age', null, context);
+    var value = this.core.resolveValue('person.age', [], context);
     assertSame(20, value);
   },
 
-  'test resolve: it should evaluate a function': function () {
+  'test resolveValue: it should evaluate a function': function () {
     var obj = {
       person: {
         name: function () {
@@ -206,8 +206,36 @@ testCase('core', {
       end: ']'
     };
     var context = this.core.createInitialContext(obj);
-    var value = this.core.resolve('person.name', null, context);
+    var value = this.core.resolveValue('person.name', [], context);
     assertSame('[hoge is 20 years old]', value);
+  },
+
+  'test resolveValue: it should evaluate pipes': function () {
+    var obj = {
+      person: {
+        name: 'hoge'
+      },
+      enclose: function (value, mark) {
+        return mark + value + mark;
+      },
+      pipe1: function (value) {
+        return this.enclose(value, '@');
+      },
+      pipe2: function (value) {
+        return this.enclose(value, '#');
+      },
+      pipe3: function (value) {
+        return this.enclose(value, '%');
+      }
+    };
+    var options = {
+      finalPipe: function (value) {
+        return value + '!';
+      }
+    };
+    var context = this.core.createInitialContext(obj, options);
+    var value = this.core.resolveValue('person.name', ['pipe1', 'pipe2', 'pipe3'], context);
+    assertSame('%#@hoge@#%!', value);
   },
 
   'test transformTags: it should resolve property references': function () {
@@ -220,7 +248,7 @@ testCase('core', {
     assertSame('hoge is 20 years old.', result);
   },
 
-  'test transformTags: it should apply a formatter after resolving property reference': function () {
+  'test transformTags: it should apply pipes after resolving property reference': function () {
     var obj = {
       name: 'hoge',
       age: 20,
@@ -229,15 +257,15 @@ testCase('core', {
       }
     };
     var options = {
-      formatters: {
+      pipes: {
         enclose: function (value) {
           return '[' + value + ']';
         }
       }
     };
     var context = this.core.createInitialContext(obj, options);
-    var result = this.core.transformTags('{{name|enclose}} is {{age|double}} years old.', context);
-    assertSame('[hoge] is 40 years old.', result);
+    var result = this.core.transformTags('{{name|enclose}} is {{age|double|enclose}} years old.', context);
+    assertSame('[hoge] is [40] years old.', result);
   },
 
   'test transformSection: it should return false if the input template does not contain "{{#" or "{{^"': function () {
