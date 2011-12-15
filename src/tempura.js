@@ -144,15 +144,14 @@
       return value;
     },
 
-    getValue: function (path, fmtName, context) {
+    resolve: function (path, fmtName, context) {
       var wrapper = core.walk(path, context);
       var value = wrapper.value;
       context = wrapper.context;
       if (util.isFunction(value)) {
         value = value.call(context);
       }
-      value = core.format(value, fmtName, context);
-      return value;
+      return core.format(value, fmtName, context);
     },
 
     transformTags: (function () {
@@ -174,9 +173,9 @@
           case '!':
             return '';
           case '{':
-            return core.getValue(path, fmtName, context);
+            return core.resolve(path, fmtName, context);
           default:
-            value = core.getValue(path, fmtName, context);
+            value = core.resolve(path, fmtName, context);
             return util.encode(value);
           }
         };
@@ -211,7 +210,7 @@
         return template.replace(regex, function (match, before, type, name, content, after) {
           var renderedBefore = before ? core.transformTags(before, context) : '';
           var renderedAfter = after ? core.transform(after, context) : '';
-          var valueContext = core.walk(name, context);
+          var wrapper = core.walk(name, context);
           var renderedContent = (function (value, context) {
             if (type === '#') {
               if (util.isArray(value)) {
@@ -240,7 +239,7 @@
               }
             }
             return '';
-          }(valueContext.value, valueContext.context));
+          }(wrapper.value, wrapper.context));
           return renderedBefore + renderedContent + renderedAfter;
         });
       };
@@ -272,15 +271,16 @@
 
     prepare: function (template, options) {
       return function (data) {
-        var html = core.toHtml(template, data, options);
-        return html;
+        return core.toHtml(template, data, options);
       };
     }
 
   };
 
   //noinspection JSUnusedGlobalSymbols
-  var tempura = {
+  var tempura = global.tempura = {
+
+    name: 'tempura',
 
     version: '0.0.1',
 
@@ -301,13 +301,10 @@
       return core.prepare(template, options);
     },
 
-    // internal
     internal: {
       util: util,
       core: core
     }
   };
-
-  global.tempura = tempura;
 
 }(window));

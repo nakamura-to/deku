@@ -171,29 +171,29 @@ testCase('core', {
     assertSame('[hoge]', result);
   },
 
-  'test getValue: it should evaluate a string': function () {
+  'test resolve: it should evaluate a string': function () {
     var obj = {
       person: {
         name: 'hoge'
       }
     };
     var context = this.core.createInitialContext(obj);
-    var value = this.core.getValue('person.name', null, context);
+    var value = this.core.resolve('person.name', null, context);
     assertSame('hoge', value);
   },
 
-  'test getValue: it should evaluate a number': function () {
+  'test resolve: it should evaluate a number': function () {
     var obj = {
       person: {
         age: 20
       }
     };
     var context = this.core.createInitialContext(obj);
-    var value = this.core.getValue('person.age', null, context);
+    var value = this.core.resolve('person.age', null, context);
     assertSame(20, value);
   },
 
-  'test getValue: it should evaluate a function': function () {
+  'test resolve: it should evaluate a function': function () {
     var obj = {
       person: {
         name: function () {
@@ -205,7 +205,7 @@ testCase('core', {
       end: ']'
     };
     var context = this.core.createInitialContext(obj);
-    var value = this.core.getValue('person.name', null, context);
+    var value = this.core.resolve('person.name', null, context);
     assertSame('[hoge is 20 years old]', value);
   },
 
