@@ -25,8 +25,10 @@ Below is quick example how to use tempura:
     
     var template = tempura.prepare("{{name|yeah|enclose}} spends {{calc}}");
     var html = template.toHtml(data);
+    
+    console.log(html);
 
-Below is result:
+Below is the result:
 
     [Joe!] spends 6
 
