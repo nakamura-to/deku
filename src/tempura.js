@@ -313,10 +313,14 @@
       }
     };
 
-    var settings = {
-      pipes: util.extend(defaultSettings.pipes),
-      finalPipe: defaultSettings.finalPipe
+    var cloneDefaultSettings = function () {
+      return {
+        pipes: util.extend({}, defaultSettings.pipes),
+        finalPipe: defaultSettings.finalPipe
+      };
     };
+
+    var settings = cloneDefaultSettings();
 
     return {
       name: 'tempura',
@@ -332,17 +336,7 @@
       },
 
       prepare: function (template, options) {
-        var opts = {
-          pipes: {},
-          finalPipe: undef
-        };
-        if (options) {
-          util.extend(opts.pipes, options.pipes, settings.pipes);
-          util.extend(opts, options, { finalPipe: settings.finalPipe });
-        } else {
-          util.extend(opts.pipes, settings.pipes);
-          opts.finalPipe = settings.finalPipe;
-        }
+        var opts = util.extend({}, options || {}, settings);
         return core.prepare(template, opts);
       },
 

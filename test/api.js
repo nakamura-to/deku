@@ -5,6 +5,7 @@
  assertEquals: false,
  assertFalse: false,
  assertNotNull: false,
+ assertNotSame: false,
  assertNotUndefined: false,
  assertNull: false,
  assertSame: true,
@@ -17,6 +18,17 @@ testCase('api', {
     this.html = function (id) {
       return document.getElementById(id).innerHTML;
     };
+  },
+
+  'test version': function () {
+    assertNotUndefined(tempura.version);
+  },
+
+  'test setSettings and getSettings': function () {
+    var settings = {};
+    assertNotSame(settings, tempura.getSettings());
+    tempura.setSettings(settings);
+    assertEquals(settings, tempura.getSettings());
   },
 
   'test prepare and toHtml': function () {
@@ -33,7 +45,7 @@ testCase('api', {
     assertSame(this.html('result'), result);
   },
 
-  'test prepare and toHtml: it should accept options which has "pipes" property': function () {
+  'test prepare and toHtml: it should use a "pipes" option prior to a "pipes" setting': function () {
     /*:DOC +=
      <div id="template">
      {{name|enclose}} is {{age}} years old.
@@ -42,6 +54,13 @@ testCase('api', {
      [hoge] is 20 years old.
      </div>
      */
+    tempura.setSettings({
+      pipes: {
+        enclose: function (value) {
+          return '%' + value + '%';
+        }
+      }
+    });
     var options = {
       pipes: {
         enclose: function (value) {
@@ -54,23 +73,23 @@ testCase('api', {
     assertSame(this.html('result'), result);
   },
 
-  'test prepare and toHtml: it should accept options which has "finalPipe" property': function () {
+  'test prepare and toHtml: it should use a "finalPipe" options prior to "finalPipe" setting': function () {
     /*:DOC +=
      <div id="template">
-     {{name|enclose}} is {{age}} years old.
+     {{name}} is {{age}} years old.
      </div>
      <div id="result">
-     [hoge]! is 20! years old.
+     hoge? is 20? years old.
      </div>
      */
-    var options = {
-      pipes: {
-        enclose: function (value) {
-          return '[' + value + ']';
-        }
-      },
+    tempura.setSettings({
       finalPipe: function (value) {
         return value + '!';
+      }
+    });
+    var options = {
+      finalPipe: function (value) {
+        return value + '?';
       }
     };
     var template = tempura.prepare(this.html('template'), options);
@@ -108,15 +127,11 @@ testCase('api', {
      hoge! is 20! years old.
      </div>
      */
-    tempura.finalPipe = function (value) {
-      return value + '!';
-    };
     tempura.setSettings({
       finalPipe: function (value) {
         return value + '!';
       }
     });
-
     var template = tempura.prepare(this.html('template'));
     var result = template.toHtml({name: 'hoge', age: 20});
     assertSame(this.html('result'), result);
