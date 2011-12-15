@@ -121,22 +121,22 @@
     format: function (value, fmtName, context) {
       var wrapper;
       var contextFormatter;
-      var formatter;
+      var optionFormatter;
       var globalFormatter;
       var options = context[core.TEMPURA_OPTIONS];
       fmtName = util.trim(fmtName);
       if (options !== undef) {
         if (options.formatters !== undef) {
-          formatter = options.formatters[fmtName];
+          optionFormatter = options.formatters[fmtName];
         }
         globalFormatter = options.globalFormatter;
       }
       wrapper = core.walk(fmtName, context);
       contextFormatter = wrapper.value;
       if (util.isFunction(contextFormatter)) {
-        value = contextFormatter.call(context, value);
-      } else if (util.isFunction(formatter)) {
-        value = formatter.call(context, value);
+        value = contextFormatter.call(wrapper.context, value);
+      } else if (util.isFunction(optionFormatter)) {
+        value = optionFormatter.call(context, value);
       }
       if (util.isFunction(globalFormatter)) {
         value = globalFormatter.call(context, value);

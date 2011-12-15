@@ -49,6 +49,18 @@ testCase('core', {
     assertNotNull(obj.person, wrapper.context.$this);
   },
 
+  'test walk: it should accept a navigation path which includes leading and trailing whitespaces': function () {
+    var obj = {
+      person: {
+        name: 'hoge'
+      }
+    };
+    var context = this.core.createInitialContext(obj);
+    var wrapper = this.core.walk('   person.name   ', context);
+    assertSame('hoge', wrapper.value);
+    assertNotNull(obj.person, wrapper.context.$this);
+  },
+
   'test walk: it should accept unknown path': function () {
     var obj = {
       person: {
@@ -101,7 +113,7 @@ testCase('core', {
     assertSame(obj, context.$this);
   },
 
-  'test format: it should use a formatter which is defined in context, if the formatter exists': function () {
+  'test format: it should use a context formatter, if the formatter exists': function () {
     var obj = {
       enclose: function (value) {
         return '$' + value + '$';
@@ -119,7 +131,21 @@ testCase('core', {
     assertSame('$hoge$', value);
   },
 
-  'test format: it should use a formatter which is defined in options, if the formatter does not in context and does in options': function () {
+  'test format: it should use a context formatter, if the formatter exists: the formatter name can be path form': function () {
+    var obj = {
+      person: {
+        age: 20,
+        appendAge: function (value) {
+          return value + this.age;
+        }
+      }
+    };
+    var context = this.core.createInitialContext(obj);
+    var value = this.core.format('hoge', 'person.appendAge', context);
+    assertSame('hoge20', value);
+  },
+
+  'test format: it should use option formatter, if the same name formatter does not in the context': function () {
     var obj = {
     };
     var options = {
