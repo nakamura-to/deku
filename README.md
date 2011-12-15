@@ -17,13 +17,13 @@ Below is quick example how to use tempura:
       },
       yeah: function (value) {
         return value + '!';
-      }
+      },
       enclose: function (value) {
         return '[' + value + ']';
-      }
+      },
     };
-
-    var template = tempura.prepare("{{name|yeah|enclose}} spends {{calc}");
+    
+    var template = tempura.prepare("{{name|yeah|enclose}} spends {{calc}}");
     var html = template.toHtml(data);
 
 Below is result:
