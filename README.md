@@ -24,7 +24,7 @@ Below is quick example how to use tempura:
     };
     
     var template = tempura.prepare("{{name|yeah|enclose}} spends {{calc}}");
-    var html = template.toHtml(data);
+    var html = template.render(data);
     
     console.log(html);
 
