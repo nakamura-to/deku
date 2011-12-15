@@ -295,41 +295,62 @@
     },
 
     prepare: function (template, options) {
-      return function (data) {
-        return core.toHtml(template, data, options);
+      return {
+        toHtml: function (data) {
+          return core.toHtml(template, data, options);
+        }
       };
     }
 
   };
 
-  //noinspection JSUnusedGlobalSymbols
-  var tempura = global.tempura = {
+  var tempura = global.tempura = (function () {
 
-    name: 'tempura',
-
-    version: '0.0.1',
-
-    pipes: {},
-
-    finalPipe: function (value) {
-      return typeof value === 'undefined' ? '' : value;
-    },
-
-    prepare: function (template, options) {
-      var opts = {
-        pipes: {},
-        finalPipe: tempura.finalPipe
-      };
-      if (options) {
-        util.extend(opts.pipes, options.pipes, tempura.pipes);
+    var defaultSettings = {
+      pipes: {},
+      finalPipe: function (value) {
+        return typeof value === 'undefined' ? '' : value;
       }
-      return core.prepare(template, options);
-    },
+    };
 
-    internal: {
-      util: util,
-      core: core
-    }
-  };
+    var settings = {
+      pipes: util.extend(defaultSettings.pipes),
+      finalPipe: defaultSettings.finalPipe
+    };
+
+    return {
+      name: 'tempura',
+
+      version: '0.0.1',
+
+      setSettings: function (userSettings) {
+        settings = userSettings;
+      },
+
+      getSettings: function () {
+        return settings;
+      },
+
+      prepare: function (template, options) {
+        var opts = {
+          pipes: {},
+          finalPipe: undef
+        };
+        if (options) {
+          util.extend(opts.pipes, options.pipes, settings.pipes);
+          util.extend(opts, options, { finalPipe: settings.finalPipe });
+        } else {
+          util.extend(opts.pipes, settings.pipes);
+          opts.finalPipe = settings.finalPipe;
+        }
+        return core.prepare(template, opts);
+      },
+
+      internal: {
+        util: util,
+        core: core
+      }
+    };
+  }());
 
 }(window));

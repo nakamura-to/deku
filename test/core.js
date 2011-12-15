@@ -8,6 +8,7 @@
  assertNotNull: false,
  assertNotUndefined: false,
  assertNull: false,
+ assertObject: false,
  assertSame: true,
  assertTrue: false,
  fail: false */
@@ -407,8 +408,10 @@ testCase('core', {
     assertSame('<a>,1,<b>', result);
   },
 
-  'test prepare: it should return a function': function () {
-    assertFunction(this.core.prepare(''));
+  'test prepare: it should return a object': function () {
+    var template = this.core.prepare('');
+    assertObject(template);
+    assertFunction(template.toHtml);
   }
 
 });
