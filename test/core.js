@@ -4,6 +4,7 @@
  TestCase: false,
  assertEquals: false,
  assertFalse: false,
+ assertFunction: false,
  assertNotNull: false,
  assertNotUndefined: false,
  assertNull: false,
@@ -376,6 +377,10 @@ testCase('core', {
     var obj = { str: '<a>', num: 1, func : function () { return '<b>'; } };
     var result = this.core.toHtml('{{{str}}},{{{num}}},{{{func}}}', obj);
     assertSame('<a>,1,<b>', result);
+  },
+
+  'test prepare: it should return a function': function () {
+    assertFunction(this.core.prepare(''));
   }
 
 });
