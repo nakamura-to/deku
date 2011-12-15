@@ -1,3 +1,7 @@
+/*!
+ * tempura - simple template library in javascript.
+ * https://github.com/nakamura-to/tempura
+ */
 /*jslint browser: true, forin: true, indent:2, plusplus: true, vars: true */
 (function (global) {
   'use strict';
