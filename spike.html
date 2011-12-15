@@ -14,7 +14,7 @@
         {{#people}}
             <li>{{name}}</li>
         {{/people}}
-        </ul>toHtml
+        </ul>
     </div>
     <div id="view3">
         {{! comment }}
@@ -38,7 +38,7 @@
             return el(id).innerHTML = html;
         };
         var template = tempura.prepare(getHtml('view'));
-        setHtml('view', template.toHtml(
+        setHtml('view', template.render(
                 {name: 'hoge',
                  age: 10,
                  incr: function (value) {
@@ -49,13 +49,13 @@
                  }}));
 
         template = tempura.prepare(getHtml('view2'));
-        setHtml('view2', template.toHtml({people: [{name: 'aaa'}, {name: 'bbb'}, {name: 'ccc'}]}));
+        setHtml('view2', template.render({people: [{name: 'aaa'}, {name: 'bbb'}, {name: 'ccc'}]}));
 
         template = tempura.prepare(getHtml('view3'));
-        setHtml('view3', template.toHtml({value: true}));
+        setHtml('view3', template.render({value: true}));
 
         template = tempura.prepare(getHtml('view4'));
-        setHtml('view4', template.toHtml({value: false}));
+        setHtml('view4', template.render({value: false}));
     </script>
 </body>
 </html>

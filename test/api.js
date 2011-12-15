@@ -31,7 +31,7 @@ testCase('api', {
     assertEquals(settings, tempura.getSettings());
   },
 
-  'test prepare and toHtml': function () {
+  'test prepare and render': function () {
     /*:DOC +=
      <div id="template">
      {{name}} is {{age}} years old.
@@ -41,11 +41,11 @@ testCase('api', {
      </div>
      */
     var template = tempura.prepare(this.html('template'));
-    var result = template.toHtml({name: 'hoge', age: 20});
+    var result = template.render({name: 'hoge', age: 20});
     assertSame(this.html('result'), result);
   },
 
-  'test prepare and toHtml: it should use a "pipes" option prior to a "pipes" setting': function () {
+  'test prepare and render: it should use a "pipes" option prior to a "pipes" setting': function () {
     /*:DOC +=
      <div id="template">
      {{name|enclose}} is {{age}} years old.
@@ -69,11 +69,11 @@ testCase('api', {
       }
     };
     var template = tempura.prepare(this.html('template'), options);
-    var result = template.toHtml({name: 'hoge', age: 20});
+    var result = template.render({name: 'hoge', age: 20});
     assertSame(this.html('result'), result);
   },
 
-  'test prepare and toHtml: it should use a "filter" option prior to "filter" setting': function () {
+  'test prepare and render: it should use a "preRender" option prior to "preRender" setting': function () {
     /*:DOC +=
      <div id="template">
      {{name}} is {{age}} years old.
@@ -89,17 +89,17 @@ testCase('api', {
       }
     });
     var options = {
-      filter: function (value, next) {
+      preRender: function (value, next) {
         value = next(value);
         return value + '?';
       }
     };
     var template = tempura.prepare(this.html('template'), options);
-    var result = template.toHtml({name: 'hoge', age: 20});
+    var result = template.render({name: 'hoge', age: 20});
     assertSame(this.html('result'), result);
   },
 
-  'test prepare and toHtml: it should use a "pipes" setting, if a "pipes" option does not exist': function () {
+  'test prepare and render: it should use a "pipes" setting, if a "pipes" option does not exist': function () {
     /*:DOC +=
      <div id="template">
      {{name|enclose}} is {{age}} years old.
@@ -116,11 +116,11 @@ testCase('api', {
       }
     });
     var template = tempura.prepare(this.html('template'));
-    var result = template.toHtml({name: 'hoge', age: 20});
+    var result = template.render({name: 'hoge', age: 20});
     assertSame(this.html('result'), result);
   },
 
-  'test prepare and toHtml: it should use a "filter" setting, if a "filter" option does not exitst': function () {
+  'test prepare and render: it should use a "preRender" setting, if a "preRender" option does not exitst': function () {
     /*:DOC +=
      <div id="template">
      {{name|enclose}} is {{age}} years old.
@@ -130,13 +130,13 @@ testCase('api', {
      </div>
      */
     tempura.setSettings({
-      filter: function (value, next) {
+      preRender: function (value, next) {
         value = next(value);
         return value + '!';
       }
     });
     var template = tempura.prepare(this.html('template'));
-    var result = template.toHtml({name: 'hoge', age: 20});
+    var result = template.render({name: 'hoge', age: 20});
     assertSame(this.html('result'), result);
   }
 

@@ -200,7 +200,7 @@ testCase('core', {
     assertSame('[hoge is 20 years old]', value);
   },
 
-  'test resolveValue: it should evaluate filter and pipes': function () {
+  'test resolveValue: it should evaluate preRender': function () {
     var obj = {
       person: {
         name: 'hoge'
@@ -219,7 +219,7 @@ testCase('core', {
       }
     };
     var options = {
-      filter: function (value, next) {
+      preRender: function (value, next) {
         value = next(value);
         return value + '!';
       }
@@ -401,7 +401,7 @@ testCase('core', {
   'test prepare: it should return a object': function () {
     var template = this.core.prepare('');
     assertObject(template);
-    assertFunction(template.toHtml);
+    assertFunction(template.render);
   }
 
 });

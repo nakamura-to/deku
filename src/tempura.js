@@ -147,18 +147,18 @@
       return value;
     },
 
-    applyFilter: function (value, context, pipeline) {
+    applyPreRender: function (value, context, render) {
       var options = context[core.TEMPURA_OPTIONS] || {};
-      var filter = options.filter;
-      if (util.isFunction(filter)) {
-        return filter.call(context, value, pipeline);
+      var preRender = options.preRender;
+      if (util.isFunction(preRender)) {
+        return preRender.call(context, value, render);
       } else {
-        return pipeline(value);
+        return render(value);
       }
     },
 
     resolveValue: function (path, pipeNames, context) {
-      var pipeline = function (value) {
+      var render = function (value) {
         return core.applyPipes(value, pipeNames, context);
       };
       var wrapper = core.walk(path, context);
@@ -166,7 +166,7 @@
       if (util.isFunction(value)) {
         value = value.call(wrapper.context);
       }
-      return core.applyFilter(value, context, pipeline);
+      return core.applyPreRender(value, context, render);
     },
 
     transformTags: (function () {
@@ -309,7 +309,7 @@
 
     prepare: function (template, options) {
       return {
-        toHtml: function (data) {
+        render: function (data) {
           return core.toHtml(template, data, options);
         }
       };
@@ -321,16 +321,16 @@
 
     var defaultSettings = {
       pipes: {},
-      filter: function (value, next) {
-        value = next(value);
-        return typeof value === 'undefined' ? '' : value;
+      preRender: function (value, render) {
+        var html = render(value);
+        return typeof html === 'undefined' ? '' : html;
       }
     };
 
     var cloneDefaultSettings = function () {
       return {
         pipes: util.extend({}, defaultSettings.pipes),
-        filter: defaultSettings.filter
+        preRender: defaultSettings.preRender
       };
     };
 
