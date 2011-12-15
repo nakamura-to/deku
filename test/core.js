@@ -162,17 +162,6 @@ testCase('core', {
     assertSame('[hoge]', value);
   },
 
-  'test applyPipes: it should use a final pipe always, if the pipe exists': function () {
-    var options = {
-      finalPipe: function (value) {
-        return '[' + value + ']';
-      }
-    };
-    var context = this.core.createInitialContext({}, options);
-    var result = this.core.applyPipes('hoge', [], context);
-    assertSame('[hoge]', result);
-  },
-
   'test resolveValue: it should evaluate a string': function () {
     var obj = {
       person: {
@@ -211,7 +200,7 @@ testCase('core', {
     assertSame('[hoge is 20 years old]', value);
   },
 
-  'test resolveValue: it should evaluate pipes': function () {
+  'test resolveValue: it should evaluate filter and pipes': function () {
     var obj = {
       person: {
         name: 'hoge'
@@ -230,7 +219,8 @@ testCase('core', {
       }
     };
     var options = {
-      finalPipe: function (value) {
+      filter: function (value, next) {
+        value = next(value);
         return value + '!';
       }
     };

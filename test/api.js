@@ -73,7 +73,7 @@ testCase('api', {
     assertSame(this.html('result'), result);
   },
 
-  'test prepare and toHtml: it should use a "finalPipe" options prior to "finalPipe" setting': function () {
+  'test prepare and toHtml: it should use a "filter" option prior to "filter" setting': function () {
     /*:DOC +=
      <div id="template">
      {{name}} is {{age}} years old.
@@ -83,12 +83,14 @@ testCase('api', {
      </div>
      */
     tempura.setSettings({
-      finalPipe: function (value) {
+      filter: function (value, next) {
+        value = next(value);
         return value + '!';
       }
     });
     var options = {
-      finalPipe: function (value) {
+      filter: function (value, next) {
+        value = next(value);
         return value + '?';
       }
     };
@@ -118,7 +120,7 @@ testCase('api', {
     assertSame(this.html('result'), result);
   },
 
-  'test prepare and toHtml: it should use a "finalPipe" setting, if a "finalPipe" option does not exitst': function () {
+  'test prepare and toHtml: it should use a "filter" setting, if a "filter" option does not exitst': function () {
     /*:DOC +=
      <div id="template">
      {{name|enclose}} is {{age}} years old.
@@ -128,7 +130,8 @@ testCase('api', {
      </div>
      */
     tempura.setSettings({
-      finalPipe: function (value) {
+      filter: function (value, next) {
+        value = next(value);
         return value + '!';
       }
     });

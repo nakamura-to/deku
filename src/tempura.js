@@ -128,7 +128,6 @@
       var wrapper;
       var contextPipe;
       var optionPipe;
-      var finalPipe = options.finalPipe;
       var i;
       var len = pipeNames.length;
       var pipeName;      
@@ -145,19 +144,29 @@
           } 
         }
       }
-      if (util.isFunction(finalPipe)) {
-        value = finalPipe.call(context, value);
-      }
       return value;
     },
 
+    applyFilter: function (value, context, pipeline) {
+      var options = context[core.TEMPURA_OPTIONS] || {};
+      var filter = options.filter;
+      if (util.isFunction(filter)) {
+        return filter.call(context, value, pipeline);
+      } else {
+        return pipeline(value);
+      }
+    },
+
     resolveValue: function (path, pipeNames, context) {
+      var pipeline = function (value) {
+        return core.applyPipes(value, pipeNames, context);
+      };
       var wrapper = core.walk(path, context);
       var value = wrapper.value;
       if (util.isFunction(value)) {
         value = value.call(wrapper.context);
       }
-      return core.applyPipes(value, pipeNames, context);
+      return core.applyFilter(value, context, pipeline);
     },
 
     transformTags: (function () {
@@ -312,7 +321,8 @@
 
     var defaultSettings = {
       pipes: {},
-      finalPipe: function (value) {
+      filter: function (value, next) {
+        value = next(value);
         return typeof value === 'undefined' ? '' : value;
       }
     };
@@ -320,7 +330,7 @@
     var cloneDefaultSettings = function () {
       return {
         pipes: util.extend({}, defaultSettings.pipes),
-        finalPipe: defaultSettings.finalPipe
+        filter: defaultSettings.filter
       };
     };
 
