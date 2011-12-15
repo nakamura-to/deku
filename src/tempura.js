@@ -72,7 +72,7 @@
 
     TEMPURA_CONTEXT_MARK: '__tempura__',
 
-    TEMPURA_OPTIONS: '__tempura__options',
+    TEMPURA_OPTIONS: '$options',
 
     ROOT_CONTEXT: '$root',
 
@@ -120,7 +120,7 @@
 
     format: function (value, fmtName, context) {
       var wrapper;
-      var defaultFormatter;
+      var contextFormatter;
       var formatter;
       var globalFormatter;
       var options = context[core.TEMPURA_OPTIONS];
@@ -132,9 +132,9 @@
         globalFormatter = options.globalFormatter;
       }
       wrapper = core.walk(fmtName, context);
-      defaultFormatter = wrapper.value;
-      if (util.isFunction(defaultFormatter)) {
-        value = defaultFormatter.call(context, value);
+      contextFormatter = wrapper.value;
+      if (util.isFunction(contextFormatter)) {
+        value = contextFormatter.call(context, value);
       } else if (util.isFunction(formatter)) {
         value = formatter.call(context, value);
       }

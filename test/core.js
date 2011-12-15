@@ -17,31 +17,27 @@ testCase('core', {
     this.core = tempura.internal.core;
   },
 
-  'test defined': function () {
-    assertNotUndefined(this.core);
-  },
-
-  'test walk. it should accept a simple property name.': function () {
+  'test walk: it should accept a simple property name': function () {
     var obj = {
       name : 'hoge'
     };
     var context = this.core.createInitialContext(obj);
     var wrapper = this.core.walk('name', context);
-    assertEquals('hoge', wrapper.value);
-    assertEquals(context, wrapper.context);
+    assertSame('hoge', wrapper.value);
+    assertSame(context, wrapper.context);
   },
 
-  'test walk. it should accept a simple property name which includes leading and trailing whitespaces.': function () {
+  'test walk: it should accept a simple property name which includes leading and trailing whitespaces': function () {
     var obj = {
       name : 'hoge'
     };
     var context = this.core.createInitialContext(obj);
     var wrapper = this.core.walk('   name   ', context);
-    assertEquals('hoge', wrapper.value);
-    assertEquals(context, wrapper.context);
+    assertSame('hoge', wrapper.value);
+    assertSame(context, wrapper.context);
   },
 
-  'test walk. it should accept a navigation path.': function () {
+  'test walk: it should accept a navigation path': function () {
     var obj = {
       person: {
         name: 'hoge'
@@ -49,31 +45,30 @@ testCase('core', {
     };
     var context = this.core.createInitialContext(obj);
     var wrapper = this.core.walk('person.name', context);
-    assertEquals('hoge', wrapper.value);
+    assertSame('hoge', wrapper.value);
     assertNotNull(obj.person, wrapper.context.$this);
   },
 
-  'test walk': function () {
+  'test walk: it should accept unknown path': function () {
     var obj = {
       person: {
-        name: 'hoge',
-        age: null
+        name: 'hoge'
       }
     };
     var context = this.core.createInitialContext(obj);
-    assertEquals('hoge', this.core.walk(' person.name ', context).value);
-    assertEquals(null, this.core.walk(' person.age ', context).value);
-    assertEquals(undefined, this.core.walk('unknown', context).value);
+    var wrapper = this.core.walk('person.unknown', context);
+    assertSame(undefined, wrapper.value);
+    assertNotNull(obj.person, wrapper.context.$this);
   },
 
-  'test createContext. data should be returned when it is a tempura context.' : function () {
+  'test createContext: it should return input data when the data is a tempura context' : function () {
     var parent = {};
     var data = {};
     data[this.core.TEMPURA_CONTEXT_MARK] = true;
-    assertEquals(data, this.core.createContext(parent, data));
+    assertSame(data, this.core.createContext(parent, data));
   },
 
-  'test createContext. a new context should be returned when data is a plain object.' : function () {
+  'test createContext: it should return a new context when the input data is a plain object' : function () {
     var parent = {};
     var data = {};
     var context;
@@ -90,21 +85,23 @@ testCase('core', {
     assertSame(data, context[this.core.THIS]);
   },
 
-  'test includes': function () {
+  'test includes: it should return true when a directive is included': function () {
     assertTrue(this.core.includes('#', '<div>{{#name}}</div>'));
-    assertFalse(this.core.includes('#', '<div>name</div>'));
+    assertFalse(this.core.includes('#', '<div>#name</div>'));
   },
 
   'test createInitialContext': function () {
     var obj = {};
-    var context = this.core.createInitialContext(obj);
+    var options = {};
+    var context = this.core.createInitialContext(obj, options);
     assertTrue(context[this.core.TEMPURA_CONTEXT_MARK]);
-    assertSame(context, context[this.core.ROOT_CONTEXT]);
-    assertNull(context[this.core.PARENT_CONTEXT]);
-    assertEquals(obj, context[this.core.THIS]);
+    assertSame(options, context.$options);
+    assertSame(context, context.$root);
+    assertNull(context.$parent);
+    assertSame(obj, context.$this);
   },
 
-  'test format: default formatter': function () {
+  'test format: it should use a formatter which is defined in context, if the formatter exists': function () {
     var obj = {
       enclose: function (value) {
         return '$' + value + '$';
@@ -118,11 +115,11 @@ testCase('core', {
       }
     };
     var context = this.core.createInitialContext(obj, options);
-    var result = this.core.format('hoge', 'enclose', context);
-    assertEquals('$hoge$', result);
+    var value = this.core.format('hoge', 'enclose', context);
+    assertSame('$hoge$', value);
   },
 
-  'test format: option formatter': function () {
+  'test format: it should use a formatter which is defined in options, if the formatter does not in context and does in options': function () {
     var obj = {
     };
     var options = {
@@ -133,11 +130,11 @@ testCase('core', {
       }
     };
     var context = this.core.createInitialContext(obj, options);
-    var result = this.core.format('hoge', 'enclose', context);
-    assertEquals('[hoge]', result);
+    var value = this.core.format('hoge', 'enclose', context);
+    assertSame('[hoge]', value);
   },
 
-  'test format: global formatter': function () {
+  'test format: it should use a global formatter always, if the formatter exists': function () {
     var options = {
       globalFormatter: function (value) {
         return '[' + value + ']';
@@ -145,36 +142,64 @@ testCase('core', {
     };
     var context = this.core.createInitialContext({}, options);
     var result = this.core.format('hoge', null, context);
-    assertEquals('[hoge]', result);
+    assertSame('[hoge]', result);
   },
 
-  'test getValue: function value': function () {
+  'test getValue: it should evaluate a string': function () {
     var obj = {
       person: {
-        name: function () {
-          return 'hoge, ' + this.age;
-        },
+        name: 'hoge'
+      }
+    };
+    var context = this.core.createInitialContext(obj);
+    var value = this.core.getValue('person.name', null, context);
+    assertSame('hoge', value);
+  },
+
+  'test getValue: it should evaluate a number': function () {
+    var obj = {
+      person: {
         age: 20
       }
     };
     var context = this.core.createInitialContext(obj);
-    assertEquals('hoge, 20', this.core.getValue('person.name', null, context));
+    var value = this.core.getValue('person.age', null, context);
+    assertSame(20, value);
   },
 
-  'test transformTags': function () {
+  'test getValue: it should evaluate a function': function () {
+    var obj = {
+      person: {
+        name: function () {
+          return this.$root.start + 'hoge is ' + this.age + ' years old' + this.$root.end;
+        },
+        age: 20
+      },
+      start: '[',
+      end: ']'
+    };
+    var context = this.core.createInitialContext(obj);
+    var value = this.core.getValue('person.name', null, context);
+    assertSame('[hoge is 20 years old]', value);
+  },
+
+  'test transformTags: it should resolve property references': function () {
     var obj = {
       name: 'hoge',
       age: 20
     };
     var context = this.core.createInitialContext(obj);
     var result = this.core.transformTags('{{name}} is {{age}} years old.', context);
-    assertEquals('hoge is 20 years old.', result);
+    assertSame('hoge is 20 years old.', result);
   },
 
-  'test transformTags: format': function () {
+  'test transformTags: it should apply a formatter after resolving property reference': function () {
     var obj = {
       name: 'hoge',
-      age: 20
+      age: 20,
+      double: function (value) {
+        return value * 2;
+      }
     };
     var options = {
       formatters: {
@@ -184,11 +209,11 @@ testCase('core', {
       }
     };
     var context = this.core.createInitialContext(obj, options);
-    var result = this.core.transformTags('{{name | enclose}} is {{age | enclose}} years old.', context);
-    assertEquals('[hoge] is [20] years old.', result);
+    var result = this.core.transformTags('{{name|enclose}} is {{age|double}} years old.', context);
+    assertSame('[hoge] is 40 years old.', result);
   },
 
-  'test transformSection: template does not contain #': function () {
+  'test transformSection: it should return false if the input template does not contain "{{#" or "{{^"': function () {
     var obj = {
       name: 'hoge',
       age: 20
@@ -198,7 +223,7 @@ testCase('core', {
     assertFalse(result);
   },
 
-  'test transformSection: context': function () {
+  'test transformSection: it should resolve context specific properties': function () {
     var obj = {
       rootName: 'aaa',
       parent: {
@@ -215,10 +240,10 @@ testCase('core', {
       '{{#child}}{{$root.rootName}},{{$parent.parentName}},{{$this.childName}},{{childName}}{{/child}}{{/parent}}'
     ].join('');
     var result = this.core.transformSection(template, context);
-    assertEquals('aaa,,aaa,aaa|aaa,aaa,bbb,bbb|aaa,bbb,ccc,ccc', result);
+    assertSame('aaa,,aaa,aaa|aaa,aaa,bbb,bbb|aaa,bbb,ccc,ccc', result);
   },
 
-  'test transformSection: array of object': function () {
+  'test transformSection: it should iterate array of object': function () {
     var obj = {
       people: [{
         name: 'aaa',
@@ -230,10 +255,10 @@ testCase('core', {
     };
     var context = this.core.createInitialContext(obj);
     var result = this.core.transformSection('[ {{#people}}{{name}} is {{age}} years old.\n{{/people}} ]', context);
-    assertEquals('[ aaa is 1 years old.\nbbb is 2 years old.\n ]', result);
+    assertSame('[ aaa is 1 years old.\nbbb is 2 years old.\n ]', result);
   },
 
-  'test transformSection: array of string': function () {
+  'test transformSection: it should iterate array of string': function () {
     var obj = {
       people: [
         'aaa',
@@ -242,10 +267,10 @@ testCase('core', {
     };
     var context = this.core.createInitialContext(obj);
     var result = this.core.transformSection('[ {{#people}}{{$this}}\n{{/people}} ]', context);
-    assertEquals('[ aaa\nbbb\n ]', result);
+    assertSame('[ aaa\nbbb\n ]', result);
   },
 
-  'test transformSection: function': function () {
+  'test transformSection: it should invoke function and if the result is true, it should handle content': function () {
     var obj = {
       value: 'hoge',
       isOk: function () {
@@ -254,10 +279,22 @@ testCase('core', {
     };
     var context = this.core.createInitialContext(obj);
     var result = this.core.transformSection('[ {{#isOk}}{{value}}{{/isOk}} ]', context);
-    assertEquals('[ hoge ]', result);
+    assertSame('[ hoge ]', result);
   },
 
-  'test transformSection: object': function () {
+  'test transformSection: it should invoke function and if the result is false, it should ignore content': function () {
+    var obj = {
+      value: 'hoge',
+      isOk: function () {
+        return false;
+      }
+    };
+    var context = this.core.createInitialContext(obj);
+    var result = this.core.transformSection('[ {{#isOk}}{{value}}{{/isOk}} ]', context);
+    assertSame('[  ]', result);
+  },
+
+  'test transformSection: it should dereference object': function () {
     var obj = {
       person: {
         name: 'aaa',
@@ -266,54 +303,53 @@ testCase('core', {
     };
     var context = this.core.createInitialContext(obj);
     var result = this.core.transformSection('[ {{#person}}{{name}} is {{age}} years old.{{/person}} ]', context);
-    assertEquals('[ aaa is 1 years old. ]', result);
+    assertSame('[ aaa is 1 years old. ]', result);
   },
 
-  'test transformSection: bool': function () {
+  'test transformSection: it should evaluate boolean value as condition to handle content': function () {
     var obj = {
       value: true
     };
     var context = this.core.createInitialContext(obj);
     var result = this.core.transformSection('[ {{#value}}aaa{{/value}}{{^value}}bbb{{/value}} ]', context);
-    assertEquals('[ aaa ]', result);
+    assertSame('[ aaa ]', result);
   },
 
-  'test transform: tags': function () {
+  'test transform: it should handle a template contains tags': function () {
     var obj = {
       name: 'hoge',
       age: 20
     };
-    assertEquals('hoge is 20 years old.', this.core.transform('{{name}} is {{age}} years old.', obj));
+    var result = this.core.transform('{{name}} is {{age}} years old.', obj);
+    assertSame('hoge is 20 years old.', result);
   },
 
-  'test transform: section': function () {
+  'test transform: it should handle a template contains sections': function () {
     var obj = {
       person: {
         name: 'aaa',
         age: 1
+      },
+      address: {
+        street: 'bbb'
       }
     };
     var context = this.core.createInitialContext(obj);
-    var result = this.core.transform('[ {{#person}}{{name}} is {{age}} years old.{{/person}} ]', context);
-    assertEquals('[ aaa is 1 years old. ]', result);
+    var template = '[ {{#person}}{{name}} is {{age}} years old.{{/person}} {{#address}}street is {{street}}.{{/address}} ]';
+    var result = this.core.transform(template, context);
+    assertSame('[ aaa is 1 years old. street is bbb. ]', result);
   },
 
-  'test toHtml: encode': function () {
-    var obj = { str: '<a>', num: 1, f : function () { return '<b>'; } };
-    var result = this.core.toHtml('{{str}},{{num}},{{f}}', obj);
-    assertEquals('&lt;a&gt;,1,&lt;b&gt;', result);
+  'test toHtml: it should encode a value if the value is enclosed with "{{" and "}}"': function () {
+    var obj = { str: '<a>', num: 1, func : function () { return '<b>'; } };
+    var result = this.core.toHtml('{{str}},{{num}},{{func}}', obj);
+    assertSame('&lt;a&gt;,1,&lt;b&gt;', result);
   },
 
-  'test toHtml: disable encode': function () {
-    var obj = { str: '<a>', num: 1, f : function () { return '<b>'; } };
-    var result = this.core.toHtml('{{{str}}},{{{num}}},{{{f}}}', obj);
-    assertEquals('<a>,1,<b>', result);
-  },
-
-  'test toHtml: function': function () {
-    var obj = { str: '<a>', num: 1, f : function () { return this.$root.str; } };
-    var result = this.core.toHtml('{{f}}', obj);
-    assertEquals('&lt;a&gt;', result);
+  'test toHtml: it should not encode value if the value is enclosed with "{{{" and "}}}"': function () {
+    var obj = { str: '<a>', num: 1, func : function () { return '<b>'; } };
+    var result = this.core.toHtml('{{{str}}},{{{num}}},{{{func}}}', obj);
+    assertSame('<a>,1,<b>', result);
   }
 
 });

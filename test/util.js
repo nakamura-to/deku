@@ -18,10 +18,6 @@ testCase('util', {
     this.util = tempura.internal.util;
   },
 
-  'test defined': function () {
-    assertNotUndefined(this.util);
-  },
-
   'test isObject': function () {
     assertTrue(this.util.isObject({}));
     assertFalse(this.util.isObject([]));
@@ -71,9 +67,9 @@ testCase('util', {
   },
 
   'test trim': function () {
-    assertEquals('abc', this.util.trim('  abc  '));
-    assertEquals('', this.util.trim(null));
-    assertEquals('', this.util.trim(undefined));
+    assertSame('abc', this.util.trim('  abc  '));
+    assertSame('', this.util.trim(null));
+    assertSame('', this.util.trim(undefined));
   },
 
   'test extend': function () {
@@ -83,23 +79,23 @@ testCase('util', {
     };
     var result = this.util.extend(obj, {name: 'foo', job: 'salesman'}, {birthday: '2011/12/11'});
     assertSame(obj, result);
-    assertEquals('hoge', obj.name);
-    assertEquals(20, obj.age);
-    assertEquals('salesman', obj.job);
-    assertEquals('2011/12/11', obj.birthday);
+    assertSame('hoge', obj.name);
+    assertSame(20, obj.age);
+    assertSame('salesman', obj.job);
+    assertSame('2011/12/11', obj.birthday);
   },
 
   'test encode': function () {
-    assertEquals('&amp;', this.util.encode('&'));
-    assertEquals('&quot;', this.util.encode('"'));
-    assertEquals('&#39;', this.util.encode("'"));
-    assertEquals('&lt;', this.util.encode('<'));
-    assertEquals('&gt;', this.util.encode('>'));
-    assertEquals('a&amp;b&quot;c&#39;d&lt;e&gt;f', this.util.encode('a&b"c\'d<e>f'));
-    assertEquals('abc', this.util.encode('abc'));
-    assertEquals('123', this.util.encode(123));
-    assertEquals('', this.util.encode(null));
-    assertEquals('', this.util.encode(undefined));
+    assertSame('&amp;', this.util.encode('&'));
+    assertSame('&quot;', this.util.encode('"'));
+    assertSame('&#39;', this.util.encode("'"));
+    assertSame('&lt;', this.util.encode('<'));
+    assertSame('&gt;', this.util.encode('>'));
+    assertSame('a&amp;b&quot;c&#39;d&lt;e&gt;f', this.util.encode('a&b"c\'d<e>f'));
+    assertSame('abc', this.util.encode('abc'));
+    assertSame('123', this.util.encode(123));
+    assertSame('', this.util.encode(null));
+    assertSame('', this.util.encode(undefined));
   }
 
 });
