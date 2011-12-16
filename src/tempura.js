@@ -109,7 +109,6 @@
     walk: function (path, context) {
       var names;
       var value;
-      path = util.trim(path);
       names = path.split('.');
       value = context[names.shift()];
       while (value !== null && value !== undef && names.length > 0) {
@@ -125,7 +124,7 @@
     applyPipes: function (value, pipeNames, context) {
       var options = context[core.TEMPURA_OPTIONS] || {};
       var pipes = options.pipes || {};
-      var wrapper;
+      var walkResult;
       var contextPipe;
       var optionPipe;
       var i;
@@ -133,10 +132,10 @@
       var pipeName;      
       for (i = 0; i < len; i++) {
         pipeName = pipeNames[i];
-        wrapper = core.walk(pipeName, context);
-        contextPipe = wrapper.value;
+        walkResult = core.walk(pipeName, context);
+        contextPipe = walkResult.value;
         if (util.isFunction(contextPipe)) {
-          value = contextPipe.call(wrapper.context, value);
+          value = contextPipe.call(walkResult.context, value);
         } else {
           optionPipe = pipes[pipeName];
           if (util.isFunction(optionPipe)) {
@@ -158,15 +157,15 @@
     },
 
     resolveValue: function (path, pipeNames, context) {
-      var render = function (value) {
+      var pipe = function (value) {
         return core.applyPipes(value, pipeNames, context);
       };
-      var wrapper = core.walk(path, context);
-      var value = wrapper.value;
+      var walkResult = core.walk(path, context);
+      var value = walkResult.value;
       if (util.isFunction(value)) {
-        value = value.call(wrapper.context);
+        value = value.call(walkResult.context);
       }
-      return core.applyPreRender(value, context, render);
+      return core.applyPreRender(value, context, pipe);
     },
 
     transformTags: (function () {
@@ -197,7 +196,7 @@
       };
       var getValue = function (path, pipeNamesDef, context) {
         var pipeNames = getPipeNames(pipeNamesDef);
-        var value = core.resolveValue(path, pipeNames, context);
+        var value = core.resolveValue(util.trim(path), pipeNames, context);
         return (value === null || value === undef) ? '' : String(value);
       };
       return function (template, context) {
@@ -248,7 +247,7 @@
         return template.replace(regex, function (match, before, type, name, content, after) {
           var renderedBefore = before ? core.transformTags(before, context) : '';
           var renderedAfter = after ? core.transform(after, context) : '';
-          var wrapper = core.walk(name, context);
+          var walkResult = core.walk(name, context);
           var renderedContent = (function (value, context) {
             if (type === '#') {
               if (util.isArray(value)) {
@@ -277,7 +276,7 @@
               }
             }
             return '';
-          }(wrapper.value, wrapper.context));
+          }(walkResult.value, walkResult.context));
           return renderedBefore + renderedContent + renderedAfter;
         });
       };
@@ -321,8 +320,8 @@
 
     var defaultSettings = {
       pipes: {},
-      preRender: function (value, render) {
-        var html = render(value);
+      preRender: function (value, pipe) {
+        var html = pipe(value);
         return typeof html === 'undefined' ? '' : html;
       }
     };

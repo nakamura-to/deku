@@ -29,16 +29,6 @@ testCase('core', {
     assertSame(context, wrapper.context);
   },
 
-  'test walk: it should accept a simple property name which includes leading and trailing whitespaces': function () {
-    var obj = {
-      name : 'hoge'
-    };
-    var context = this.core.createInitialContext(obj);
-    var wrapper = this.core.walk('   name   ', context);
-    assertSame('hoge', wrapper.value);
-    assertSame(context, wrapper.context);
-  },
-
   'test walk: it should accept a navigation path': function () {
     var obj = {
       person: {
@@ -47,18 +37,6 @@ testCase('core', {
     };
     var context = this.core.createInitialContext(obj);
     var wrapper = this.core.walk('person.name', context);
-    assertSame('hoge', wrapper.value);
-    assertNotNull(obj.person, wrapper.context.$this);
-  },
-
-  'test walk: it should accept a navigation path which includes leading and trailing whitespaces': function () {
-    var obj = {
-      person: {
-        name: 'hoge'
-      }
-    };
-    var context = this.core.createInitialContext(obj);
-    var wrapper = this.core.walk('   person.name   ', context);
     assertSame('hoge', wrapper.value);
     assertNotNull(obj.person, wrapper.context.$this);
   },
