@@ -3,6 +3,7 @@
  * https://github.com/nakamura-to/tempura
  */
 /*jslint browser: true, forin: true, indent:2, plusplus: true, vars: true */
+/*global exports:false, module:false */
 (function (global) {
   'use strict';
 
@@ -330,7 +331,7 @@
 
   };
 
-  var tempura = global.tempura = (function () {
+  var tempura =  (function () {
 
     var undef;
 
@@ -383,5 +384,12 @@
       }
     };
   }());
+
+
+  if (typeof module !== 'undefined') {
+    module.exports = tempura;
+  } else {
+    global.tempura = tempura;
+  }
 
 }(this));

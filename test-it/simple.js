@@ -1,0 +1,1 @@
+var data = {name: 'hoge', age: 20};
