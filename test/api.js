@@ -89,8 +89,8 @@ testCase('api', {
       }
     });
     var options = {
-      preRender: function (value, next) {
-        value = next(value);
+      preRender: function (value, pipe) {
+        value = pipe(value);
         return value + '?';
       }
     };
@@ -130,8 +130,8 @@ testCase('api', {
      </div>
      */
     tempura.setSettings({
-      preRender: function (value, next) {
-        value = next(value);
+      preRender: function (value, pipe) {
+        value = pipe(value);
         return value + '!';
       }
     });

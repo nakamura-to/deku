@@ -106,16 +106,15 @@
       }
     },
 
-    walk: function (path, context) {
-      var names;
-      var value;
-      names = path.split('.');
-      value = context[names.shift()];
-      while (value !== null && value !== undef && names.length > 0) {
+    walk: function (name, context) {
+      var segments = name.split('.');
+      var value = context[segments.shift()];
+      while (value !== null && value !== undef && segments.length > 0) {
         context = core.createContext(context, value);
-        value = context[names.shift()];
+        value = context[segments.shift()];
       }
       return {
+        found: segments.length === 0,
         value: value,
         context: context
       };
@@ -156,11 +155,11 @@
       }
     },
 
-    resolveValue: function (path, pipeNames, context) {
+    resolveValue: function (name, pipeNames, context) {
       var pipe = function (value) {
         return core.applyPipes(value, pipeNames, context);
       };
-      var walkResult = core.walk(path, context);
+      var walkResult = core.walk(name, context);
       var value = walkResult.value;
       if (util.isFunction(value)) {
         value = value.call(walkResult.context);
@@ -194,26 +193,27 @@
         }
         return results;
       };
-      var getValue = function (path, pipeNamesDef, context) {
+      var getValue = function (valueName, pipeNamesDef, context) {
+        var name = util.trim(valueName);
         var pipeNames = getPipeNames(pipeNamesDef);
-        var value = core.resolveValue(util.trim(path), pipeNames, context);
+        var value = core.resolveValue(name, pipeNames, context);
         return (value === null || value === undef) ? '' : String(value);
       };
       return function (template, context) {
-        var callback = function (match, directive, path, pipeNamesDef) {
+        var callback = function (match, directive, valueName, pipeNamesDef) {
           switch (directive) {
           case '#':
-            return '{{#' + path + '}}';
+            return '{{#' + valueName + '}}';
           case '^':
-            return '{{^' + path + '}}';
+            return '{{^' + valueName + '}}';
           case '/':
-            return '{{/' + path + '}}';
+            return '{{/' + valueName + '}}';
           case '!':
             return '';
           case '{':
-            return getValue(path, pipeNamesDef, context);
+            return getValue(valueName, pipeNamesDef, context);
           default:
-            return util.encode(getValue(path, pipeNamesDef, context));
+            return util.encode(getValue(valueName, pipeNamesDef, context));
           }
         };
         var lines = template.split('\n');
@@ -323,6 +323,12 @@
       preRender: function (value, pipe) {
         var html = pipe(value);
         return typeof html === 'undefined' ? '' : html;
+      },
+      noSuchValue: function (name) {
+
+      },
+      noSuchPipe: function (name, index) {
+
       }
     };
 
