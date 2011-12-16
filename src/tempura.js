@@ -114,7 +114,7 @@
         value = context[segments.shift()];
       }
       return {
-        found: segments.length === 0,
+        found: value !== undef && segments.length === 0,
         value: value,
         context: context
       };
@@ -123,6 +123,7 @@
     applyPipes: function (value, pipeNames, context) {
       var options = context[core.TEMPURA_OPTIONS] || {};
       var pipes = options.pipes || {};
+      var noSuchPipe = options.noSuchPipe;
       var walkResult;
       var contextPipe;
       var optionPipe;
@@ -139,7 +140,11 @@
           optionPipe = pipes[pipeName];
           if (util.isFunction(optionPipe)) {
             value = optionPipe.call(context, value);
-          } 
+          } else {
+            if (util.isFunction(noSuchPipe)) {
+              value = noSuchPipe.call(context, pipeName, i, value);
+            }
+          }
         }
       }
       return value;
@@ -155,12 +160,21 @@
       }
     },
 
+    noSuchValue: function (name, context) {
+      var option = context[core.TEMPURA_OPTIONS] || {};
+      var noSuchValue = option.noSuchValue;
+      if (util.isFunction(noSuchValue)) {
+        return noSuchValue.call(context, name);
+      }
+      return undef;
+    },
+
     resolveValue: function (name, pipeNames, context) {
       var pipe = function (value) {
         return core.applyPipes(value, pipeNames, context);
       };
       var walkResult = core.walk(name, context);
-      var value = walkResult.value;
+      var value = walkResult.found ? walkResult.value : core.noSuchValue(name, context);
       if (util.isFunction(value)) {
         value = value.call(walkResult.context);
       }
@@ -240,6 +254,32 @@
         '}}',
         '\n*([\\s\\S]*)$' // $5
       ].join(''), 'g');
+      var getRenderedContent = function (type, content, value, context) {
+        var i;
+        var len = value.length;
+        var array = [];
+        if (type === '#') {
+          if (util.isArray(value)) {
+            for (i = 0; i < len; i++) {
+              array[i] = core.transform(content, core.createContext(context, value[i]));
+            }
+            return array.join('');
+          } else if (util.isFunction(value)) {
+            if (value.call(context)) {
+              return core.transform(content, context);
+            }
+          } else if (util.isObject(value)) {
+            return core.transform(content, core.createContext(context, value));
+          } else if (value) {
+            return core.transform(content, context);
+          }
+        } else if (type === '^') {
+          if ((util.isArray(value) && value.length === 0) || !value) {
+            return core.transform(content, context);
+          }
+        }
+        return '';
+      };
       return function (template, context) {
         if (!core.includes('#', template) && !core.includes('^', template)) {
           return false;
@@ -247,36 +287,10 @@
         return template.replace(regex, function (match, before, type, name, content, after) {
           var renderedBefore = before ? core.transformTags(before, context) : '';
           var renderedAfter = after ? core.transform(after, context) : '';
+          var renderedContent;
           var walkResult = core.walk(name, context);
-          var renderedContent = (function (value, context) {
-            if (type === '#') {
-              if (util.isArray(value)) {
-                return (function () {
-                  var i;
-                  var len = value.length;
-                  var array = [];
-                  for (i = 0; i < len; i++) {
-                    array[i] = core.transform(content, core.createContext(context, value[i]));
-                  }
-                  return array.join('');
-                }());
-              } else if (util.isFunction(value)) {
-                var bool = value.call(context);
-                if (bool) {
-                  return core.transform(content, context);
-                }
-              } else if (util.isObject(value)) {
-                return core.transform(content, core.createContext(context, value));
-              } else if (value) {
-                return core.transform(content, context);
-              }
-            } else if (type === '^') {
-              if ((util.isArray(value) && value.length === 0) || !value) {
-                return core.transform(content, context);
-              }
-            }
-            return '';
-          }(walkResult.value, walkResult.context));
+          var value = walkResult.found ? walkResult.value : core.noSuchValue(name, context);
+          renderedContent = getRenderedContent(type, content, value, walkResult.context);
           return renderedBefore + renderedContent + renderedAfter;
         });
       };
@@ -318,24 +332,28 @@
 
   var tempura = global.tempura = (function () {
 
+    var undef;
+
     var defaultSettings = {
       pipes: {},
       preRender: function (value, pipe) {
-        var html = pipe(value);
-        return typeof html === 'undefined' ? '' : html;
+        var result = pipe(value);
+        return result === undef ? '' : result;
       },
       noSuchValue: function (name) {
-
+        return undef;
       },
-      noSuchPipe: function (name, index) {
-
+      noSuchPipe: function (name, index, value) {
+        return value;
       }
     };
 
     var cloneDefaultSettings = function () {
       return {
         pipes: util.extend({}, defaultSettings.pipes),
-        preRender: defaultSettings.preRender
+        preRender: defaultSettings.preRender,
+        noSuchValue: defaultSettings.noSuchValue,
+        noSuchPipe: defaultSettings.noSuchPipe
       };
     };
 
@@ -366,4 +384,4 @@
     };
   }());
 
-}(window));
+}(this));
