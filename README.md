@@ -35,6 +35,8 @@ Below is the result:
 
     Joe spends $4,200
 
+The pipeline processing is useful for formatting and coversion.
+
 Differences Between tempura and mustache.js
 -------------------------------------------
 
