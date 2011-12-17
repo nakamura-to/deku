@@ -379,7 +379,12 @@
       },
 
       prepare: function (template, options) {
-        var opts = util.extend({}, options || {}, settings);
+        var opts = {};
+        if (options) {
+          util.extend(opts, options, settings);
+        } else {
+          util.extend(opts, settings);
+        }
         return core.prepare(template, opts);
       },
 
