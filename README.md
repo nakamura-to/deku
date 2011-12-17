@@ -19,9 +19,9 @@ var data = {
 };
 
 var tmpl = '{{name}} spends {{calc}}';
-var html = tempura.prepare(tmpl).render(data);
+var result = tempura.prepare(tmpl).render(data);
 
-console.log(html); // Joe spends 4200
+console.log(result); // Joe spends 4200
 ```
 
 Differences Between tempura and mustache.js
@@ -49,9 +49,9 @@ var data = {
 };
 
 var tmpl = '{{name}} spends {{calc|dollar}}';
-var html = tempura.prepare(tmpl).render(data);
+var result = tempura.prepare(tmpl).render(data);
 
-console.log(html); // Joe spends $4,200
+console.log(result); // Joe spends $4,200
 ```
 
 More than one pipe function are available.
@@ -68,9 +68,9 @@ var data = {
 };
 
 var tmpl = '{{name|yeah|enclose}}';
-var html = tempura.prepare(tmpl).render(data);
+var result = tempura.prepare(tmpl).render(data);
 
-console.log(html); // [Joe!]
+console.log(result); // [Joe!]
 ```
 
 ### Data Context Access
