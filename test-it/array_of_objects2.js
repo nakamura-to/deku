@@ -1,4 +1,4 @@
-/*jslint browser: true, indent: 2 */
+/*jslint sloppy: true, indent: 2 */
 var data = {
   names: [
     {name: 'aaa'},

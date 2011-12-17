@@ -49,12 +49,10 @@ fs.readdir('.', function (err, files) {
         });
       });
     };
-
     if (!match) {
       return;
     }
     base = match[1];
-
     if (files.indexOf(base + '.js') !== -1) {
       fs.readFile(base + '.js', 'utf-8', function (err, js) {
         var data;
