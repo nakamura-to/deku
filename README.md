@@ -158,9 +158,9 @@ var data = {
         return [this.$root.rootName,
                 this.$parent.parentName,
                 this.childName].join('/');
-     }
+      }
     }
-},
+  },
 };
 var tmpl = 'path: {{parent.child.path}}';
 var result = tempura.prepare(tmpl).render(data);
