@@ -365,12 +365,16 @@
 
       version: '0.0.1',
 
+      getSettings: function () {
+        return settings;
+      },
+
       setSettings: function (userSettings) {
         settings = userSettings;
       },
 
-      getSettings: function () {
-        return settings;
+      addSettings: function (userSettings) {
+        settings = util.extend({}, userSettings, settings);
       },
 
       prepare: function (template, options) {

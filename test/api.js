@@ -224,7 +224,24 @@ testCase('api', {
     var template = tempura.prepare(this.html('template'));
     var result = template.render({name: 'hoge', age: 20});
     assertSame(this.html('result'), result);
-  }
+  },
 
+  'test addSettings: it should merge settings with original one': function () {
+    tempura.setSettings({
+      hoge: function () {
+        return 'original hoge';
+      },
+      foo: function () {
+        return 'original foo';
+      }
+    });
+    tempura.addSettings({
+      foo: function () {
+        return 'new foo';
+      }
+    });
+    assertSame('original hoge', tempura.getSettings().hoge());
+    assertSame('new foo', tempura.getSettings().foo());
+  }
 
 });
