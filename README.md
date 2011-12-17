@@ -145,6 +145,31 @@ We'll get this output:
 
 See [jsfiddle](http://jsfiddle.net/nakamura_to/hvQk8/).
 
+You can also use special identifiers in a function.
+
+```js
+var data = {
+  rootName: 'root',
+  parent: {
+    parentName: 'parent',
+    child: {
+      childName: 'child',
+      path: function () {
+        return [this.$root.rootName,
+                this.$parent.parentName,
+                this.childName].join('/');
+     }
+    }
+},
+};
+var tmpl = 'path: {{parent.child.path}}';
+var result = tempura.prepare(tmpl).render(data);
+
+console.log(result); // path: root/parent/child
+```
+
+See [jsfiddle](http://jsfiddle.net/nakamura_to/TNNey/).
+
 ### Error Handling
 
 tempura can handle the value missings.
