@@ -75,4 +75,46 @@ console.log(html); // [Joe!]
 
 ### Context Access
 
+tempura provides following special identifier to access context. 
+
+* $root
+* $parent
+* $this
+
+Given this object:
+
+```js
+var data = {
+  rootName: 'root',
+  parent: {
+    parentName: 'parent',
+      children: [
+        'child 1',
+        'child 2'
+      ]
+    },
+};
+```
+
+And this template:
+
+```html
+<ul>
+{{#parent}} 
+  {{#children}}
+  <li>{{$root.rootName}}/{{$parent.parentName}}/{{$this}}</li>
+  {{/children}}
+{{/parent}}
+</ul>
+```
+
+We'll get this output:
+
+```html
+<ul>
+  <li>root/parent/child 1</li>
+  <li>root/parent/child 2</li>
+</ul>
+```
+
 ### Missing Value Handling
