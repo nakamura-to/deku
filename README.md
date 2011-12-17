@@ -24,6 +24,8 @@ var result = tempura.prepare(tmpl).render(data);
 console.log(result); // Joe spends 4200
 ```
 
+See [jsfiddle](http://jsfiddle.net/nakamura_to/MbEJw/).
+
 Differences Between tempura and mustache.js
 -------------------------------------------
 
@@ -54,6 +56,8 @@ var result = tempura.prepare(tmpl).render(data);
 console.log(result); // Joe spends $4,200
 ```
 
+See [jsfiddle](http://jsfiddle.net/nakamura_to/SSxmz/).
+
 More than one pipe function are available.
 
 ```js
@@ -72,6 +76,8 @@ var result = tempura.prepare(tmpl).render(data);
 
 console.log(result); // [Joe!]
 ```
+
+See [jsfiddle](http://jsfiddle.net/nakamura_to/6XHqU/).
 
 ### Data Context Access
 
@@ -117,6 +123,6 @@ We'll get this output:
 </ul>
 ```
 
-see [jsfiddle sample](http://jsfiddle.net/nakamura_to/hvQk8/).
+See [jsfiddle](http://jsfiddle.net/nakamura_to/hvQk8/).
 
 ### Missing Value Handling
