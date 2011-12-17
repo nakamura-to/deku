@@ -87,7 +87,7 @@ testCase('core', {
     var options = {};
     var context = this.core.createInitialContext(obj, options);
     assertTrue(context[this.core.TEMPURA_CONTEXT_MARK]);
-    assertSame(options, context.$options);
+    assertSame(options, context[this.core.TEMPURA_OPTIONS]);
     assertSame(context, context.$root);
     assertNull(context.$parent);
     assertSame(obj, context.$this);

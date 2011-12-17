@@ -4,6 +4,7 @@
  */
 /*jslint browser: true, forin: true, indent:2, plusplus: true, vars: true */
 /*global module:false */
+//noinspection ThisExpressionReferencesGlobalObjectJS
 (function (global) {
   'use strict';
 
@@ -80,7 +81,7 @@
 
     TEMPURA_CONTEXT_MARK: '__tempura__',
 
-    TEMPURA_OPTIONS: '$options',
+    TEMPURA_OPTIONS: '__tempura__options',
 
     ROOT_CONTEXT: '$root',
 
@@ -336,6 +337,7 @@
 
     var undef;
 
+    //noinspection JSUnusedLocalSymbols
     var defaultSettings = {
       pipes: {},
       preRender: function (value, pipe) {
