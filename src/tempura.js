@@ -3,7 +3,7 @@
  * https://github.com/nakamura-to/tempura
  */
 /*jslint browser: true, forin: true, indent:2, plusplus: true, vars: true */
-/*global exports:false, module:false */
+/*global module:false */
 (function (global) {
   'use strict';
 
@@ -32,7 +32,10 @@
     },
 
     trim: function (s) {
-      return (s === null || s === undef) ? '' :  s.replace(/^\s*|\s*$/g, '');
+      if (s === null || s === undef) {
+        return '';
+      }
+      return s.replace(/^\s+/, '').replace(/\s+$/, '');
     },
 
     extend: function (obj) {
@@ -193,17 +196,15 @@
         var i;
         var len;
         var name;
-        var results;
-        if (pipeNamesDef === null || pipeNamesDef === undef) {
-          return [];
-        }
-        names = pipeNamesDef.split('|');
-        len = names.length;
-        results = [];
-        for (i = 0; i < len; i++) {
-          name = util.trim(names[i]);
-          if (name) {
-            results.push(name);
+        var results = [];
+        if (pipeNamesDef !== null && pipeNamesDef !== undef) {
+          names = pipeNamesDef.split('|');
+          len = names.length;
+          for (i = 0; i < len; i++) {
+            name = util.trim(names[i]);
+            if (name) {
+              results.push(name);
+            }
           }
         }
         return results;
