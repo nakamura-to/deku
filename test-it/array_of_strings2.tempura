@@ -1,0 +1,5 @@
+<ul>
+{{#names}}
+<li>{{$this}}</li>
+{{/names}}
+</ul>
