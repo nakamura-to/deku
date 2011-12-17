@@ -125,4 +125,28 @@ We'll get this output:
 
 See [jsfiddle](http://jsfiddle.net/nakamura_to/hvQk8/).
 
-### Missing Value Handling
+### Error Handling
+
+tempura can handle the value missings.
+This feature is useful for debugging.
+
+```js
+tempura.setSettings({
+  noSuchValue: function (name) {
+    console.error('the value "' + name + '" is missing');
+    return undefined;
+  },
+  noSuchPipe: function (name, index, value) {
+    console.error('the pipe "' + name + '" is missing');
+    return value;
+  }
+});
+
+var data = { name: 'Joe' };
+var tmpl = '{{name|unknownPipe1}} is {{unkonwnValue|unknownPipe2}}';
+var result = tempura.prepare(tmpl).render(data);
+
+console.log(result); // Joe is
+```
+
+See [jsfiddle](http://jsfiddle.net/nakamura_to/FWLrj/).
