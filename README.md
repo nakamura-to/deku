@@ -103,9 +103,9 @@ See [jsfiddle](http://jsfiddle.net/nakamura_to/JFJkD/).
 
 tempura provides following special identifiers to access data context. 
 
-* $root
-* $parent
-* $this
+* $root : the reference to the root data context
+* $parent : the reference to the parent data context
+* $this : the reference to the current object
 
 Given this object:
 
@@ -195,3 +195,12 @@ console.log(result); // Joe is
 ```
 
 See [jsfiddle](http://jsfiddle.net/nakamura_to/FWLrj/).
+
+### Others
+
+Currently, tempura doesn't support following features, which mustache.js has:
+
+* Higher Order Sections
+* View Partials
+* Streaming
+* Pragmas
