@@ -194,7 +194,7 @@ var result = tempura.prepare(tmpl).render(data);
 console.log(result); // Joe is
 ```
 
-See [jsfiddle](http://jsfiddle.net/nakamura_to/FWLrj/).
+See [jsfiddle](http://jsfiddle.net/nakamura_to/GrNXg/).
 
 tempura provides a hook to handle all values before and after applying pipeline functions.
 It's means you can check erroneous values or convert values.
