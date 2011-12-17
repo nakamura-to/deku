@@ -26,7 +26,7 @@ Below is quick example how to use tempura:
       }
     };
     
-    var tmpl = tempura.prepare("{{name}} spends {{calc|dollar}}");
+    var tmpl = tempura.prepare('{{name}} spends {{calc|dollar}}');
     var html = tmpl.render(data);
     
     console.log(html);
