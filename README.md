@@ -198,7 +198,7 @@ See [jsfiddle](http://jsfiddle.net/nakamura_to/GrNXg/).
 
 tempura provides a hook point to handle all values before and after applying pipeline functions.
 It's means you can check or convert erroneous values.
-(By the way, tempura converts undefined values to empty string by default.)
+(By the way, tempura converts undefined values to empty string by default preRender function.)
 
 ```js
 tempura.addSettings({
