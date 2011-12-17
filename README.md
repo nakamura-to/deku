@@ -196,6 +196,27 @@ console.log(result); // Joe is
 
 See [jsfiddle](http://jsfiddle.net/nakamura_to/FWLrj/).
 
+tempura provides a hook to handle all values before and after applying pipeline functions.
+It's means you can check erroneous values or convert values.
+(By the way, tempura converts undefined values to empty string by default.)
+
+```js
+tempura.addSettings({
+  preRender: function (value, pipe) {
+    var result = pipe(value);
+    return result === null ? '***' : result;
+  }
+});
+
+var data = { name: null };
+var tmpl = 'name is {{name}}';
+var result = tempura.prepare(tmpl).render(data);
+
+console.log(result); // name is ***
+```
+
+See [jsfiddle](http://jsfiddle.net/nakamura_to/FWLrj/).
+
 ### Others
 
 Currently, tempura doesn't support following features, which mustache.js has:
