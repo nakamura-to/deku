@@ -18,8 +18,8 @@ var data = {
   }
 };
 
-var tmpl = tempura.prepare('{{name}} spends {{calc}}');
-var html = tmpl.render(data);
+var tmpl = '{{name}} spends {{calc}}';
+var html = tempura.prepare(tmpl).render(data);
 
 console.log(html); // Joe spends 4200
 ```
@@ -48,8 +48,8 @@ var data = {
   }
 };
 
-var tmpl = tempura.prepare('{{name}} spends {{calc|dollar}}');
-var html = tmpl.render(data);    
+var tmpl = '{{name}} spends {{calc|dollar}}';
+var html = tempura.prepare(tmpl).render(data);
 
 console.log(html); // Joe spends $4,200
 ```
@@ -67,15 +67,15 @@ var data = {
   }
 };
 
-var tmpl = tempura.prepare('{{name|yeah|enclose}}');
-var html = tmpl.render(data);    
+var tmpl = '{{name|yeah|enclose}}';
+var html = tempura.prepare(tmpl).render(data);
 
 console.log(html); // [Joe!]
 ```
 
-### Context Access
+### Data Context Access
 
-tempura provides following special identifier to access context. 
+tempura provides following special identifiers to access data context. 
 
 * $root
 * $parent
@@ -116,5 +116,7 @@ We'll get this output:
   <li>root/parent/child 2</li>
 </ul>
 ```
+
+see [jsfiddle sample](http://jsfiddle.net/nakamura_to/hvQk8/).
 
 ### Missing Value Handling
