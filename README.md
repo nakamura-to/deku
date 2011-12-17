@@ -17,7 +17,6 @@ var data = {
     return 200 + 4000;
   }
 };
-
 var tmpl = '{{name}} spends {{calc}}';
 var result = tempura.prepare(tmpl).render(data);
 
@@ -49,7 +48,6 @@ var data = {
     return '$' + s;
   }
 };
-
 var tmpl = '{{name}} spends {{calc|dollar}}';
 var result = tempura.prepare(tmpl).render(data);
 
@@ -70,7 +68,6 @@ var data = {
     return '[' + value + ']';
   }
 };
-
 var tmpl = '{{name|yeah|enclose}}';
 var result = tempura.prepare(tmpl).render(data);
 
@@ -78,6 +75,29 @@ console.log(result); // [Joe!]
 ```
 
 See [jsfiddle](http://jsfiddle.net/nakamura_to/6XHqU/).
+
+You can define global pipe functions.
+
+```js
+tempura.addSettings({
+  pipes: {
+    yeah: function (value) {
+      return value + '!';
+    },
+    enclose: function (value) {
+      return '[' + value + ']';
+    }
+  }
+});
+
+var data = { name: 'Joe' };
+var tmpl = '{{name|yeah|enclose}}';
+var result = tempura.prepare(tmpl).render(data);
+
+console.log(result); // [Joe!]
+```
+
+See [jsfiddle](http://jsfiddle.net/nakamura_to/JFJkD/).
 
 ### Data Context Access
 
