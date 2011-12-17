@@ -23,8 +23,8 @@ Below is quick example how to use tempura:
       },
     };
     
-    var template = tempura.prepare("{{name|yeah|enclose}} spends {{calc}}");
-    var html = template.render(data);
+    var tmpl = tempura.prepare("{{name|yeah|enclose}} spends {{calc}}");
+    var html = tmpl.render(data);
     
     console.log(html);
 

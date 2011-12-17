@@ -385,7 +385,6 @@
     };
   }());
 
-
   if (typeof module !== 'undefined') {
     module.exports = tempura;
   } else {

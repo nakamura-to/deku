@@ -1,5 +1,5 @@
-/*jslint evil:true, indent: 2, plusplus: true, sloppy: true, vars: true */
-/*global tempura: false, require: false, process:false */
+/*jslint evil:true, indent: 2, node:true, plusplus: true, sloppy: true, vars: true */
+/*global tempura: false*/
 var fs = require('fs');
 var assert = require('assert');
 var util = require('util');
@@ -54,7 +54,7 @@ fs.readdir('.', function (err, files) {
     }
     base = match[1];
     if (files.indexOf(base + '.js') !== -1) {
-      fs.readFile(base + '.js', 'utf-8', function (err, js) {
+      fs.readFile(base + '.js', 'utf8', function (err, js) {
         var data;
         eval(js);
         load(data);
