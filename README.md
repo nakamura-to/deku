@@ -131,13 +131,13 @@ tempura can handle the value missings.
 This feature is useful for debugging.
 
 ```js
-tempura.setSettings({
+tempura.addSettings({
   noSuchValue: function (name) {
-    console.error('the value "' + name + '" is missing');
+    console.warn('the value "' + name + '" is missing');
     return undefined;
   },
   noSuchPipe: function (name, index, value) {
-    console.error('the pipe "' + name + '" is missing');
+    console.warn('the pipe "' + name + '" is missing');
     return value;
   }
 });
