@@ -1,4 +1,5 @@
-# tempura — simple templating library in javascript
+tempura — simple templating library in javascript
+=================================================
 
 tempura is templating library inspired by [mustache.js](http://github.com/janl/mustache.js) and 
 [tempo](https://github.com/twigkit/tempo).
@@ -13,23 +14,32 @@ Below is quick example how to use tempura:
     var data = {
       name: "Joe",
       calc: function () {
-        return 2 + 4;
+        return 200 + 4000;
       },
-      yeah: function (value) {
-        return value + '!';
-      },
-      enclose: function (value) {
-        return '[' + value + ']';
-      },
+      dollar: function (value) {
+        var regex = /(\d+)(\d{3})/;
+        var s = String(value);
+        while (s.match(regex)) {
+          s = s.replace(regex, '$1' + ',' + '$2');
+        }
+        return '$' + s;
+      }
     };
     
-    var tmpl = tempura.prepare("{{name|yeah|enclose}} spends {{calc}}");
+    var tmpl = tempura.prepare("{{name}} spends {{calc|dollar}}");
     var html = tmpl.render(data);
     
     console.log(html);
 
 Below is the result:
 
-    [Joe!] spends 6
+    Joe spends $4,200
 
+Differences Between tempura and mustache.js
+-------------------------------------------
 
+### Pipeline Processing
+
+### Context Access
+
+### Missing Value Handling
