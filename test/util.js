@@ -18,7 +18,25 @@ testCase('util', {
     this.util = tempura.internal.util;
   },
 
+  'test isObject': function () {
+    var Person = function () {};
+    var person = new Person();
+    assertTrue(this.util.isObject(person));
+    assertTrue(this.util.isObject({}));
+    assertTrue(this.util.isObject([]));
+    assertTrue(this.util.isObject(function () {}));
+    assertFalse(this.util.isObject('aaa'));
+    assertFalse(this.util.isObject(1));
+    assertTrue(this.util.isObject(new Date()));
+    assertTrue(this.util.isObject(/aaa/));
+    assertFalse(this.util.isObject(null));
+    assertFalse(this.util.isObject(undefined));
+  },
+
   'test isPlainObject': function () {
+    var Person = function () {};
+    var person = new Person();
+    assertTrue(this.util.isPlainObject(person));
     assertTrue(this.util.isPlainObject({}));
     assertFalse(this.util.isPlainObject([]));
     assertFalse(this.util.isPlainObject(function () {}));

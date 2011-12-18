@@ -16,6 +16,11 @@
 
     slice: Array.prototype.slice,
 
+    isObject: function (obj) {
+      var toObject = Object;
+      return obj === toObject(obj);
+    },
+
     isPlainObject: function (obj) {
       return util.toString.call(obj) === '[object Object]';
     },
@@ -307,7 +312,7 @@
             if (value.call(context)) {
               return core.transform(content, context);
             }
-          } else if (util.isPlainObject(value)) {
+          } else if (util.isObject(value)) {
             return core.transform(content, core.createContext(context, value));
           } else if (value) {
             return core.transform(content, context);
@@ -386,15 +391,6 @@
       noSuchPipe: function (name, index, value) {
         return value;
       }
-    };
-
-    var cloneDefaultSettings = function () {
-      return {
-        pipes: util.extend({}, defaultSettings.pipes),
-        preRender: defaultSettings.preRender,
-        noSuchValue: defaultSettings.noSuchValue,
-        noSuchPipe: defaultSettings.noSuchPipe
-      };
     };
 
     var settings = util.deepExtend({}, defaultSettings);
