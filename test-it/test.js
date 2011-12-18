@@ -1,5 +1,4 @@
 /*jslint evil:true, indent: 2, node:true, plusplus: true, sloppy: true, vars: true */
-/*global tempura: false*/
 var fs = require('fs');
 var assert = require('assert');
 var util = require('util');
