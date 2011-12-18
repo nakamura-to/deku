@@ -79,7 +79,7 @@ See [jsfiddle](http://jsfiddle.net/nakamura_to/6XHqU/).
 You can define global pipe functions.
 
 ```js
-tempura.addSettings({
+tempura.mergeSettings({
   pipes: {
     yeah: function (value) {
       return value + '!';
@@ -176,7 +176,7 @@ tempura can handle the value missings.
 This feature is useful for debugging.
 
 ```js
-tempura.addSettings({
+tempura.mergeSettings({
   noSuchValue: function (name) {
     console.warn('the value "' + name + '" is missing');
     return undefined;
@@ -201,7 +201,7 @@ It's means you can check or convert erroneous values.
 (By the way, tempura converts undefined values to empty string by default preRender function.)
 
 ```js
-tempura.addSettings({
+tempura.mergeSettings({
   preRender: function (value, pipe) {
     var result = pipe(value);
     return result === null ? '***' : result;
