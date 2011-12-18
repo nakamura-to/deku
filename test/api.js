@@ -226,7 +226,7 @@ testCase('api', {
     assertSame(this.html('result'), result);
   },
 
-  'test addSettings: it should merge settings with original one': function () {
+  'test mergeSettings: it should merge settings with original one': function () {
     tempura.setSettings({
       hoge: function () {
         return 'original hoge';
@@ -235,7 +235,7 @@ testCase('api', {
         return 'original foo';
       }
     });
-    tempura.addSettings({
+    tempura.mergeSettings({
       foo: function () {
         return 'new foo';
       }

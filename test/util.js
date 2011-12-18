@@ -18,16 +18,16 @@ testCase('util', {
     this.util = tempura.internal.util;
   },
 
-  'test isObject': function () {
-    assertTrue(this.util.isObject({}));
-    assertFalse(this.util.isObject([]));
-    assertFalse(this.util.isObject(function () {}));
-    assertFalse(this.util.isObject('aaa'));
-    assertFalse(this.util.isObject(1));
-    assertFalse(this.util.isObject(new Date()));
-    assertFalse(this.util.isObject(/aaa/));
-    assertFalse(this.util.isObject(null));
-    assertFalse(this.util.isObject(undefined));
+  'test isPlainObject': function () {
+    assertTrue(this.util.isPlainObject({}));
+    assertFalse(this.util.isPlainObject([]));
+    assertFalse(this.util.isPlainObject(function () {}));
+    assertFalse(this.util.isPlainObject('aaa'));
+    assertFalse(this.util.isPlainObject(1));
+    assertFalse(this.util.isPlainObject(new Date()));
+    assertFalse(this.util.isPlainObject(/aaa/));
+    assertFalse(this.util.isPlainObject(null));
+    assertFalse(this.util.isPlainObject(undefined));
   },
 
   'test isFunction': function () {
@@ -96,6 +96,111 @@ testCase('util', {
     assertSame('123', this.util.encode(123));
     assertSame('', this.util.encode(null));
     assertSame('', this.util.encode(undefined));
+  },
+
+  'test deepExtend: string': function () {
+    var target = {
+      str: 'aaa'
+    };
+    var source = {
+      str: 'bbb',
+      strNew: 'ccc'
+    };
+    var result = this.util.deepExtend(target, source);
+    assertSame(target, result);
+    assertSame('aaa', target.str);
+    assertSame('ccc', target.strNew);
+  },
+
+  'test deepExtend: plain object': function () {
+    var target = {
+      obj: {
+        name: 'aaa'
+      }
+    };
+    var source = {
+      obj: {
+        name: 'bbb',
+        age: 20
+      },
+      objNew: {
+        name: 'ccc',
+        age: 30
+      }
+    };
+    var result = this.util.deepExtend(target, source);
+    assertSame(target, result);
+    assertSame('aaa', target.obj.name);
+    assertSame(20, target.obj.age);
+    assertSame('ccc', target.objNew.name);
+    assertSame(30, target.objNew.age);
+  },
+
+  'test deepExtend: array': function () {
+    var target = {
+      array: [
+        'aaa',
+        {name: 'bbb'}
+      ]
+    };
+    var source = {
+      array: [
+        'aaa',
+        {name: 'bbb'},
+        123
+      ],
+      arrayNew: [
+        'aaa',
+        {name: 'bbb'}
+      ]
+    };
+    var result = this.util.deepExtend(target, source);
+    assertSame(target, result);
+    assertSame('aaa', target.array[0]);
+    assertSame('bbb', target.array[1].name);
+    assertSame(123, target.array[2]);
+    assertSame('aaa', target.arrayNew[0]);
+    assertSame('bbb', target.arrayNew[1].name);
+  },
+
+  'test deepExtend: function': function () {
+    var target = {
+      func: function () {
+        return 'aaa';
+      }
+    };
+    var source = {
+      func: function () {
+        return 'bbb';
+      },
+      funcNew: function () {
+        return 'ccc';
+      }
+    };
+    var result = this.util.deepExtend(target, source);
+    assertSame(target, result);
+    assertSame('aaa', target.func());
+    assertSame('ccc', target.funcNew());
+  },
+
+  'test deepExtend: it should accept multiple source objects.': function () {
+    var target = {
+      str: 'aaa'
+    };
+    var source1 = {
+      str: 'bbb',
+      str1: 'ccc'
+    };
+    var source2 = {
+      str: 'ddd',
+      str1: 'eee',
+      str2: 'fff'
+    };
+    var result = this.util.deepExtend(target, source1, source2);
+    assertSame(target, result);
+    assertSame('aaa', target.str);
+    assertSame('ccc', target.str1);
+    assertSame('fff', target.str2);
   }
 
 });

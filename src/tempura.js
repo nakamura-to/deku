@@ -16,7 +16,7 @@
 
     slice: Array.prototype.slice,
 
-    isObject: function (obj) {
+    isPlainObject: function (obj) {
       return util.toString.call(obj) === '[object Object]';
     },
 
@@ -39,26 +39,62 @@
       return s.replace(/^\s+/, '').replace(/\s+$/, '');
     },
 
-    extend: function (obj) {
+    extend: function (target) {
       var args = util.slice.call(arguments, 1);
       var len = args.length;
       var i;
       var source;
-      var prop;
-      if (obj === null || obj === undef) {
-        return obj;
+      var key;
+      if (target === null || target === undef || len === 0) {
+        return target;
       }
       for (i = 0; i < len; i++) {
         source = args[i];
         if (source !== null && source !== undef) {
-          for (prop in source) {
-            if (obj[prop] === undef) {
-              obj[prop] = source[prop];
+          for (key in source) {
+            if (target[key] === undef) {
+              target[key] = source[key];
             }
           }
         }
       }
-      return obj;
+      return target;
+    },
+
+    deepExtend: function (target) {
+      var args = util.slice.call(arguments, 1);
+      var len = args.length;
+      var i;
+      var source;
+      var mergeRec;
+      if (target === null || target === undef || len === 0) {
+        return target;
+      }
+      mergeRec = function (target, source) {
+        var key;
+        var sourceProp;
+        var targetProp;
+        var newProp;
+        for (key in source) {
+          sourceProp = source[key];
+          targetProp = target[key];
+          var isArray = util.isArray(sourceProp);
+          if (isArray || util.isPlainObject(sourceProp)) {
+            newProp = targetProp || (isArray ? [] : {});
+            mergeRec(newProp, sourceProp);
+            target[key] = newProp;
+          } else if (targetProp === undef) {
+            target[key] = sourceProp;
+          }
+        }
+      };
+      for (i = 0; i < len; i++) {
+        source = args[i];
+        if (source !== null && source !== undef) {
+          mergeRec(target, source);
+        }
+      }
+      return target;
     },
 
     encode: function (html) {
@@ -271,7 +307,7 @@
             if (value.call(context)) {
               return core.transform(content, context);
             }
-          } else if (util.isObject(value)) {
+          } else if (util.isPlainObject(value)) {
             return core.transform(content, core.createContext(context, value));
           } else if (value) {
             return core.transform(content, context);
@@ -361,7 +397,7 @@
       };
     };
 
-    var settings = cloneDefaultSettings();
+    var settings = util.deepExtend({}, defaultSettings);
 
     return {
       name: 'tempura',
@@ -376,18 +412,13 @@
         settings = userSettings;
       },
 
-      addSettings: function (userSettings) {
-        settings = util.extend({}, userSettings, settings);
+      mergeSettings: function (userSettings) {
+        settings = util.deepExtend({}, userSettings, settings);
       },
 
       prepare: function (template, options) {
-        var opts = {};
-        if (options) {
-          util.extend(opts, options, settings);
-        } else {
-          util.extend(opts, settings);
-        }
-        return core.prepare(template, opts);
+        options = util.deepExtend({}, options, settings);
+        return core.prepare(template, options);
       },
 
       internal: {
