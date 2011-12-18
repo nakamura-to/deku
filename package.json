@@ -1,0 +1,12 @@
+{
+    "name"          : "tempura",
+    "description"   : "simple templating library in javascript.",
+    "homepage"      : "https://github.com/nakamura-to/tempura",
+    "keywords"      : ["template", "mustache"],
+    "author"        : "Toshihiro Nakamura <toshihiro.nakamura@gmail.com>",
+    "contributors"  : [],
+    "dependencies"  : [],
+    "repository"    : {"type": "git", "url": "git@github.com:nakamura-to/tempura.git"},
+    "main"          : "tempura.js",
+    "version"       : "0.0.1"
+}
