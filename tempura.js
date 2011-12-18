@@ -2,7 +2,7 @@
  * @preserve tempura - simple templating library in javascript.
  * https://github.com/nakamura-to/tempura
  */
-/*jslint browser: true, forin: true, indent:2, plusplus: true, vars: true */
+/*jslint forin: true, indent:2, plusplus: true, vars: true */
 /*global module:false */
 //noinspection ThisExpressionReferencesGlobalObjectJS
 (function (global) {
