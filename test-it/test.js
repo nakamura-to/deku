@@ -3,7 +3,7 @@
 var fs = require('fs');
 var assert = require('assert');
 var util = require('util');
-var tempura = require('../src/tempura');
+var tempura = require('../tempura.js');
 var compare = function (file, template, expected, data) {
   var message;
   var actual;
