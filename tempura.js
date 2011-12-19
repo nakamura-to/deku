@@ -130,8 +130,31 @@
 
     THIS: '$this',
 
-    includes: function (directive, template) {
-      return template.indexOf('{{' + directive) !== -1;
+    OTAG: '{{',
+
+    CTAG: '}}',
+
+    getTagPair: (function () {
+      var tagPairCache = {};
+      return function (context) {
+        var options = context[core.TEMPURA_OPTIONS] || {};
+        var otag = options.otag || core.OTAG;
+        var ctag = options.otag || core.CTAG;
+        var key = otag + '\b' + ctag;
+        var tagPair = tagPairCache[key];
+        if (!tagPair) {
+          tagPair = tagPairCache[key] = {
+            otag: otag,
+            ctag: ctag
+          };
+        }
+        return tagPair;
+      };
+    }()),
+
+    includes: function (directive, template, context) {
+      var tagPair = core.getTagPair(context);
+      return template.indexOf(tagPair.otag + directive) !== -1;
     },
 
     createContext: function (parent, data) {
@@ -207,8 +230,8 @@
     },
 
     noSuchValue: function (name, context) {
-      var option = context[core.TEMPURA_OPTIONS] || {};
-      var noSuchValue = option.noSuchValue;
+      var options = context[core.TEMPURA_OPTIONS] || {};
+      var noSuchValue = options.noSuchValue;
       if (util.isFunction(noSuchValue)) {
         return noSuchValue.call(context, name);
       }
@@ -228,11 +251,18 @@
     },
 
     transformTags: (function () {
-      var regex = new RegExp([
-        '{{',
-        '([#\\^/!{])?(.+?)(?:\\|(.*?))?', // $1, $2, $3, $4
-        '}}+'
-      ].join(''), 'g');
+      var getRegex = function (context) {
+        var tagPair = core.getTagPair(context);
+        var regex = tagPair.tagsRegex;
+        if (!regex) {
+          regex = tagPair.tagsRegex = new RegExp([
+            tagPair.otag,
+            '([#\\^/!{])?(.+?)(?:\\|(.*?))?', // $1, $2, $3, $4
+            tagPair.ctag + '+'
+          ].join(''), 'g');
+        }
+        return regex;
+      };
       var getPipeNames = function (pipeNamesDef) {
         var names;
         var i;
@@ -258,14 +288,17 @@
         return (value === null || value === undef) ? '' : String(value);
       };
       return function (template, context) {
+        var tagPair = core.getTagPair(context);
+        var otag = tagPair.otag;
+        var ctag = tagPair.ctag;
         var callback = function (match, directive, valueName, pipeNamesDef) {
           switch (directive) {
           case '#':
-            return '{{#' + valueName + '}}';
+            return otag + '#' + valueName + ctag;
           case '^':
-            return '{{^' + valueName + '}}';
+            return otag + '^' + valueName + ctag;
           case '/':
-            return '{{/' + valueName + '}}';
+            return otag + '/' + valueName + ctag;
           case '!':
             return '';
           case '{':
@@ -278,6 +311,7 @@
         var line;
         var i;
         var len = lines.length;
+        var regex = getRegex(context);
         for (i = 0; i < len; i++) {
           line = lines[i];
           lines[i] = line.replace(regex, callback);
@@ -287,17 +321,24 @@
     }()),
 
     transformSection: (function () {
-      var regex = new RegExp([
-        '^([\\s\\S]*?)',   // $1
-        '{{',
-        '([#\\^])\\s*(.+)\\s*', // $2, $3
-        '}}',
-        '\n*([\\s\\S]*?)', // $4
-        '{{',
-        '\\/\\s*\\3\\s*',
-        '}}',
-        '\n*([\\s\\S]*)$' // $5
-      ].join(''), 'g');
+      var getRegex = function (context) {
+        var tagPair = core.getTagPair(context);
+        var regex = tagPair.sectionRegex;
+        if (!regex) {
+          regex = tagPair.sectionRegex = new RegExp([
+            '^([\\s\\S]*?)',   // $1
+            tagPair.otag,
+            '([#\\^])\\s*(.+)\\s*', // $2, $3
+            tagPair.ctag,
+            '\n*([\\s\\S]*?)', // $4
+            tagPair.otag,
+            '\\/\\s*\\3\\s*',
+            tagPair.ctag,
+            '\n*([\\s\\S]*)$' // $5
+          ].join(''), 'g');
+        }
+        return regex;
+      };
       var getRenderedContent = function (type, content, value, context) {
         var i;
         var len = value.length;
@@ -325,10 +366,10 @@
         return '';
       };
       return function (template, context) {
-        if (!core.includes('#', template) && !core.includes('^', template)) {
+        if (!core.includes('#', template, context) && !core.includes('^', template, context)) {
           return false;
         }
-        return template.replace(regex, function (match, before, type, name, content, after) {
+        return template.replace(getRegex(context), function (match, before, type, name, content, after) {
           var renderedBefore = before ? core.transformTags(before, context) : '';
           var renderedAfter = after ? core.transform(after, context) : '';
           var renderedContent;
@@ -380,6 +421,8 @@
 
     //noinspection JSUnusedLocalSymbols
     var defaultSettings = {
+      otag: core.OTAG,
+      ctag: core.CTAG,
       pipes: {},
       preRender: function (value, pipe) {
         var result = pipe(value);

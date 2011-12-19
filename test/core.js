@@ -6,6 +6,7 @@
  assertFalse: false,
  assertFunction: false,
  assertNotNull: false,
+ assertNotSame: false,
  assertNotUndefined: false,
  assertNull: false,
  assertObject: false,
@@ -77,9 +78,35 @@ testCase('core', {
     assertSame(data, context[this.core.THIS]);
   },
 
+  'tege getTagPair: it should return same object by default': function () {
+    var context = this.core.createInitialContext({});
+    var pair = this.core.getTagPair(context);
+    var context2 = this.core.createInitialContext({});
+    var pair2 = this.core.getTagPair(context2);
+    assertSame('{{', pair.otag);
+    assertSame('}}', pair.ctag);
+    assertSame(pair, pair2);
+  },
+
+  'tege getTagPair: it should return same object for the otag/ctag pair': function () {
+    var context = this.core.createInitialContext({});
+    var pair = this.core.getTagPair(context);
+    var context2 = this.core.createInitialContext({}, {otag: '[[', ctag: ']]'});
+    var pair2 = this.core.getTagPair(context2);
+    var context3 = this.core.createInitialContext({}, {otag: '[[', ctag: ']]'});
+    var pair3 = this.core.getTagPair(context3);
+    assertSame('{{', pair.otag);
+    assertSame('}}', pair.ctag);
+    assertNotSame(pair, pair2);
+    assertSame('[[', pair.otag);
+    assertSame(']]', pair.ctag);
+    assertSame(pair2, pair3);
+  },
+
   'test includes: it should return true when a directive is included': function () {
-    assertTrue(this.core.includes('#', '<div>{{#name}}</div>'));
-    assertFalse(this.core.includes('#', '<div>#name</div>'));
+    var context = this.core.createInitialContext({name: 'hoge'});
+    assertTrue(this.core.includes('#', '<div>{{#name}}</div>', context));
+    assertFalse(this.core.includes('#', '<div>#name</div>', context));
   },
 
   'test createInitialContext': function () {
