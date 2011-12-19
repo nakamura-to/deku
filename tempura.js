@@ -441,7 +441,7 @@
     return {
       name: 'tempura',
 
-      version: '0.0.1',
+      version: '0.0.2-dev',
 
       getSettings: function () {
         return settings;
