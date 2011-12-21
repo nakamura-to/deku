@@ -139,7 +139,7 @@
       return function (context) {
         var options = context[core.TEMPURA_OPTIONS] || {};
         var otag = options.otag || core.OTAG;
-        var ctag = options.otag || core.CTAG;
+        var ctag = options.ctag || core.CTAG;
         var key = otag + '\b' + ctag;
         var tagPair = tagPairCache[key];
         if (!tagPair) {
