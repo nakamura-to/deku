@@ -347,11 +347,11 @@
             tagPair.otag,
             '([#\\^])\\s*(.+)\\s*', // $2, $3
             tagPair.ctag,
-            '(\n*)([\\s\\S]*?)', // $4, $5
+            '\n*([\\s\\S]*?)', // $4
             tagPair.otag,
             '\\/\\s*\\3\\s*',
             tagPair.ctag,
-            '\n*([\\s\\S]*)$' // $6
+            '\n*([\\s\\S]*)$' // $5
           ].join(''), 'g');
         }
         return regex;
@@ -389,14 +389,14 @@
         if (!core.includes('#', template, context) && !core.includes('^', template, context)) {
           return false;
         }
-        return template.replace(getRegex(context), function (match, before, type, name, newLine, content, after) {
+        return template.replace(getRegex(context), function (match, before, type, name, content, after) {
           var renderedBefore = before ? core.transformTags(before, context) : '';
           var renderedAfter = after ? core.transform(after, context) : '';
           var renderedContent;
           var walkResult = core.walk(name, context);
           var found = walkResult.found;
           if (!found && core.shouldBePreserveUnknownTags(context)) {
-            renderedContent = otag + type + name + ctag + newLine + content + otag + '/' + name + ctag;
+            renderedContent = otag + type + name + ctag + content + otag + '/' + name + ctag;
           } else {
             var value = walkResult.found ? walkResult.value : core.noSuchValue(name, context);
             renderedContent = getRenderedContent(type, content, value, walkResult.context);
