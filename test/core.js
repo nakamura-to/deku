@@ -20,6 +20,20 @@ testCase('core', {
     this.core = tempura.internal.core;
   },
 
+  'getTagPair: it should return default pair': function () {
+    var context = this.core.createInitialContext({});
+    var pair = this.core.getTagPair();
+    assertSame('{{', pair.otag);
+    assertSame('}}', pair.ctag);
+  },
+
+  'getTagPair: it should reflect option settings': function () {
+    var context = this.core.createInitialContext({}, {otag: '[[', ctag: ']]'});
+    var pair = this.core.getTagPair();
+    assertSame('[[', pair.otag);
+    assertSame(']]', pair.ctag);
+  },
+
   'test walk: it should accept a simple property name': function () {
     var obj = {
       name : 'hoge'
