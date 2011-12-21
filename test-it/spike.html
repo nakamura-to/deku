@@ -26,6 +26,20 @@
         {{#value}}aaa{{/value}} ccc
         {{^value}}bbb{{/value}} ddd
     </div>
+    <ul id="view5">
+        {{#people}}
+            <li>
+                {{name}}
+                <ul>
+                {{#children}}
+                    <li>
+                    {{name|enclose|enclose}}
+                    </li>
+                {{/children}}
+                </ul>
+            </li>
+        {{/people}}
+    </ul>
     <script src="../tempura.js"></script>
     <script>
         function el(id) {
@@ -56,6 +70,19 @@
 
         template = tempura.prepare(getHtml('view4'));
         setHtml('view4', template.render({value: false}));
+
+        template = tempura.prepare(getHtml('view5'), {preserveUnknownTags: true});
+        var text = template.render({people: {name:'parent'}});
+        template = tempura.prepare(text, {
+            preserveUnknownTags: true,
+            pipes: {
+                enclose: function (value) {
+                    return '[' + value + ']';
+                }
+            }
+        });
+        setHtml('view5', template.render({children: [{name: 'chidl-1'}, {name:'child-2'}]}));
+
     </script>
 </body>
 </html>

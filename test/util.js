@@ -201,7 +201,27 @@ testCase('util', {
     assertSame('ccc', target.funcNew());
   },
 
-  'test deepExtend: it should accept multiple source objects.': function () {
+  'test deepExtend: function in nested object': function () {
+    var source1 = {
+      obj: {
+        func: function () {
+          return 1;
+        }
+      }
+    };
+    var source2 = {
+      obj: {
+        funcNew: function () {
+          return 2;
+        }
+      }
+    };
+    var result = this.util.deepExtend({}, source1, source2);
+    assertSame(1, result.obj.func());
+    assertSame(2, result.obj.funcNew());
+  },
+
+  'test deepExtend: it should accept multiple source objects': function () {
     var target = {
       str: 'aaa'
     };

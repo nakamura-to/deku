@@ -134,7 +134,7 @@ testCase('core', {
     assertSame(obj, context.$this);
   },
 
-  'test applyPipe: it should use a context pipe, if the pipe exists': function () {
+  'test applyPipes: it should use a context pipe, if the pipe exists': function () {
     var obj = {
       enclose: function (value) {
         return '$' + value + '$';
@@ -188,7 +188,10 @@ testCase('core', {
       }
     };
     var context = this.core.createInitialContext(obj);
-    var value = this.core.resolveValue('person.name', [], context);
+    var pipe = function (value) {
+      return value;
+    };
+    var value = this.core.resolveValue('person.name', context, pipe);
     assertSame('hoge', value);
   },
 
@@ -199,7 +202,10 @@ testCase('core', {
       }
     };
     var context = this.core.createInitialContext(obj);
-    var value = this.core.resolveValue('person.age', [], context);
+    var pipe = function (value) {
+      return value;
+    };
+    var value = this.core.resolveValue('person.age', context, pipe);
     assertSame(20, value);
   },
 
@@ -215,7 +221,10 @@ testCase('core', {
       end: ']'
     };
     var context = this.core.createInitialContext(obj);
-    var value = this.core.resolveValue('person.name', [], context);
+    var pipe = function (value) {
+      return value;
+    };
+    var value = this.core.resolveValue('person.name', context, pipe);
     assertSame('[hoge is 20 years old]', value);
   },
 
@@ -244,7 +253,10 @@ testCase('core', {
       }
     };
     var context = this.core.createInitialContext(obj, options);
-    var value = this.core.resolveValue('person.name', ['pipe1', 'pipe2', 'pipe3'], context);
+    var pipe0 = function (value) {
+      return obj.pipe3(obj.pipe2(obj.pipe1(value)));
+    };
+    var value = this.core.resolveValue('person.name', context, pipe0);
     assertSame('%#@hoge@#%!', value);
   },
 
@@ -276,6 +288,15 @@ testCase('core', {
     var context = this.core.createInitialContext(obj, options);
     var result = this.core.transformTags('{{name|enclose}} is {{age|double|enclose}} years old.', context);
     assertSame('[hoge] is [40] years old.', result);
+  },
+
+  'test transformTags: it should preserve unknown tags': function () {
+    var obj = {
+      name: 'hoge'
+    };
+    var context = this.core.createInitialContext(obj, {preserveUnknownTags: true});
+    var result = this.core.transformTags('{{name}} is {{age}} years old.', context);
+    assertSame('hoge is {{age}} years old.', result);
   },
 
   'test transformSection: it should return false if the input template does not contain "{{#" or "{{^"': function () {
@@ -378,6 +399,15 @@ testCase('core', {
     var context = this.core.createInitialContext(obj);
     var result = this.core.transformSection('[ {{#value}}aaa{{/value}}{{^value}}bbb{{/value}} ]', context);
     assertSame('[ aaa ]', result);
+  },
+
+  'test transformSection: it should preserve unknownTags': function () {
+    var obj = {
+      value: true
+    };
+    var context = this.core.createInitialContext(obj, {preserveUnknownTags: true});
+    var result = this.core.transformSection('[ {{#value}}aaa{{/value}}{{value2}}bbb{{/value2}} ]', context);
+    assertSame('[ aaa{{value2}}bbb{{/value2}} ]', result);
   },
 
   'test transform: it should handle a template contains tags': function () {

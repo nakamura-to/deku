@@ -134,6 +134,11 @@
 
     CTAG: '}}',
 
+    shouldBePreserveUnknownTags: function (context) {
+      var options = context[core.TEMPURA_OPTIONS] || {};
+      return options.preserveUnknownTags === true;
+    },
+
     getTagPair: (function () {
       var tagPairCache = {};
       return function (context) {
@@ -219,13 +224,13 @@
       return value;
     },
 
-    applyPreRender: function (value, context, render) {
+    applyPreRender: function (value, context, pipe) {
       var options = context[core.TEMPURA_OPTIONS] || {};
       var preRender = options.preRender;
       if (util.isFunction(preRender)) {
-        return preRender.call(context, value, render);
+        return preRender.call(context, value, pipe);
       } else {
-        return render(value);
+        return pipe(value);
       }
     },
 
@@ -238,16 +243,20 @@
       return undef;
     },
 
-    resolveValue: function (name, pipeNames, context) {
-      var pipe = function (value) {
-        return core.applyPipes(value, pipeNames, context);
-      };
+    resolveValue: function (name, context, pipe) {
       var walkResult = core.walk(name, context);
-      var value = walkResult.found ? walkResult.value : core.noSuchValue(name, context);
-      if (util.isFunction(value)) {
-        value = value.call(walkResult.context);
+      var found = walkResult.found;
+      var tagPair;
+      if (!found && core.shouldBePreserveUnknownTags(context)) {
+        tagPair = core.getTagPair(context);
+        return tagPair.otag + name + pipe.pipeNamesDef + tagPair.ctag;
+      } else {
+        var value = found ? walkResult.value : core.noSuchValue(name, context);
+        if (util.isFunction(value)) {
+          value = value.call(walkResult.context);
+        }
+        return core.applyPreRender(value, context, pipe);
       }
-      return core.applyPreRender(value, context, pipe);
     },
 
     transformTags: (function () {
@@ -258,7 +267,8 @@
           regex = tagPair.tagsRegex = new RegExp([
             tagPair.otag,
             '([#\\^/!{])?(.+?)(?:\\|(.*?))?', // $1, $2, $3, $4
-            tagPair.ctag + '+'
+            tagPair.ctag,
+            '+'
           ].join(''), 'g');
         }
         return regex;
@@ -281,11 +291,16 @@
         }
         return results;
       };
-      var getValue = function (valueName, pipeNamesDef, context) {
+      var getValue = function (valueName, pipeNamesDef, context, encoder) {
         var name = util.trim(valueName);
-        var pipeNames = getPipeNames(pipeNamesDef);
-        var value = core.resolveValue(name, pipeNames, context);
-        return (value === null || value === undef) ? '' : String(value);
+        var value;
+        var pipe = function (value) {
+          var pipeNames = getPipeNames(pipeNamesDef);
+          return core.applyPipes(value, pipeNames, context);
+        };
+        pipe.pipeNamesDef = pipeNamesDef || '';
+        value = core.resolveValue(name, context, pipe);
+        return encoder(value);
       };
       return function (template, context) {
         var tagPair = core.getTagPair(context);
@@ -302,9 +317,11 @@
           case '!':
             return '';
           case '{':
-            return getValue(valueName, pipeNamesDef, context);
+            return getValue(valueName, pipeNamesDef, context, function (value) {
+              return (value === null || value === undef) ? '' : String(value);
+            });
           default:
-            return util.encode(getValue(valueName, pipeNamesDef, context));
+            return getValue(valueName, pipeNamesDef, context, util.encode);
           }
         };
         var lines = template.split('\n');
@@ -330,11 +347,11 @@
             tagPair.otag,
             '([#\\^])\\s*(.+)\\s*', // $2, $3
             tagPair.ctag,
-            '\n*([\\s\\S]*?)', // $4
+            '(\n*)([\\s\\S]*?)', // $4, $5
             tagPair.otag,
             '\\/\\s*\\3\\s*',
             tagPair.ctag,
-            '\n*([\\s\\S]*)$' // $5
+            '\n*([\\s\\S]*)$' // $6
           ].join(''), 'g');
         }
         return regex;
@@ -366,16 +383,24 @@
         return '';
       };
       return function (template, context) {
+        var tagPair = core.getTagPair(context);
+        var otag = tagPair.otag;
+        var ctag = tagPair.ctag;
         if (!core.includes('#', template, context) && !core.includes('^', template, context)) {
           return false;
         }
-        return template.replace(getRegex(context), function (match, before, type, name, content, after) {
+        return template.replace(getRegex(context), function (match, before, type, name, newLine, content, after) {
           var renderedBefore = before ? core.transformTags(before, context) : '';
           var renderedAfter = after ? core.transform(after, context) : '';
           var renderedContent;
           var walkResult = core.walk(name, context);
-          var value = walkResult.found ? walkResult.value : core.noSuchValue(name, context);
-          renderedContent = getRenderedContent(type, content, value, walkResult.context);
+          var found = walkResult.found;
+          if (!found && core.shouldBePreserveUnknownTags(context)) {
+            renderedContent = otag + type + name + ctag + newLine + content + otag + '/' + name + ctag;
+          } else {
+            var value = walkResult.found ? walkResult.value : core.noSuchValue(name, context);
+            renderedContent = getRenderedContent(type, content, value, walkResult.context);
+          }
           return renderedBefore + renderedContent + renderedAfter;
         });
       };
@@ -423,6 +448,7 @@
     var defaultSettings = {
       otag: core.OTAG,
       ctag: core.CTAG,
+      preserveUnknownTags: false,
       pipes: {},
       preRender: function (value, pipe) {
         var result = pipe(value);
