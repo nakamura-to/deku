@@ -3,7 +3,7 @@
  * https://github.com/nakamura-to/tempura
  */
 /*jslint forin: true, indent:2, plusplus: true, vars: true */
-/*global module:false */
+/*global module:false, define:false */
 //noinspection ThisExpressionReferencesGlobalObjectJS
 (function (global) {
   'use strict';
@@ -495,6 +495,10 @@
 
   if (typeof module !== 'undefined') {
     module.exports = tempura;
+  } else if (typeof define === 'function' && define.amd) {
+    define('tempura', function () {
+      return tempura;
+    });
   } else {
     global.tempura = tempura;
   }
