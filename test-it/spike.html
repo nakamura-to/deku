@@ -4,42 +4,22 @@
     <title></title>
 </head>
 <body>
-    <div id="view">
-        {{#go}}
-            {{ age | incr | incr | incr }}
-        {{/go}}
-    </div>
-    <div id="view2">
-        <ul>
-        {{#people}}
-            <li>{{name}}</li>
-        {{/people}}
-        </ul>
-    </div>
-    <div id="view3">
-        {{! comment }}
-        {{#value}}aaa{{/value}} ccc
-        {{^value}}bbb{{/value}} ddd
-    </div>
-    <div id="view4">
-        {{! comment }}
-        {{#value}}aaa{{/value}} ccc
-        {{^value}}bbb{{/value}} ddd
-    </div>
-    <ul id="view5">
-        {{#people}}
-            <li>
-                {{name}}
-                <ul>
-                {{#children}}
-                    <li>
-                    {{name|enclose|enclose}}
-                    </li>
-                {{/children}}
-                </ul>
-            </li>
-        {{/people}}
-    </ul>
+    <script id="template" type="text/template">
+        <div>
+            <h1 class='header'>{{header}}</h1>
+            <h2 class='header2'>{{header2}}</h2>
+            <h3 class='header3'>{{header3}}</h3>
+            <h4 class='header4'>{{header4}}</h4>
+            <h5 class='header5'>{{header5}}</h5>
+            <h6 class='header6'>{{header6}}</h6>
+            <ul class='list'>
+                {{#list}}
+                <li class='item'>{{$this}}</li>
+                {{/list}}
+            </ul>
+        </div>
+    </script>
+    <div id="result"></div>
     <script src="../tempura.js"></script>
     <script>
         function el(id) {
@@ -51,37 +31,41 @@
         function setHtml(id, html) {
             return el(id).innerHTML = html;
         };
-        var template = tempura.prepare(getHtml('view'));
-        setHtml('view', template.render(
-                {name: 'hoge',
-                 age: 10,
-                 incr: function (value) {
-                     return value + 1;
-                 },
-                 go: function() {
-                     return true;
-                 }}));
+        
 
-        template = tempura.prepare(getHtml('view2'));
-        setHtml('view2', template.render({people: [{name: 'aaa'}, {name: 'bbb'}, {name: 'ccc'}]}));
+        var data = {
+            header: "Header",
+            header2: "Header2",
+            header3: "Header3",
+            header4: "Header4",
+            header5: "Header5",
+            header6: "Header6",
+            list: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
+        };
 
-        template = tempura.prepare(getHtml('view3'));
-        setHtml('view3', template.render({value: true}));
+        var template = tempura.prepare(getHtml('template'));
+        setHtml('result', template.render(data));
 
-        template = tempura.prepare(getHtml('view4'));
-        setHtml('view4', template.render({value: false}));
-
-        template = tempura.prepare(getHtml('view5'), {preserveUnknownTags: true});
-        var text = template.render({people: {name:'parent'}});
-        template = tempura.prepare(text, {
-            preserveUnknownTags: true,
-            pipes: {
-                enclose: function (value) {
-                    return '[' + value + ']';
-                }
-            }
-        });
-        setHtml('view5', template.render({children: [{name: 'chidl-1'}, {name:'child-2'}]}));
+//        template = tempura.prepare(getHtml('view2'));
+//        setHtml('view2', template.render({people: [{name: 'aaa'}, {name: 'bbb'}, {name: 'ccc'}]}));
+//
+//        template = tempura.prepare(getHtml('view3'));
+//        setHtml('view3', template.render({value: true}));
+//
+//        template = tempura.prepare(getHtml('view4'));
+//        setHtml('view4', template.render({value: false}));
+//
+//        template = tempura.prepare(getHtml('view5'), {preserveUnknownTags: true});
+//        var text = template.render({people: {name:'parent'}});
+//        template = tempura.prepare(text, {
+//            preserveUnknownTags: true,
+//            pipes: {
+//                enclose: function (value) {
+//                    return '[' + value + ']';
+//                }
+//            }
+//        });
+//        setHtml('view5', template.render({children: [{name: 'chidl-1'}, {name:'child-2'}]}));
 
     </script>
 </body>
