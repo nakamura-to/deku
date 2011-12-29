@@ -21,7 +21,20 @@ testCase('compiler', {
       escape: tempura.internal.util.encode,
       handleBlock: tempura.internal.core.handleBlock,
       handleInverse: tempura.internal.core.handleInverse,
-      applyPipe: tempura.internal.core.applyPipe
+      applyPipe: tempura.internal.core.applyPipe,
+      noSuchValue: function () {
+        return undefined;
+      },
+      noSuchPipe: function (name, value) {
+        return value;
+      },
+      firstPipe: function (value, name) {
+        return value;
+      },
+      lastPipe: function (value, name) {
+        return value;
+      },
+      pipes: {}
     };
     this.options = {
       pipesList: [],
@@ -40,10 +53,10 @@ testCase('compiler', {
     assertSame('hoge', result.opcodes[1]);
     assertSame('op_applyNoSuchValue', result.opcodes[2]);
     assertSame('hoge', result.opcodes[3]);
-    assertSame('op_applyPipe', result.opcodes[4]);
-    assertSame('$begin', result.opcodes[5]);
-    assertSame('op_applyPipe', result.opcodes[6]);
-    assertSame('$end', result.opcodes[7]);
+    assertSame('op_applyFirstPipe', result.opcodes[4]);
+    assertSame('hoge', result.opcodes[5]);
+    assertSame('op_applyLastPipe', result.opcodes[6]);
+    assertSame('hoge', result.opcodes[7]);
     assertSame('op_escape', result.opcodes[8]);
     assertSame('op_append', result.opcodes[9]);
     assertSame(0, result.children.length);
@@ -59,12 +72,12 @@ testCase('compiler', {
     assertSame('hoge', result.opcodes[1]);
     assertSame('op_applyNoSuchValue', result.opcodes[2]);
     assertSame('hoge', result.opcodes[3]);
-    assertSame('op_applyPipe', result.opcodes[4]);
-    assertSame('$begin', result.opcodes[5]);
+    assertSame('op_applyFirstPipe', result.opcodes[4]);
+    assertSame('hoge', result.opcodes[5]);
     assertSame('op_applyPipe', result.opcodes[6]);
     assertSame('aaa', result.opcodes[7]);
-    assertSame('op_applyPipe', result.opcodes[8]);
-    assertSame('$end', result.opcodes[9]);
+    assertSame('op_applyLastPipe', result.opcodes[8]);
+    assertSame('hoge', result.opcodes[9]);
     assertSame('op_escape', result.opcodes[10]);
     assertSame('op_append', result.opcodes[11]);
     assertSame(0, result.children.length);
@@ -80,14 +93,14 @@ testCase('compiler', {
     assertSame('hoge', result.opcodes[1]);
     assertSame('op_applyNoSuchValue', result.opcodes[2]);
     assertSame('hoge', result.opcodes[3]);
-    assertSame('op_applyPipe', result.opcodes[4]);
-    assertSame('$begin', result.opcodes[5]);
+    assertSame('op_applyFirstPipe', result.opcodes[4]);
+    assertSame('hoge', result.opcodes[5]);
     assertSame('op_applyPipe', result.opcodes[6]);
     assertSame('aaa', result.opcodes[7]);
     assertSame('op_applyPipe', result.opcodes[8]);
     assertSame('bbb', result.opcodes[9]);
-    assertSame('op_applyPipe', result.opcodes[10]);
-    assertSame('$end', result.opcodes[11]);
+    assertSame('op_applyLastPipe', result.opcodes[10]);
+    assertSame('hoge', result.opcodes[11]);
     assertSame('op_escape', result.opcodes[12]);
     assertSame('op_append', result.opcodes[13]);
     assertSame(0, result.children.length);
@@ -107,10 +120,10 @@ testCase('compiler', {
     assertSame('ccc', result.opcodes[5]);
     assertSame('op_applyNoSuchValue', result.opcodes[6]);
     assertSame('aaa.bbb.ccc', result.opcodes[7]);
-    assertSame('op_applyPipe', result.opcodes[8]);
-    assertSame('$begin', result.opcodes[9]);
-    assertSame('op_applyPipe', result.opcodes[10]);
-    assertSame('$end', result.opcodes[11]);
+    assertSame('op_applyFirstPipe', result.opcodes[8]);
+    assertSame('aaa.bbb.ccc', result.opcodes[9]);
+    assertSame('op_applyLastPipe', result.opcodes[10]);
+    assertSame('aaa.bbb.ccc', result.opcodes[11]);
     assertSame('op_escape', result.opcodes[12]);
     assertSame('op_append', result.opcodes[13]);
     assertSame(0, result.children.length);

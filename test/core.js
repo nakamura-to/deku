@@ -21,7 +21,7 @@ testCase('core', {
   },
 
   'test prepare: it should return a object': function () {
-    var template = this.core.prepare('');
+    var template = this.core.prepare('', {});
     assertObject(template);
     assertFunction(template.render);
   },

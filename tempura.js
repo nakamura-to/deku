@@ -1297,6 +1297,8 @@
 
     toString: Object.prototype.toString,
 
+    slice: Array.prototype.slice,
+
     isObject: function (obj) {
       var toObject = Object;
       return obj === toObject(obj);
@@ -1308,6 +1310,28 @@
 
     isFunction: function (obj) {
       return util.toString.call(obj) === '[object Function]';
+    },
+
+    extend: function (target) {
+      var args = util.slice.call(arguments, 1);
+      var len = args.length;
+      var i;
+      var source;
+      var key;
+      if (target === null || target === undef || len === 0) {
+        return target;
+      }
+      for (i = 0; i < len; i++) {
+        source = args[i];
+        if (source !== null && source !== undef) {
+          for (key in source) {
+            if (target[key] === undef) {
+              target[key] = source[key];
+            }
+          }
+        }
+      }
+      return target;
     },
 
     encode: function (html) {
@@ -1398,6 +1422,8 @@
       op_append: 0,
       op_applyNoSuchValue: 1,
       op_appendContent: 1,
+      op_applyFirstPipe: 1,
+      op_applyLastPipe: 1,
       op_applyPipe: 1,
       op_escape: 0,
       op_lookupFromContext: 1,
@@ -1463,13 +1489,14 @@
         var i;
         var len = pipes.length;
         var name = node.name;
+        var path = name.path;
         this.type_name(name);
-        this.pushOpcode('op_applyNoSuchValue', name.path);
-        this.pushOpcode('op_applyPipe', '$begin');
+        this.pushOpcode('op_applyNoSuchValue', path);
+        this.pushOpcode('op_applyFirstPipe', path);
         for (i = 0; i < len; i++) {
           this.pushOpcode('op_applyPipe', pipes[i]);
         }
-        this.pushOpcode('op_applyPipe', '$end');
+        this.pushOpcode('op_applyLastPipe', path);
         if (node.escape) {
           this.pushOpcode('op_escape');
         }
@@ -1562,7 +1589,8 @@
           this.source[0] += ", buffer = ''";
         } else {
           this.source[0] += ", buffer = '', undef, escape = this.escape, handleBlock = this.handleBlock, " +
-            "handleInverse = this.handleInverse, applyNoSuchValue = this.applyNoSuchValue, applyPipe = this.applyPipe";
+            "handleInverse = this.handleInverse, noSuchValue = this.noSuchValue, noSuchPipe = this.noSuchPipe, " +
+            "firstPipe = this.firstPipe, lastPipe = this.lastPipe, pipes = this.pipes, pipe";
         }
         if (this.source[0]) {
           this.source[0] = 'var' + this.source[0].slice(1) + ';';
@@ -1627,10 +1655,23 @@
         // todo unnecessary ?
       },
 
-      op_applyPipe: function(pipeName) {
-        //var stack = this.currentStack();
-        //var expr = "applyPipe(context, options, '" + pipeName + "', " + stack + ")";
-        //this.assign(expr);
+      op_applyPipe: function (pipeName) {
+        var stack = this.currentStack();
+        this.source.push("pipe = " + this.nameLookup('pipes', pipeName) + ";");
+        this.source.push("if (typeof pipe === 'function') { " + stack + " = pipe.call(context, " + stack + "); }");
+        this.source.push("else { noSuchPipe.call(context, '" + pipeName +"', " + stack + "); }");
+      },
+
+      op_applyFirstPipe: function (valueName) {
+        var stack = this.currentStack();
+        var expr = "firstPipe(" + stack + ", '" + valueName + "')";
+        this.assign(expr);
+      },
+
+      op_applyLastPipe: function (valueName) {
+        var stack = this.currentStack();
+        var expr = "lastPipe(" + stack + ", '" + valueName + "')";
+        this.assign(expr);
       },
 
       op_escape: function () {
@@ -1652,7 +1693,7 @@
 
       op_applyNoSuchValue: function (name) {
         var stack = this.currentStack();
-        var statements = "if (" + stack + " === undef) { " + stack + " = " + "applyNoSuchValue(context, options, '" + name + "'); }";
+        var statements = "if (" + stack + " === undef) { " + stack + " = " + "noSuchValue.call(context, '" + name + "'); }";
         this.source.push(statements);
       },
 
@@ -1730,98 +1771,16 @@
       return result;
     },
 
-    findNoSuchValue: function (options) {
-      var noSuchValueList = options.noSuchValueList;
-      var i;
-      var len;
-      var noSuchValue;
-      if (!util.isArray(noSuchValueList)) {
-        return undef;
-      }
-      len = noSuchValueList.length
-      for (i = 0; i < len; i++) {
-        noSuchValue = noSuchValueList[i];
-        if (noSuchValue !== undef) {
-          return noSuchValue;
-        }
-      }
-      return undef;
-    },
-
-    applyNoSuchValue: function (context, options, name) {
-      var result;
-      var noSuchValue = core.findNoSuchValue(options);
-      if (util.isFunction(noSuchValue)) {
-        result = noSuchValue.call(context, name);
-      }
-      return result;
-    },
-
-    findPipe: function (context, options, pipeName) {
-      var pipesList = options.pipesList;
-      var i;
-      var len;
-      var pipes;
-      var pipe = context[pipeName];
-      if (pipe !== undef) {
-        return pipe;
-      }
-      if (!util.isArray(pipesList)) {
-        return undef;
-      }
-      len = pipesList.length;
-      for (i = 0; i < len; i++) {
-        pipes = pipesList[i];
-        if (pipes !== undef) {
-          pipe = pipes[pipeName];
-          if (pipe !== undef) {
-            return pipe;
-          }
-        }
-      }
-      return undef;
-    },
-
-    findNoSuchPipe: function (options) {
-      var noSuchPipeList = options.noSuchPipeList;
-      var i;
-      var len;
-      var noSuchPipe;
-      if (!util.isArray(noSuchPipeList)) {
-        return undef;
-      }
-      len = noSuchPipeList.length
-      for (i = 0; i < len; i++) {
-        noSuchPipe = noSuchPipeList[i];
-        if (noSuchPipe !== undef) {
-          return noSuchPipe;
-        }
-      }
-      return undef;
-    },
-
-    applyPipe: function (context, options, pipeName, value) {
-      var pipe = core.findPipe(context, options, pipeName);
-      var result = value;
-      var noSuchPipe;
-      if (util.isFunction(pipe)) {
-        result = pipe.call(context, value);
-      } else {
-        noSuchPipe = core.findNoSuchPipe(options);
-        if (util.isFunction(noSuchPipe)) {
-          result = noSuchPipe.call(context, pipeName, value);
-        }
-      }
-      return result;
-    },
-
     prepare: function (template, options) {
       var renderContext = {
         escape: util.encode,
         handleBlock: core.handleBlock,
         handleInverse: core.handleInverse,
-        applyNoSuchValue: core.applyNoSuchValue,
-        applyPipe: core.applyPipe
+        noSuchValue: options.noSuchValue,
+        noSuchPipe: options.noSuchPipe,
+        firstPipe: options.firstPipe,
+        lastPipe: options.lastPipe,
+        pipes: options.pipes
       };
       var compiledTemplate = compiler.compile(template);
       return {
@@ -1845,36 +1804,50 @@
       settings: {
 
         pipes: {
-          $begin: function (value) {
-            return value;
-          },
+        },
 
-          $end: function (value) {
-            return value === undef ? '' : value;
-          }
+        firstPipe: function (value, valueName) {
+          return value;
+        },
+
+        lastPipe: function (value, valueName) {
+          return value === undef ? '': value;
         },
 
         // todo
-        noSuchBlock: function (name) {
+        noSuchBlock: function (blockName) {
           return undef;
         },
 
-        noSuchValue: function (name) {
+        noSuchValue: function (valueName) {
           return undef;
         },
 
-        noSuchPipe: function (name, value) {
+        noSuchPipe: function (pipeName, value, valueName) {
           return value;
         }
       },
 
       prepare: function (template, options) {
+        var opts = {};
         options = options || {};
-        var opts = {
-          pipesList: [options.pipes, this.settings.pipes],
-          noSuchValueList: [options.noSuchValue, this.settings.noSuchValue],
-          noSuchPipeList: [options.noSuchPipe, this.settings.noSuchPipe]
-        };
+        opts.noSuchValue = options.noSuchValue || this.settings.noSuchValue;
+        opts.noSuchPipe = options.noSuchPipe || this.settings.noSuchPipe;
+        opts.firstPipe = options.firstPipe || this.settings.firstPipe;
+        opts.lastPipe = options.lastPipe || this.settings.lastPipe;
+        opts.pipes = util.extend({}, options.pipes, this.settings.pipes);
+        if (!util.isFunction(opts.noSuchValue)) {
+          throw new Error('the "noSuchValue" option or setting must be function.');
+        }
+        if (!util.isFunction(opts.noSuchPipe)) {
+          throw new Error('the "noSuchPipe" option or setting must be function.');
+        }
+        if (!util.isFunction(opts.firstPipe)) {
+          throw new Error('the "firstPipe" option or setting must be function.');
+        }
+        if (!util.isFunction(opts.lastPipe)) {
+          throw new Error('the "lastPipe" option or setting must be function.');
+        }
         return core.prepare(template, opts);
       },
 
