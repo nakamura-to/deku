@@ -1628,9 +1628,9 @@
       },
 
       op_applyPipe: function(pipeName) {
-        var stack = this.currentStack();
-        var expr = "applyPipe(context, options, '" + pipeName + "', " + stack + ")";
-        this.assign(expr);
+        //var stack = this.currentStack();
+        //var expr = "applyPipe(context, options, '" + pipeName + "', " + stack + ")";
+        //this.assign(expr);
       },
 
       op_escape: function () {
