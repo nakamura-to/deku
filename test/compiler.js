@@ -16,12 +16,17 @@ testCase('compiler', {
 
   'setUp': function () {
     this.parser = tempura.internal.parser;
-    this.parser.yy = tempura.internal.ast;
     this.compiler = tempura.internal.compiler;
     this.renderContext = {
       escape: tempura.internal.util.encode,
       handleBlock: tempura.internal.core.handleBlock,
-      handleInverse: tempura.internal.core.handleInverse
+      handleInverse: tempura.internal.core.handleInverse,
+      applyPipe: tempura.internal.core.applyPipe
+    };
+    this.options = {
+      pipesList: [],
+      noSuchValueList: [],
+      noSuchPipeList: []
     };
   },
 
@@ -30,11 +35,61 @@ testCase('compiler', {
     var compiler = new this.compiler.Compiler(program);
     var result = compiler.compile();
 
-    assertSame(4, result.opcodes.length);
+    assertSame(10, result.opcodes.length);
     assertSame('op_lookupFromContext', result.opcodes[0]);
     assertSame('hoge', result.opcodes[1]);
-    assertSame('op_escape', result.opcodes[2]);
-    assertSame('op_append', result.opcodes[3]);
+    assertSame('op_applyNoSuchValue', result.opcodes[2]);
+    assertSame('hoge', result.opcodes[3]);
+    assertSame('op_applyPipe', result.opcodes[4]);
+    assertSame('$begin', result.opcodes[5]);
+    assertSame('op_applyPipe', result.opcodes[6]);
+    assertSame('$end', result.opcodes[7]);
+    assertSame('op_escape', result.opcodes[8]);
+    assertSame('op_append', result.opcodes[9]);
+    assertSame(0, result.children.length);
+  },
+
+  'test Compiler: name: pipe': function () {
+    var program = this.parser.parse('{{hoge|aaa}}');
+    var compiler = new this.compiler.Compiler(program);
+    var result = compiler.compile();
+
+    assertSame(12, result.opcodes.length);
+    assertSame('op_lookupFromContext', result.opcodes[0]);
+    assertSame('hoge', result.opcodes[1]);
+    assertSame('op_applyNoSuchValue', result.opcodes[2]);
+    assertSame('hoge', result.opcodes[3]);
+    assertSame('op_applyPipe', result.opcodes[4]);
+    assertSame('$begin', result.opcodes[5]);
+    assertSame('op_applyPipe', result.opcodes[6]);
+    assertSame('aaa', result.opcodes[7]);
+    assertSame('op_applyPipe', result.opcodes[8]);
+    assertSame('$end', result.opcodes[9]);
+    assertSame('op_escape', result.opcodes[10]);
+    assertSame('op_append', result.opcodes[11]);
+    assertSame(0, result.children.length);
+  },
+
+  'test Compiler: name: multi pipes': function () {
+    var program = this.parser.parse('{{hoge|aaa|bbb}}');
+    var compiler = new this.compiler.Compiler(program);
+    var result = compiler.compile();
+
+    assertSame(14, result.opcodes.length);
+    assertSame('op_lookupFromContext', result.opcodes[0]);
+    assertSame('hoge', result.opcodes[1]);
+    assertSame('op_applyNoSuchValue', result.opcodes[2]);
+    assertSame('hoge', result.opcodes[3]);
+    assertSame('op_applyPipe', result.opcodes[4]);
+    assertSame('$begin', result.opcodes[5]);
+    assertSame('op_applyPipe', result.opcodes[6]);
+    assertSame('aaa', result.opcodes[7]);
+    assertSame('op_applyPipe', result.opcodes[8]);
+    assertSame('bbb', result.opcodes[9]);
+    assertSame('op_applyPipe', result.opcodes[10]);
+    assertSame('$end', result.opcodes[11]);
+    assertSame('op_escape', result.opcodes[12]);
+    assertSame('op_append', result.opcodes[13]);
     assertSame(0, result.children.length);
   },
 
@@ -43,15 +98,21 @@ testCase('compiler', {
     var compiler = new this.compiler.Compiler(program);
     var result = compiler.compile();
 
-    assertSame(8, result.opcodes.length);
+    assertSame(14, result.opcodes.length);
     assertSame('op_lookupFromContext', result.opcodes[0]);
     assertSame('aaa', result.opcodes[1]);
     assertSame('op_lookupFromStack', result.opcodes[2]);
     assertSame('bbb', result.opcodes[3]);
     assertSame('op_lookupFromStack', result.opcodes[4]);
     assertSame('ccc', result.opcodes[5]);
-    assertSame('op_escape', result.opcodes[6]);
-    assertSame('op_append', result.opcodes[7]);
+    assertSame('op_applyNoSuchValue', result.opcodes[6]);
+    assertSame('aaa.bbb.ccc', result.opcodes[7]);
+    assertSame('op_applyPipe', result.opcodes[8]);
+    assertSame('$begin', result.opcodes[9]);
+    assertSame('op_applyPipe', result.opcodes[10]);
+    assertSame('$end', result.opcodes[11]);
+    assertSame('op_escape', result.opcodes[12]);
+    assertSame('op_append', result.opcodes[13]);
     assertSame(0, result.children.length);
   },
 
@@ -187,25 +248,25 @@ testCase('compiler', {
 
   'test compile: tag': function () {
     var fn = this.compiler.compile('{{name}}');
-    var result = fn.call(this.renderContext, {name: 'hoge' });
+    var result = fn.call(this.renderContext, {name: 'hoge' }, this.options);
     assertSame('hoge', result);
   },
 
   'test compile: tag: pathSeguments': function () {
     var fn = this.compiler.compile('{{aaa.bbb.ccc}}');
-    var result = fn.call(this.renderContext, {aaa: {bbb: {ccc: 'hoge'} } });
+    var result = fn.call(this.renderContext, {aaa: {bbb: {ccc: 'hoge'} } }, this.options);
     assertSame('hoge', result);
   },
 
   'test compile: tag: escape': function () {
     var fn = this.compiler.compile('{{name}}');
-    var result = fn.call(this.renderContext, {name: '<b>"aaa"</b>' });
+    var result = fn.call(this.renderContext, {name: '<b>"aaa"</b>' }, this.options);
     assertSame('&lt;b&gt;&quot;aaa&quot;&lt;/b&gt;', result);
   },
 
   'test compile: tag: unescape': function () {
     var fn = this.compiler.compile('{{{name}}}');
-    var result = fn.call(this.renderContext, {name: '<b>"aaa"</b>' });
+    var result = fn.call(this.renderContext, {name: '<b>"aaa"</b>' }, this.options);
     assertSame('<b>"aaa"</b>', result);
   },
 
@@ -229,55 +290,55 @@ testCase('compiler', {
 
   'test compile: block: array': function () {
     var fn = this.compiler.compile('{{#array}}{{name}}-{{/array}}');
-    var result = fn.call(this.renderContext, {array: [{name:'aaa'},{name:'bbb'}] });
+    var result = fn.call(this.renderContext, {array: [{name:'aaa'},{name:'bbb'}] }, this.options);
     assertSame('aaa-bbb-', result);
   },
 
   'test compile: block: array: $this': function () {
     var fn = this.compiler.compile('{{#array}}{{$this}}-{{/array}}');
-    var result = fn.call(this.renderContext, {array: ['aaa', 'bbb']});
+    var result = fn.call(this.renderContext, {array: ['aaa', 'bbb']}, this.options);
     assertSame('aaa-bbb-', result);
   },
 
   'test compile: block: function: truthy': function () {
     var fn = this.compiler.compile('{{#fn}}{{name}}{{/fn}}');
-    var result = fn.call(this.renderContext, {name: 'aaa', fn: function () { return true; } });
+    var result = fn.call(this.renderContext, {name: 'aaa', fn: function () { return true; } }, this.options);
     assertSame('aaa', result);
   },
 
   'test compile: block: function: falsy': function () {
     var fn = this.compiler.compile('{{#fn}}{{name}}{{/fn}}');
-    var result = fn.call(this.renderContext, {name: 'aaa', fn: function () { return false; } });
+    var result = fn.call(this.renderContext, {name: 'aaa', fn: function () { return false; } }, this.options);
     assertSame('', result);
   },
 
   'test compile: block: boolean: true': function () {
     var fn = this.compiler.compile('{{#bool}}{{name}}{{/bool}}');
-    var result = fn.call(this.renderContext, {name: 'aaa', bool: true });
+    var result = fn.call(this.renderContext, {name: 'aaa', bool: true }, this.options);
     assertSame('aaa', result);
   },
 
   'test compile: block: boolean: false': function () {
     var fn = this.compiler.compile('{{#bool}}{{name}}{{/bool}}');
-    var result = fn.call(this.renderContext, {name: 'aaa', bool: false });
+    var result = fn.call(this.renderContext, {name: 'aaa', bool: false }, this.options);
     assertSame('', result);
   },
 
   'test compile: inverse: boolean: false': function () {
     var fn = this.compiler.compile('{{^bool}}{{name}}{{/bool}}');
-    var result = fn.call(this.renderContext, {name: 'aaa', bool: true });
+    var result = fn.call(this.renderContext, {name: 'aaa', bool: true }, this.options);
     assertSame('', result);
   },
 
   'test compile: inverse: boolean: false': function () {
     var fn = this.compiler.compile('{{^bool}}{{name}}{{/bool}}');
-    var result = fn.call(this.renderContext, {name: 'aaa', bool: false });
+    var result = fn.call(this.renderContext, {name: 'aaa', bool: false }, this.options);
     assertSame('aaa', result);
   },
 
   'test compile: inverse: empty array': function () {
     var fn = this.compiler.compile('{{^array}}{{name}}{{/array}}');
-    var result = fn.call(this.renderContext, {name: 'aaa', array: [] });
+    var result = fn.call(this.renderContext, {name: 'aaa', array: [] }, this.options);
     assertSame('aaa', result);
   }
 

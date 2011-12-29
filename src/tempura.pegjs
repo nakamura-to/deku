@@ -33,11 +33,25 @@ Inverse
     }
 
 Mustache
-  = Open path:Path Close {
-      return ast.newMustache(path, true);
+  = Open path:Path pipes:Pipes Close {
+      return ast.newMustache(path, pipes, true);
     }
-  / Open_unescape path:Path Close_unescape {
-      return ast.newMustache(path);
+  / OpenUnescape path:Path pipes:Pipes CloseUnescape {
+      return ast.newMustache(path, pipes, false);
+    }
+
+Pipes
+  = pipes:('|' Id)* {
+      var result = [];
+      var i;
+      var len = pipes.length;
+      for (i = 0; i < len; i++) {
+        result.push(pipes[i][1]);
+      }
+      return result;
+    }
+  / {
+      return [];
     }
 
 Comment
@@ -84,8 +98,8 @@ Open
 Close
   = '}}'
 
-Open_unescape
+OpenUnescape
   = '{{{'
 
-Close_unescape
+CloseUnescape
   = '}}}'

@@ -24,13 +24,6 @@ testCase('api', {
     assertNotUndefined(tempura.version);
   },
 
-  'test setSettings and getSettings': function () {
-    var settings = {};
-    assertNotSame(settings, tempura.getSettings());
-    tempura.setSettings(settings);
-    assertEquals(settings, tempura.getSettings());
-  },
-
   'test prepare and render': function () {
     /*:DOC +=
      <div id="template">
@@ -45,7 +38,7 @@ testCase('api', {
     assertSame(this.html('result'), result);
   },
 
-  'IGNORE test prepare and render: it should use a "pipes" option prior to a "pipes" setting': function () {
+  'test prepare and render: it should use a "pipes" option prior to a "pipes" setting': function () {
     /*:DOC +=
      <div id="template">
      {{name|enclose}} is {{age}} years old.
@@ -54,44 +47,14 @@ testCase('api', {
      [hoge] is 20 years old.
      </div>
      */
-    tempura.setSettings({
-      pipes: {
-        enclose: function (value) {
-          return '%' + value + '%';
-        }
-      }
-    });
+    tempura.settings.pipes.enclose = function (value) {
+      return '%' + value + '%';
+    };
     var options = {
       pipes: {
         enclose: function (value) {
           return '[' + value + ']';
         }
-      }
-    };
-    var template = tempura.prepare(this.html('template'), options);
-    var result = template.render({name: 'hoge', age: 20});
-    assertSame(this.html('result'), result);
-  },
-
-  'IGNORE test prepare and render: it should use a "preRender" option prior to "preRender" setting': function () {
-    /*:DOC +=
-     <div id="template">
-     {{name}} is {{age}} years old.
-     </div>
-     <div id="result">
-     hoge? is 20? years old.
-     </div>
-     */
-    tempura.setSettings({
-      filter: function (value, next) {
-        value = next(value);
-        return value + '!';
-      }
-    });
-    var options = {
-      preRender: function (value, pipe) {
-        value = pipe(value);
-        return value + '?';
       }
     };
     var template = tempura.prepare(this.html('template'), options);
@@ -108,33 +71,9 @@ testCase('api', {
      [hoge] is 20 years old.
      </div>
      */
-    tempura.setSettings({
-      pipes: {
-        enclose: function (value) {
-          return '[' + value + ']';
-        }
-      }
-    });
-    var template = tempura.prepare(this.html('template'));
-    var result = template.render({name: 'hoge', age: 20});
-    assertSame(this.html('result'), result);
-  },
-
-  'IGNORE test prepare and render: it should use a "preRender" setting, if a "preRender" option does not exitst': function () {
-    /*:DOC +=
-     <div id="template">
-     {{name|enclose}} is {{age}} years old.
-     </div>
-     <div id="result">
-     hoge! is 20! years old.
-     </div>
-     */
-    tempura.setSettings({
-      preRender: function (value, pipe) {
-        value = pipe(value);
-        return value + '!';
-      }
-    });
+    tempura.settings.pipes.enclose = function (value) {
+      return '[' + value + ']';
+    };
     var template = tempura.prepare(this.html('template'));
     var result = template.render({name: 'hoge', age: 20});
     assertSame(this.html('result'), result);
@@ -149,11 +88,9 @@ testCase('api', {
      [hoge is not found] is 20 years old.
      </div>
      */
-    tempura.setSettings({
-      noSuchValue: function (name) {
-        return undefined;
-      }
-    });
+    tempura.setSettings.noSuchValue = function (name) {
+      return undefined;
+    };
     var options = {
       noSuchValue: function (name) {
         return '[' + name + ' is not found]';
@@ -164,7 +101,7 @@ testCase('api', {
     assertSame(this.html('result'), result);
   },
 
-  'IGNORE test prepare and render: it should use a "noSuchValue" setting, if a "noSuchValue" option does not exitst': function () {
+  'test prepare and render: it should use a "noSuchValue" setting, if a "noSuchValue" option does not exitst': function () {
     /*:DOC +=
      <div id="template">
      {{hoge}} is {{age}} years old.
@@ -173,11 +110,9 @@ testCase('api', {
      [hoge is not found] is 20 years old.
      </div>
      */
-    tempura.setSettings({
-      noSuchValue: function (name) {
-        return '[' + name + ' is not found]';
-      }
-    });
+    tempura.settings.noSuchValue = function (name) {
+      return '[' + name + ' is not found]';
+    };
     var template = tempura.prepare(this.html('template'));
     var result = template.render({name: 'hoge', age: 20});
     assertSame(this.html('result'), result);
@@ -224,24 +159,6 @@ testCase('api', {
     var template = tempura.prepare(this.html('template'));
     var result = template.render({name: 'hoge', age: 20});
     assertSame(this.html('result'), result);
-  },
-
-  'test mergeSettings: it should merge settings with original one': function () {
-    tempura.setSettings({
-      hoge: function () {
-        return 'original hoge';
-      },
-      foo: function () {
-        return 'original foo';
-      }
-    });
-    tempura.mergeSettings({
-      foo: function () {
-        return 'new foo';
-      }
-    });
-    assertSame('original hoge', tempura.getSettings().hoge());
-    assertSame('new foo', tempura.getSettings().foo());
   }
 
 });

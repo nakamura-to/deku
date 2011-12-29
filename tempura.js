@@ -22,15 +22,16 @@
         var parseFunctions = {
           "Block": parse_Block,
           "Close": parse_Close,
-          "Close_unescape": parse_Close_unescape,
+          "CloseUnescape": parse_CloseUnescape,
           "Comment": parse_Comment,
           "Content": parse_Content,
           "Id": parse_Id,
           "Inverse": parse_Inverse,
           "Mustache": parse_Mustache,
           "Open": parse_Open,
-          "Open_unescape": parse_Open_unescape,
+          "OpenUnescape": parse_OpenUnescape,
           "Path": parse_Path,
+          "Pipes": parse_Pipes,
           "Program": parse_Program,
           "Statement": parse_Statement
         };
@@ -451,48 +452,60 @@
 
           var savedPos2 = pos;
           var savedPos3 = pos;
-          var result10 = parse_Open();
-          if (result10 !== null) {
-            var result11 = parse_Path();
-            if (result11 !== null) {
-              var result12 = parse_Close();
-              if (result12 !== null) {
-                var result8 = [result10, result11, result12];
+          var result11 = parse_Open();
+          if (result11 !== null) {
+            var result12 = parse_Path();
+            if (result12 !== null) {
+              var result13 = parse_Pipes();
+              if (result13 !== null) {
+                var result14 = parse_Close();
+                if (result14 !== null) {
+                  var result9 = [result11, result12, result13, result14];
+                } else {
+                  var result9 = null;
+                  pos = savedPos3;
+                }
               } else {
-                var result8 = null;
+                var result9 = null;
                 pos = savedPos3;
               }
             } else {
-              var result8 = null;
+              var result9 = null;
               pos = savedPos3;
             }
           } else {
-            var result8 = null;
+            var result9 = null;
             pos = savedPos3;
           }
-          var result9 = result8 !== null
-            ? (function(path) {
-            return ast.newMustache(path, true);
-          })(result8[1])
+          var result10 = result9 !== null
+            ? (function(path, pipes) {
+            return ast.newMustache(path, pipes, true);
+          })(result9[1], result9[2])
             : null;
-          if (result9 !== null) {
-            var result7 = result9;
+          if (result10 !== null) {
+            var result8 = result10;
           } else {
-            var result7 = null;
+            var result8 = null;
             pos = savedPos2;
           }
-          if (result7 !== null) {
-            var result0 = result7;
+          if (result8 !== null) {
+            var result0 = result8;
           } else {
             var savedPos0 = pos;
             var savedPos1 = pos;
-            var result4 = parse_Open_unescape();
+            var result4 = parse_OpenUnescape();
             if (result4 !== null) {
               var result5 = parse_Path();
               if (result5 !== null) {
-                var result6 = parse_Close_unescape();
+                var result6 = parse_Pipes();
                 if (result6 !== null) {
-                  var result2 = [result4, result5, result6];
+                  var result7 = parse_CloseUnescape();
+                  if (result7 !== null) {
+                    var result2 = [result4, result5, result6, result7];
+                  } else {
+                    var result2 = null;
+                    pos = savedPos1;
+                  }
                 } else {
                   var result2 = null;
                   pos = savedPos1;
@@ -506,9 +519,117 @@
               pos = savedPos1;
             }
             var result3 = result2 !== null
-              ? (function(path) {
-              return ast.newMustache(path);
-            })(result2[1])
+              ? (function(path, pipes) {
+              return ast.newMustache(path, pipes, false);
+            })(result2[1], result2[2])
+              : null;
+            if (result3 !== null) {
+              var result1 = result3;
+            } else {
+              var result1 = null;
+              pos = savedPos0;
+            }
+            if (result1 !== null) {
+              var result0 = result1;
+            } else {
+              var result0 = null;;
+            };
+          }
+
+
+
+          cache[cacheKey] = {
+            nextPos: pos,
+            result:  result0
+          };
+          return result0;
+        }
+
+        function parse_Pipes() {
+          var cacheKey = 'Pipes@' + pos;
+          var cachedResult = cache[cacheKey];
+          if (cachedResult) {
+            pos = cachedResult.nextPos;
+            return cachedResult.result;
+          }
+
+
+          var savedPos2 = pos;
+          var result5 = [];
+          var savedPos3 = pos;
+          if (input.substr(pos, 1) === "|") {
+            var result8 = "|";
+            pos += 1;
+          } else {
+            var result8 = null;
+            if (reportMatchFailures) {
+              matchFailed("\"|\"");
+            }
+          }
+          if (result8 !== null) {
+            var result9 = parse_Id();
+            if (result9 !== null) {
+              var result7 = [result8, result9];
+            } else {
+              var result7 = null;
+              pos = savedPos3;
+            }
+          } else {
+            var result7 = null;
+            pos = savedPos3;
+          }
+          while (result7 !== null) {
+            result5.push(result7);
+            var savedPos3 = pos;
+            if (input.substr(pos, 1) === "|") {
+              var result8 = "|";
+              pos += 1;
+            } else {
+              var result8 = null;
+              if (reportMatchFailures) {
+                matchFailed("\"|\"");
+              }
+            }
+            if (result8 !== null) {
+              var result9 = parse_Id();
+              if (result9 !== null) {
+                var result7 = [result8, result9];
+              } else {
+                var result7 = null;
+                pos = savedPos3;
+              }
+            } else {
+              var result7 = null;
+              pos = savedPos3;
+            }
+          }
+          var result6 = result5 !== null
+            ? (function(pipes) {
+            var result = [];
+            var i;
+            var len = pipes.length;
+            for (i = 0; i < len; i++) {
+              result.push(pipes[i][1]);
+            }
+            return result;
+          })(result5)
+            : null;
+          if (result6 !== null) {
+            var result4 = result6;
+          } else {
+            var result4 = null;
+            pos = savedPos2;
+          }
+          if (result4 !== null) {
+            var result0 = result4;
+          } else {
+            var savedPos0 = pos;
+            var savedPos1 = pos;
+            var result2 = [];
+            var result3 = result2 !== null
+              ? (function() {
+              return [];
+            })()
               : null;
             if (result3 !== null) {
               var result1 = result3;
@@ -990,8 +1111,8 @@
           return result0;
         }
 
-        function parse_Open_unescape() {
-          var cacheKey = 'Open_unescape@' + pos;
+        function parse_OpenUnescape() {
+          var cacheKey = 'OpenUnescape@' + pos;
           var cachedResult = cache[cacheKey];
           if (cachedResult) {
             pos = cachedResult.nextPos;
@@ -1018,8 +1139,8 @@
           return result0;
         }
 
-        function parse_Close_unescape() {
-          var cacheKey = 'Close_unescape@' + pos;
+        function parse_CloseUnescape() {
+          var cacheKey = 'CloseUnescape@' + pos;
           var cachedResult = cache[cacheKey];
           if (cachedResult) {
             pos = cachedResult.nextPos;
@@ -1176,15 +1297,9 @@
 
     toString: Object.prototype.toString,
 
-    slice: Array.prototype.slice,
-
     isObject: function (obj) {
       var toObject = Object;
       return obj === toObject(obj);
-    },
-
-    isPlainObject: function (obj) {
-      return util.toString.call(obj) === '[object Object]';
     },
 
     isArray: function (obj) {
@@ -1193,75 +1308,6 @@
 
     isFunction: function (obj) {
       return util.toString.call(obj) === '[object Function]';
-    },
-
-    isString: function (obj) {
-      return util.toString.call(obj) === '[object String]';
-    },
-
-    trim: function (s) {
-      if (s === null || s === undef) {
-        return '';
-      }
-      return s.replace(/^\s+/, '').replace(/\s+$/, '');
-    },
-
-    extend: function (target) {
-      var args = util.slice.call(arguments, 1);
-      var len = args.length;
-      var i;
-      var source;
-      var key;
-      if (target === null || target === undef || len === 0) {
-        return target;
-      }
-      for (i = 0; i < len; i++) {
-        source = args[i];
-        if (source !== null && source !== undef) {
-          for (key in source) {
-            if (target[key] === undef) {
-              target[key] = source[key];
-            }
-          }
-        }
-      }
-      return target;
-    },
-
-    deepExtend: function (target) {
-      var args = util.slice.call(arguments, 1);
-      var len = args.length;
-      var i;
-      var source;
-      var mergeRec;
-      if (target === null || target === undef || len === 0) {
-        return target;
-      }
-      mergeRec = function (target, source) {
-        var key;
-        var sourceProp;
-        var targetProp;
-        var newProp;
-        for (key in source) {
-          sourceProp = source[key];
-          targetProp = target[key];
-          var isArray = util.isArray(sourceProp);
-          if (isArray || util.isPlainObject(sourceProp)) {
-            newProp = targetProp || (isArray ? [] : {});
-            mergeRec(newProp, sourceProp);
-            target[key] = newProp;
-          } else if (targetProp === undef) {
-            target[key] = sourceProp;
-          }
-        }
-      };
-      for (i = 0; i < len; i++) {
-        source = args[i];
-        if (source !== null && source !== undef) {
-          mergeRec(target, source);
-        }
-      }
-      return target;
     },
 
     encode: function (html) {
@@ -1320,25 +1366,21 @@
       };
     },
 
-    newMustache: function (name, escape) {
+    newMustache: function (name, pipes, escape) {
       return {
         type: 'type_mustache',
         name: name,
+        pipes: pipes,
         escape: escape
       };
     },
 
     newName: function (segments) {
-      var i;
-      var len = segments.length;
-      var strings = [];
-      for (i = 0; i < len; i++) {
-        strings.push(segments[i]);
-      }
       return {
         type: 'type_name',
-        segments: strings,
-        isSimple: strings.length === 1
+        path: segments.join('.'),
+        segments: segments,
+        isSimple: segments.length === 1
       };
     }
   };
@@ -1354,7 +1396,9 @@
     };
     Compiler.OPCODE_PARAMLENGTH_MAP = {
       op_append: 0,
+      op_applyNoSuchValue: 1,
       op_appendContent: 1,
+      op_applyPipe: 1,
       op_escape: 0,
       op_lookupFromContext: 1,
       op_lookupFromStack: 1,
@@ -1415,8 +1459,17 @@
       },
 
       type_mustache: function (node) {
-        this.type_name(node.name);
-        //this.opcode('op_invokeMustache');
+        var pipes = node.pipes;
+        var i;
+        var len = pipes.length;
+        var name = node.name;
+        this.type_name(name);
+        this.pushOpcode('op_applyNoSuchValue', name.path);
+        this.pushOpcode('op_applyPipe', '$begin');
+        for (i = 0; i < len; i++) {
+          this.pushOpcode('op_applyPipe', pipes[i]);
+        }
+        this.pushOpcode('op_applyPipe', '$end');
         if (node.escape) {
           this.pushOpcode('op_escape');
         }
@@ -1449,7 +1502,7 @@
     JsCompiler.prototype = {
 
       nameLookup: function (contextVar, name) {
-        return contextVar + '["' + name + '"]';
+        return contextVar + "['" + name + "']";
       },
 
       appendToBuffer: function (s) {
@@ -1508,7 +1561,8 @@
         if (this.isChild) {
           this.source[0] += ", buffer = ''";
         } else {
-          this.source[0] += ", buffer = '', undef, escape = this.escape, handleBlock = this.handleBlock, handleInverse = this.handleInverse";
+          this.source[0] += ", buffer = '', undef, escape = this.escape, handleBlock = this.handleBlock, " +
+            "handleInverse = this.handleInverse, applyNoSuchValue = this.applyNoSuchValue, applyPipe = this.applyPipe";
         }
         if (this.source[0]) {
           this.source[0] = 'var' + this.source[0].slice(1) + ';';
@@ -1519,9 +1573,9 @@
         this.source.push('return buffer;');
         body = '  ' + indent + this.source.join('\n  ' + indent);
         if (asObject) {
-          return new Function('context', body);
+          return new Function('context', 'options', body);
         } else {
-          expr = indent + 'function ' + (this.name || '') + ' (context) {\n' + body + '\n'+ indent + '}';
+          expr = indent + 'function ' + (this.name || '') + ' (context, options) {\n' + body + '\n'+ indent + '}';
           return expr;
         }
       },
@@ -1558,19 +1612,25 @@
       op_invokeProgram: function (guid) {
         var stack = this.currentStack();
         var envChild = this.environment.children[guid];
-        var expr = 'handleBlock(context, ' + stack + ', ' + envChild.name + ')';
+        var expr = 'handleBlock(context, options, ' + stack + ', ' + envChild.name + ')';
         this.assign(expr);
       },
 
       op_invokeProgramInverse: function (guid) {
         var stack = this.currentStack();
         var envChild = this.environment.children[guid];
-        var expr = 'handleInverse(context, ' + stack + ', ' + envChild.name + ')';
+        var expr = 'handleInverse(context, options, ' + stack + ', ' + envChild.name + ')';
         this.assign(expr);
       },
 
       op_invokeMustache: function () {
         // todo unnecessary ?
+      },
+
+      op_applyPipe: function(pipeName) {
+        var stack = this.currentStack();
+        var expr = "applyPipe(context, options, '" + pipeName + "', " + stack + ")";
+        this.assign(expr);
       },
 
       op_escape: function () {
@@ -1590,6 +1650,12 @@
         this.appendToBuffer(content);
       },
 
+      op_applyNoSuchValue: function (name) {
+        var stack = this.currentStack();
+        var statements = "if (" + stack + " === undef) { " + stack + " = " + "applyNoSuchValue(context, options, '" + name + "'); }";
+        this.source.push(statements);
+      },
+
       op_lookupFromContext: function (name) {
         var expr = name === '$this' ? 'context': this.nameLookup('context', name);
         this.expandStack();
@@ -1599,25 +1665,24 @@
       op_lookupFromStack: function (name) {
         var expr;
         var stack = this.currentStack();
+        // todo
         if (name === '$this') {
           expr = stack;
         } else {
           expr = '(' + stack + ' === null || ' + stack + ' === undef) ? '
-            + stack + ' : ' + this.nameLookup(stack, name) + ';';
+            + stack + ' : ' + this.nameLookup(stack, name) + '';
         }
         this.assign(expr);
       }
     };
 
-    var compile = function (template, templateContext) {
+    var compile = function (template) {
       var program = parser.parse(template);
       var compiler = new Compiler(program);
       var environment = compiler.compile(program);
       var jsCompiler = new JsCompiler(environment);
       return jsCompiler.compile(true);
     };
-
-    parser.yy = ast;
 
     return {
       Compiler: Compiler,
@@ -1628,7 +1693,7 @@
 
   var core = {
 
-    handleBlock: function (context, value, fn) {
+    handleBlock: function (context, options, value, fn) {
       var result = '';
       var i;
       var len;
@@ -1636,45 +1701,132 @@
       if (util.isArray(value)) {
         len = value.length;
         for (i = 0; i < len; i++) {
-          array[i] = fn(value[i]);
+          array[i] = fn(value[i], options);
         }
         result = array.join('');
       } else if (util.isFunction(value)) {
         if (value.call(context)) {
-          result = fn(context);
+          result = fn(context, options);
         }
       } else if (util.isObject(value)) {
-        result = fn(value);
+        result = fn(value, options);
       } else if (value) {
-        result = fn(context);
+        result = fn(context, options);
       }
       return result;
     },
 
-    handleInverse: function (context, value, fn) {
+    handleInverse: function (context, options, value, fn) {
       var result = '';
       if (!value) {
-        result = fn(context);
+        result = fn(context, options);
       } else if (util.isFunction(value)) {
         if (!value.call(context)) {
-          result = fn(context);
+          result = fn(context, options);
         }
       } else if ((util.isArray(value) && value.length === 0)) {
-        result = fn(context);
+        result = fn(context, options);
+      }
+      return result;
+    },
+
+    findNoSuchValue: function (options) {
+      var noSuchValueList = options.noSuchValueList;
+      var i;
+      var len;
+      var noSuchValue;
+      if (!util.isArray(noSuchValueList)) {
+        return undef;
+      }
+      len = noSuchValueList.length
+      for (i = 0; i < len; i++) {
+        noSuchValue = noSuchValueList[i];
+        if (noSuchValue !== undef) {
+          return noSuchValue;
+        }
+      }
+      return undef;
+    },
+
+    applyNoSuchValue: function (context, options, name) {
+      var result;
+      var noSuchValue = core.findNoSuchValue(options);
+      if (util.isFunction(noSuchValue)) {
+        result = noSuchValue.call(context, name);
+      }
+      return result;
+    },
+
+    findPipe: function (context, options, pipeName) {
+      var pipesList = options.pipesList;
+      var i;
+      var len;
+      var pipes;
+      var pipe = context[pipeName];
+      if (pipe !== undef) {
+        return pipe;
+      }
+      if (!util.isArray(pipesList)) {
+        return undef;
+      }
+      len = pipesList.length;
+      for (i = 0; i < len; i++) {
+        pipes = pipesList[i];
+        if (pipes !== undef) {
+          pipe = pipes[pipeName];
+          if (pipe !== undef) {
+            return pipe;
+          }
+        }
+      }
+      return undef;
+    },
+
+    findNoSuchPipe: function (options) {
+      var noSuchPipeList = options.noSuchPipeList;
+      var i;
+      var len;
+      var noSuchPipe;
+      if (!util.isArray(noSuchPipeList)) {
+        return undef;
+      }
+      len = noSuchPipeList.length
+      for (i = 0; i < len; i++) {
+        noSuchPipe = noSuchPipeList[i];
+        if (noSuchPipe !== undef) {
+          return noSuchPipe;
+        }
+      }
+      return undef;
+    },
+
+    applyPipe: function (context, options, pipeName, value) {
+      var pipe = core.findPipe(context, options, pipeName);
+      var result = value;
+      var noSuchPipe;
+      if (util.isFunction(pipe)) {
+        result = pipe.call(context, value);
+      } else {
+        noSuchPipe = core.findNoSuchPipe(options);
+        if (util.isFunction(noSuchPipe)) {
+          result = noSuchPipe.call(context, pipeName, value);
+        }
       }
       return result;
     },
 
     prepare: function (template, options) {
       var renderContext = {
-        escape: tempura.internal.util.encode,
-        handleBlock: tempura.internal.core.handleBlock,
-        handleInverse: tempura.internal.core.handleInverse
+        escape: util.encode,
+        handleBlock: core.handleBlock,
+        handleInverse: core.handleInverse,
+        applyNoSuchValue: core.applyNoSuchValue,
+        applyPipe: core.applyPipe
       };
       var compiledTemplate = compiler.compile(template);
       return {
         render: function (data) {
-          return compiledTemplate.call(renderContext, data);
+          return compiledTemplate.call(renderContext, data, options);
         }
       };
     }
@@ -1685,46 +1837,45 @@
 
     var undef;
 
-    //noinspection JSUnusedLocalSymbols
-    var defaultSettings = {
-      otag: core.OTAG,
-      ctag: core.CTAG,
-      preserveUnknownTags: false,
-      pipes: {},
-      preRender: function (value, pipe) {
-        var result = pipe(value);
-        return result === undef ? '' : result;
-      },
-      noSuchValue: function (name) {
-        return undef;
-      },
-      noSuchPipe: function (name, index, value) {
-        return value;
-      }
-    };
-
-    var settings = util.deepExtend({}, defaultSettings);
-
     return {
       name: 'tempura',
 
-      version: '0.0.2',
+      version: '0.0.3-dev',
 
-      getSettings: function () {
-        return settings;
-      },
+      settings: {
 
-      setSettings: function (userSettings) {
-        settings = userSettings;
-      },
+        pipes: {
+          $begin: function (value) {
+            return value;
+          },
 
-      mergeSettings: function (userSettings) {
-        settings = util.deepExtend({}, userSettings, settings);
+          $end: function (value) {
+            return value === undef ? '' : value;
+          }
+        },
+
+        // todo
+        noSuchBlock: function (name) {
+          return undef;
+        },
+
+        noSuchValue: function (name) {
+          return undef;
+        },
+
+        noSuchPipe: function (name, value) {
+          return value;
+        }
       },
 
       prepare: function (template, options) {
-        options = util.deepExtend({}, options, settings);
-        return core.prepare(template, options);
+        options = options || {};
+        var opts = {
+          pipesList: [options.pipes, this.settings.pipes],
+          noSuchValueList: [options.noSuchValue, this.settings.noSuchValue],
+          noSuchPipeList: [options.noSuchPipe, this.settings.noSuchPipe]
+        };
+        return core.prepare(template, opts);
       },
 
       internal: {
