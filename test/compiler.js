@@ -28,10 +28,10 @@ testCase('compiler', {
       noSuchPipe: function (name, value) {
         return value;
       },
-      firstPipe: function (value, name) {
+      prePipeProcess: function (value, name) {
         return value;
       },
-      lastPipe: function (value, name) {
+      postPipeProcess: function (value, name) {
         return value;
       },
       pipes: {}
@@ -53,9 +53,9 @@ testCase('compiler', {
     assertSame('hoge', result.opcodes[1]);
     assertSame('op_applyNoSuchValue', result.opcodes[2]);
     assertSame('hoge', result.opcodes[3]);
-    assertSame('op_applyFirstPipe', result.opcodes[4]);
+    assertSame('op_applyPrePipeProcess', result.opcodes[4]);
     assertSame('hoge', result.opcodes[5]);
-    assertSame('op_applyLastPipe', result.opcodes[6]);
+    assertSame('op_applyPostPipeProcess', result.opcodes[6]);
     assertSame('hoge', result.opcodes[7]);
     assertSame('op_escape', result.opcodes[8]);
     assertSame('op_append', result.opcodes[9]);
@@ -67,19 +67,20 @@ testCase('compiler', {
     var compiler = new this.compiler.Compiler(program);
     var result = compiler.compile();
 
-    assertSame(12, result.opcodes.length);
+    assertSame(13, result.opcodes.length);
     assertSame('op_lookupFromContext', result.opcodes[0]);
     assertSame('hoge', result.opcodes[1]);
     assertSame('op_applyNoSuchValue', result.opcodes[2]);
     assertSame('hoge', result.opcodes[3]);
-    assertSame('op_applyFirstPipe', result.opcodes[4]);
+    assertSame('op_applyPrePipeProcess', result.opcodes[4]);
     assertSame('hoge', result.opcodes[5]);
     assertSame('op_applyPipe', result.opcodes[6]);
     assertSame('aaa', result.opcodes[7]);
-    assertSame('op_applyLastPipe', result.opcodes[8]);
-    assertSame('hoge', result.opcodes[9]);
-    assertSame('op_escape', result.opcodes[10]);
-    assertSame('op_append', result.opcodes[11]);
+    assertSame('hoge', result.opcodes[8]);
+    assertSame('op_applyPostPipeProcess', result.opcodes[9]);
+    assertSame('hoge', result.opcodes[10]);
+    assertSame('op_escape', result.opcodes[11]);
+    assertSame('op_append', result.opcodes[12]);
     assertSame(0, result.children.length);
   },
 
@@ -88,21 +89,23 @@ testCase('compiler', {
     var compiler = new this.compiler.Compiler(program);
     var result = compiler.compile();
 
-    assertSame(14, result.opcodes.length);
+    assertSame(16, result.opcodes.length);
     assertSame('op_lookupFromContext', result.opcodes[0]);
     assertSame('hoge', result.opcodes[1]);
     assertSame('op_applyNoSuchValue', result.opcodes[2]);
     assertSame('hoge', result.opcodes[3]);
-    assertSame('op_applyFirstPipe', result.opcodes[4]);
+    assertSame('op_applyPrePipeProcess', result.opcodes[4]);
     assertSame('hoge', result.opcodes[5]);
     assertSame('op_applyPipe', result.opcodes[6]);
     assertSame('aaa', result.opcodes[7]);
-    assertSame('op_applyPipe', result.opcodes[8]);
-    assertSame('bbb', result.opcodes[9]);
-    assertSame('op_applyLastPipe', result.opcodes[10]);
+    assertSame('hoge', result.opcodes[8]);
+    assertSame('op_applyPipe', result.opcodes[9]);
+    assertSame('bbb', result.opcodes[10]);
     assertSame('hoge', result.opcodes[11]);
-    assertSame('op_escape', result.opcodes[12]);
-    assertSame('op_append', result.opcodes[13]);
+    assertSame('op_applyPostPipeProcess', result.opcodes[12]);
+    assertSame('hoge', result.opcodes[13]);
+    assertSame('op_escape', result.opcodes[14]);
+    assertSame('op_append', result.opcodes[15]);
     assertSame(0, result.children.length);
   },
 
@@ -120,9 +123,9 @@ testCase('compiler', {
     assertSame('ccc', result.opcodes[5]);
     assertSame('op_applyNoSuchValue', result.opcodes[6]);
     assertSame('aaa.bbb.ccc', result.opcodes[7]);
-    assertSame('op_applyFirstPipe', result.opcodes[8]);
+    assertSame('op_applyPrePipeProcess', result.opcodes[8]);
     assertSame('aaa.bbb.ccc', result.opcodes[9]);
-    assertSame('op_applyLastPipe', result.opcodes[10]);
+    assertSame('op_applyPostPipeProcess', result.opcodes[10]);
     assertSame('aaa.bbb.ccc', result.opcodes[11]);
     assertSame('op_escape', result.opcodes[12]);
     assertSame('op_append', result.opcodes[13]);
