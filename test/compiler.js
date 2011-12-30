@@ -388,9 +388,8 @@ testCase('compiler', {
       fail();
     } catch (e) {
       assertEquals('Error', e.name);
-      assertEquals('Expected "{{{" or any character but end of input found. line=1. column=12.\n{{#aaa}}bbb', e.message);
+      assertEquals('Expected \"{{!\", \"{{\", \"{{#\", \"{{/\", \"{{^\", \"{{{\" or any character but end of input found. line=1. column=12.\n{{#aaa}}bbb', e.message);
     }
   }
-
 
 });

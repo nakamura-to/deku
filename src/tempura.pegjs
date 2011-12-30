@@ -1,3 +1,16 @@
+{
+  function verifyMatch(open, close)  {
+    if (open.path !== close.path) {
+      var errorPosition = computeErrorPosition();
+      throw new this.SyntaxError(
+        open.path + " doesn't match " + close.path,
+        errorPosition.line,
+        errorPosition.column
+      );
+    }
+  }
+}
+
 start
   = Program
 
@@ -29,7 +42,8 @@ Statement
   / Content
 
 Block
-  = Open '#' _ open:Path _ Close program:Program Open '/' _ close:Path _ Close {
+  = '{{#' _ open:Path _ '}}' program:Program '{{/' _ close:Path _ '}}' {
+      verifyMatch(open, close);
       return {
         type: 'type_block',
         name: open,
@@ -38,7 +52,8 @@ Block
     }
 
 Inverse
-  = Open '^' _ open:Path _ Close program:Program Open '/' _ close:Path _ Close {
+  = '{{^' _ open:Path _ '}}' program:Program '{{/' _ close:Path _ '}}' {
+      verifyMatch(open, close);
       return {
         type: 'type_inverse',
         name: open,
@@ -47,7 +62,7 @@ Inverse
     }
 
 Mustache
-  = Open _ name:Path pipes:Pipes _ Close {
+  = '{{' _ name:Path pipes:Pipes _ '}}' {
       return {
         type: 'type_mustache',
         name: name,
@@ -55,7 +70,7 @@ Mustache
         escape: true
       };
     }
-  / OpenUnescape _ name:Path pipes:Pipes _ CloseUnescape {
+  / '{{{' _ name:Path pipes:Pipes _ '}}}' {
       return {
         type: 'type_mustache',
         name: name,
@@ -79,7 +94,7 @@ Pipes
     }
 
 Comment
-  = Open '!' comment:(!Close .)* Close {
+  = '{{!' comment:(!'}}' .)* '}}' {
       var chars = [];
       var i;
       var len = comment.length;
@@ -93,7 +108,7 @@ Comment
     }
 
 Content
-  = content:(!Open .)+  {
+  = content:(!'{{' .)+  {
       var chars = [];
       var i;
       var len = content.length;
@@ -123,22 +138,9 @@ Path
     }
 
 Id
-  = id:[a-zA-Z0-9_$-]+ {
+  = id:[a-zA-Z0-9_$-%@!]+ {
       return id.join('');
     }
-
-Open
-  = '{{'
-
-Close
-  = '}}'
-
-OpenUnescape
-  = '{{{'
-
-CloseUnescape
-  = '}}}'
-
 _
   = Whitespace*
 
