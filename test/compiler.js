@@ -131,12 +131,14 @@ testCase('compiler', {
 
     assertSame(2, env.context.allEnvironments.length);
     assertSame(env, env.context.allEnvironments[0]);
-    assertSame(5, env.opcodes.length);
+    assertSame(7, env.opcodes.length);
     assertSame('op_lookupFromContext', env.opcodes[0]);
     assertSame('hoge', env.opcodes[1]);
-    assertSame('op_invokeProgram', env.opcodes[2]);
-    assertSame(1, env.opcodes[3]);
-    assertSame('op_append', env.opcodes[4]);
+    assertSame('op_applyNoSuchValue', env.opcodes[2]);
+    assertSame('hoge', env.opcodes[3]);
+    assertSame('op_invokeProgram', env.opcodes[4]);
+    assertSame(1, env.opcodes[5]);
+    assertSame('op_append', env.opcodes[6]);
 
     descendant = env.context.allEnvironments[1];
     assertSame(2, descendant.opcodes.length);
@@ -152,17 +154,21 @@ testCase('compiler', {
 
     assertSame(3, env.context.allEnvironments.length);
     assertSame(env, env.context.allEnvironments[0]);
-    assertSame(10, env.opcodes.length);
+    assertSame(14, env.opcodes.length);
     assertSame('op_lookupFromContext', env.opcodes[0]);
     assertSame('hoge', env.opcodes[1]);
-    assertSame('op_invokeProgram', env.opcodes[2]);
-    assertSame(1, env.opcodes[3]);
-    assertSame('op_append', env.opcodes[4]);
-    assertSame('op_lookupFromContext', env.opcodes[5]);
-    assertSame('foo', env.opcodes[6]);
-    assertSame('op_invokeProgram', env.opcodes[7]);
-    assertSame(2, env.opcodes[8]);
-    assertSame('op_append', env.opcodes[9]);
+    assertSame('op_applyNoSuchValue', env.opcodes[2]);
+    assertSame('hoge', env.opcodes[3]);
+    assertSame('op_invokeProgram', env.opcodes[4]);
+    assertSame(1, env.opcodes[5]);
+    assertSame('op_append', env.opcodes[6]);
+    assertSame('op_lookupFromContext', env.opcodes[7]);
+    assertSame('foo', env.opcodes[8]);
+    assertSame('op_applyNoSuchValue', env.opcodes[9]);
+    assertSame('foo', env.opcodes[10]);
+    assertSame('op_invokeProgram', env.opcodes[11]);
+    assertSame(2, env.opcodes[12]);
+    assertSame('op_append', env.opcodes[13]);
 
     descendant = env.context.allEnvironments[1];
     assertSame(2, descendant.opcodes.length);
@@ -183,24 +189,28 @@ testCase('compiler', {
 
     assertSame(3, env.context.allEnvironments.length);
     assertSame(env, env.context.allEnvironments[0]);
-    assertSame(5, env.opcodes.length);
+    assertSame(7, env.opcodes.length);
     assertSame('op_lookupFromContext', env.opcodes[0]);
     assertSame('hoge', env.opcodes[1]);
-    assertSame('op_invokeProgram', env.opcodes[2]);
-    assertSame(1, env.opcodes[3]);
-    assertSame('op_append', env.opcodes[4]);
+    assertSame('op_applyNoSuchValue', env.opcodes[2]);
+    assertSame('hoge', env.opcodes[3]);
+    assertSame('op_invokeProgram', env.opcodes[4]);
+    assertSame(1, env.opcodes[5]);
+    assertSame('op_append', env.opcodes[6]);
 
     descendant = env.context.allEnvironments[1];
-    assertSame(9, descendant.opcodes.length);
+    assertSame(11, descendant.opcodes.length);
     assertSame('op_appendContent', descendant.opcodes[0]);
     assertSame('abc', descendant.opcodes[1]);
     assertSame('op_lookupFromContext', descendant.opcodes[2]);
     assertSame('foo', descendant.opcodes[3]);
-    assertSame('op_invokeProgram', descendant.opcodes[4]);
-    assertSame(2, descendant.opcodes[5]);
-    assertSame('op_append', descendant.opcodes[6]);
-    assertSame('op_appendContent', descendant.opcodes[7]);
-    assertSame('ghi', descendant.opcodes[8]);
+    assertSame('op_applyNoSuchValue', descendant.opcodes[4]);
+    assertSame('foo', descendant.opcodes[5]);
+    assertSame('op_invokeProgram', descendant.opcodes[6]);
+    assertSame(2, descendant.opcodes[7]);
+    assertSame('op_append', descendant.opcodes[8]);
+    assertSame('op_appendContent', descendant.opcodes[9]);
+    assertSame('ghi', descendant.opcodes[10]);
 
     descendant = env.context.allEnvironments[2];
     assertSame(2, descendant.opcodes.length);
@@ -214,12 +224,14 @@ testCase('compiler', {
     var env = compiler.compile();
     assertSame(2, env.context.allEnvironments.length);
     assertSame(env, env.context.allEnvironments[0]);
-    assertSame(5, env.opcodes.length);
+    assertSame(7, env.opcodes.length);
     assertSame('op_lookupFromContext', env.opcodes[0]);
     assertSame('hoge', env.opcodes[1]);
-    assertSame('op_invokeProgramInverse', env.opcodes[2]);
-    assertSame(1, env.opcodes[3]);
-    assertSame('op_append', env.opcodes[4]);
+    assertSame('op_applyNoSuchValue', env.opcodes[2]);
+    assertSame('hoge', env.opcodes[3]);
+    assertSame('op_invokeProgramInverse', env.opcodes[4]);
+    assertSame(1, env.opcodes[5]);
+    assertSame('op_append', env.opcodes[6]);
   },
 
   'test Compiler: content': function () {

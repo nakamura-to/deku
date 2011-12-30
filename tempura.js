@@ -1467,14 +1467,18 @@
 
       type_block : function (node) {
         var env = this.compileProgram(node.program);
-        this.type_name(node.name);
+        var name = node.name;
+        this.type_name(name);
+        this.pushOpcode('op_applyNoSuchValue', name.path);
         this.pushOpcode('op_invokeProgram', env.index);
         this.pushOpcode('op_append');
       },
 
       type_inverse: function (node) {
         var env = this.compileProgram(node.program);
-        this.type_name(node.name);
+        var name = node.name;
+        this.type_name(name);
+        this.pushOpcode('op_applyNoSuchValue', name.path);
         this.pushOpcode('op_invokeProgramInverse', env.index);
         this.pushOpcode('op_append');
       },
@@ -1829,11 +1833,6 @@
 
         postPipeProcess: function (value, valueName) {
           return value === undef ? '': value;
-        },
-
-        // todo
-        noSuchBlock: function (blockName) {
-          return undef;
         },
 
         noSuchValue: function (valueName) {
