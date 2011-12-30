@@ -1502,7 +1502,7 @@
       return target;
     },
 
-    encode: function (html) {
+    escape: function (html) {
       html = (html === null || html === undef) ? '' : String(html);
       return html.replace(/[&"'<>]/g, function (s) {
         switch (s) {
@@ -1929,7 +1929,7 @@
 
     prepare: function (template, options) {
       var renderContext = {
-        escape: util.encode,
+        escape: util.escape,
         handleBlock: core.handleBlock,
         handleInverse: core.handleInverse,
         noSuchValue: options.noSuchValue,

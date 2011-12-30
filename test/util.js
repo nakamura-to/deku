@@ -57,17 +57,17 @@ testCase('util', {
     assertFalse(this.util.isArray(undefined));
   },
 
-  'test encode': function () {
-    assertSame('&amp;', this.util.encode('&'));
-    assertSame('&quot;', this.util.encode('"'));
-    assertSame('&#39;', this.util.encode("'"));
-    assertSame('&lt;', this.util.encode('<'));
-    assertSame('&gt;', this.util.encode('>'));
-    assertSame('a&amp;b&quot;c&#39;d&lt;e&gt;f', this.util.encode('a&b"c\'d<e>f'));
-    assertSame('abc', this.util.encode('abc'));
-    assertSame('123', this.util.encode(123));
-    assertSame('', this.util.encode(null));
-    assertSame('', this.util.encode(undefined));
+  'test escape': function () {
+    assertSame('&amp;', this.util.escape('&'));
+    assertSame('&quot;', this.util.escape('"'));
+    assertSame('&#39;', this.util.escape("'"));
+    assertSame('&lt;', this.util.escape('<'));
+    assertSame('&gt;', this.util.escape('>'));
+    assertSame('a&amp;b&quot;c&#39;d&lt;e&gt;f', this.util.escape('a&b"c\'d<e>f'));
+    assertSame('abc', this.util.escape('abc'));
+    assertSame('123', this.util.escape(123));
+    assertSame('', this.util.escape(null));
+    assertSame('', this.util.escape(undefined));
   }
 
 });

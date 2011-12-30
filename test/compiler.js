@@ -18,7 +18,7 @@ testCase('compiler', {
     this.parser = tempura.internal.parser;
     this.compiler = tempura.internal.compiler;
     this.renderContext = {
-      escape: tempura.internal.util.encode,
+      escape: tempura.internal.util.escape,
       handleBlock: tempura.internal.core.handleBlock,
       handleInverse: tempura.internal.core.handleInverse,
       applyPipe: tempura.internal.core.applyPipe,
