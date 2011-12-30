@@ -1423,6 +1423,7 @@
       this.name = 'program' + this.index;
       this.context.allEnvironments.push(this);
     };
+
     Compiler.OPCODE_PARAMLENGTH_MAP = {
       op_append: 0,
       op_applyNoSuchValue: 1,
@@ -1436,6 +1437,7 @@
       op_invokeProgram: 1,
       op_invokeProgramInverse: 1
     };
+
     Compiler.prototype = {
 
       compile: function () {
@@ -1528,9 +1530,13 @@
       this.stackSlot = 0;
       this.stackVars = [];
     };
+
     JsCompiler.ROOT_CONTEXT = '$root';
     JsCompiler.PARENT_CONTEXT = '$parent';
     JsCompiler.THIS_CONTEXT = '$this';
+    JsCompiler.INDEX = '$index';
+    JsCompiler.HAS_NEXT = '$hasNext';
+
     JsCompiler.prototype = {
 
       nameLookup: function (contextVar, name) {
@@ -1615,7 +1621,7 @@
         }
         this.source.push('return buffer;');
         body = '  ' + indent + this.source.join('\n  ' + indent);
-        return indent + 'function ' + this.name + ' (context, ancestor) {\n' + body + '\n'+ indent + '}';
+        return indent + 'function ' + this.name + ' (context, ancestor, index, hasNext) {\n' + body + '\n'+ indent + '}';
       },
 
       compile: function (asObject) {
@@ -1708,6 +1714,10 @@
           expr = 'ancestor.pop()';
         } else if (name === JsCompiler.THIS_CONTEXT) {
           expr = 'context';
+        } else if (name === JsCompiler.INDEX) {
+          expr = 'index';
+        } else if (name === JsCompiler.HAS_NEXT) {
+          expr = 'hasNext';
         } else {
           expr = this.nameLookup('context', name);
           this.source.push('ancestor.push(context);');
@@ -1725,6 +1735,10 @@
           expr = 'ancestor.pop()';
         } else if (name === JsCompiler.THIS_CONTEXT) {
           expr = stack;
+        } else if (name === JsCompiler.INDEX) {
+          expr = 'index';
+        } else if (name === JsCompiler.HAS_NEXT) {
+          expr = 'hasNext';
         } else {
           expr = '(' + stack + ' === null || ' + stack + ' === undef) ? '
             + stack + ' : ' + this.nameLookup(stack, name) + '';
@@ -1760,7 +1774,7 @@
         ancestor.push(value);
         len = value.length;
         for (i = 0; i < len; i++) {
-          array[i] = fn(value[i], ancestor);
+          array[i] = fn(value[i], ancestor, i, i + 1 < len);
         }
         result = array.join('');
         ancestor.pop();

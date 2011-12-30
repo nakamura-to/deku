@@ -328,6 +328,18 @@ testCase('compiler', {
     assertSame('aaa-bbb-', result);
   },
 
+  'test compile: block: array: $index': function () {
+    var fn = this.compiler.compile('{{#array}}{{$this}}{{$index}}-{{/array}}');
+    var result = fn.call(this.renderContext, {array: ['aaa', 'bbb']}, []);
+    assertSame('aaa0-bbb1-', result);
+  },
+
+  'test compile: block: array: $hasNext': function () {
+    var fn = this.compiler.compile('{{#array}}{{$this}}{{#$hasNext}}-{{/$hasNext}}{{/array}}');
+    var result = fn.call(this.renderContext, {array: ['aaa', 'bbb']}, []);
+    assertSame('aaa-bbb', result);
+  },
+
   'test compile: block: function: truthy': function () {
     var fn = this.compiler.compile('{{#fn}}{{name}}{{/fn}}');
     var result = fn.call(this.renderContext, {name: 'aaa', fn: function () { return true; } }, []);
