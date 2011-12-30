@@ -1417,13 +1417,11 @@
       this.program = program;
       this.opcodes = [];
       this.context = context || {
-        descendants: []
+        allEnvironments: []
       };
-      this.index = this.context.descendants.length;
+      this.index = this.context.allEnvironments.length;
       this.name = 'program' + this.index;
-      if (context) {
-        this.context.descendants.push(this);
-      }
+      this.context.allEnvironments.push(this);
     };
     Compiler.OPCODE_PARAMLENGTH_MAP = {
       op_append: 0,
@@ -1546,14 +1544,14 @@
 
       compileDescendants: function () {
         var result = [];
-        var descendants = this.environment.context.descendants;
+        var all = this.environment.context.allEnvironments;
+        var i;
+        var len = all.length;
         var env;
         var jsc;
-        var i;
-        var len = descendants.length;
         var subProgram;
-        for (i = 0; i < len; i++) {
-          env = descendants[i];
+        for (i = 1; i < len; i++) {
+          env = all[i];
           jsc = new JsCompiler(env);
           subProgram = jsc.compileSubProgram();
           result.push(subProgram);
@@ -1591,7 +1589,7 @@
         if (this.source[0]) {
           this.source[0] = 'var' + this.source[0].slice(1) + ';';
         }
-        this.source[0] += '\n' + subPrograms.join('\n') + '\n';
+        this.source[0] += '\n\n' + subPrograms.join('\n\n') + '\n';
         this.source.push('return buffer;');
         body = '  ' + this.source.join('\n  ');
         if (asObject) {
@@ -1647,13 +1645,13 @@
 
       op_invokeProgram: function (index) {
         var stack = this.currentStack();
-        var env = this.environment.context.descendants[index];
+        var env = this.environment.context.allEnvironments[index];
         this.source.push(stack + ' = handleBlock(context, ancestor, ' + stack + ', ' + env.name + ');');
       },
 
       op_invokeProgramInverse: function (index) {
         var stack = this.currentStack();
-        var env = this.environment.context.descendants[index];
+        var env = this.environment.context.allEnvironments[index];
         this.source.push(stack + ' = handleInverse(context, ancestor, ' + stack + ', ' + env.name + ');');
       },
 

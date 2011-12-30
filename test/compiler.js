@@ -126,19 +126,19 @@ testCase('compiler', {
   'test Compiler: block': function () {
     var program = this.parser.parse('{{#hoge}}abc{{/hoge}}');
     var compiler = new this.compiler.Compiler(program);
-    var result = compiler.compile();
+    var env = compiler.compile();
     var descendant;
 
-    assertSame(5, result.opcodes.length);
-    assertSame('op_lookupFromContext', result.opcodes[0]);
-    assertSame('hoge', result.opcodes[1]);
-    assertSame('op_invokeProgram', result.opcodes[2]);
-    assertSame(0, result.opcodes[3]);
-    assertSame('op_append', result.opcodes[4]);
+    assertSame(2, env.context.allEnvironments.length);
+    assertSame(env, env.context.allEnvironments[0]);
+    assertSame(5, env.opcodes.length);
+    assertSame('op_lookupFromContext', env.opcodes[0]);
+    assertSame('hoge', env.opcodes[1]);
+    assertSame('op_invokeProgram', env.opcodes[2]);
+    assertSame(1, env.opcodes[3]);
+    assertSame('op_append', env.opcodes[4]);
 
-    assertSame(1, result.context.descendants.length);
-
-    descendant = result.context.descendants[0];
+    descendant = env.context.allEnvironments[1];
     assertSame(2, descendant.opcodes.length);
     assertSame('op_appendContent', descendant.opcodes[0]);
     assertSame('abc', descendant.opcodes[1]);
@@ -147,28 +147,29 @@ testCase('compiler', {
   'test Compiler: block: sibling': function () {
     var program = this.parser.parse('{{#hoge}}abc{{/hoge}}{{#foo}}def{{/foo}}');
     var compiler = new this.compiler.Compiler(program);
-    var result = compiler.compile();
+    var env = compiler.compile();
     var descendant;
 
-    assertSame(10, result.opcodes.length);
-    assertSame('op_lookupFromContext', result.opcodes[0]);
-    assertSame('hoge', result.opcodes[1]);
-    assertSame('op_invokeProgram', result.opcodes[2]);
-    assertSame(0, result.opcodes[3]);
-    assertSame('op_append', result.opcodes[4]);
-    assertSame('op_lookupFromContext', result.opcodes[5]);
-    assertSame('foo', result.opcodes[6]);
-    assertSame('op_invokeProgram', result.opcodes[7]);
-    assertSame(1, result.opcodes[8]);
-    assertSame('op_append', result.opcodes[9]);
-    assertSame(2, result.context.descendants.length);
+    assertSame(3, env.context.allEnvironments.length);
+    assertSame(env, env.context.allEnvironments[0]);
+    assertSame(10, env.opcodes.length);
+    assertSame('op_lookupFromContext', env.opcodes[0]);
+    assertSame('hoge', env.opcodes[1]);
+    assertSame('op_invokeProgram', env.opcodes[2]);
+    assertSame(1, env.opcodes[3]);
+    assertSame('op_append', env.opcodes[4]);
+    assertSame('op_lookupFromContext', env.opcodes[5]);
+    assertSame('foo', env.opcodes[6]);
+    assertSame('op_invokeProgram', env.opcodes[7]);
+    assertSame(2, env.opcodes[8]);
+    assertSame('op_append', env.opcodes[9]);
 
-    descendant = result.context.descendants[0];
+    descendant = env.context.allEnvironments[1];
     assertSame(2, descendant.opcodes.length);
     assertSame('op_appendContent', descendant.opcodes[0]);
     assertSame('abc', descendant.opcodes[1]);
 
-    descendant = result.context.descendants[1];
+    descendant = env.context.allEnvironments[2];
     assertSame(2, descendant.opcodes.length);
     assertSame('op_appendContent', descendant.opcodes[0]);
     assertSame('def', descendant.opcodes[1]);
@@ -177,30 +178,31 @@ testCase('compiler', {
   'test Compiler: block: nesting': function () {
     var program = this.parser.parse('{{#hoge}}abc{{#foo}}def{{/foo}}ghi{{/hoge}}');
     var compiler = new this.compiler.Compiler(program);
-    var result = compiler.compile();
+    var env = compiler.compile();
     var descendant;
 
-    assertSame(5, result.opcodes.length);
-    assertSame('op_lookupFromContext', result.opcodes[0]);
-    assertSame('hoge', result.opcodes[1]);
-    assertSame('op_invokeProgram', result.opcodes[2]);
-    assertSame(0, result.opcodes[3]);
-    assertSame('op_append', result.opcodes[4]);
-    assertSame(2, result.context.descendants.length);
+    assertSame(3, env.context.allEnvironments.length);
+    assertSame(env, env.context.allEnvironments[0]);
+    assertSame(5, env.opcodes.length);
+    assertSame('op_lookupFromContext', env.opcodes[0]);
+    assertSame('hoge', env.opcodes[1]);
+    assertSame('op_invokeProgram', env.opcodes[2]);
+    assertSame(1, env.opcodes[3]);
+    assertSame('op_append', env.opcodes[4]);
 
-    descendant = result.context.descendants[0];
+    descendant = env.context.allEnvironments[1];
     assertSame(9, descendant.opcodes.length);
     assertSame('op_appendContent', descendant.opcodes[0]);
     assertSame('abc', descendant.opcodes[1]);
     assertSame('op_lookupFromContext', descendant.opcodes[2]);
     assertSame('foo', descendant.opcodes[3]);
     assertSame('op_invokeProgram', descendant.opcodes[4]);
-    assertSame(1, descendant.opcodes[5]);
+    assertSame(2, descendant.opcodes[5]);
     assertSame('op_append', descendant.opcodes[6]);
     assertSame('op_appendContent', descendant.opcodes[7]);
     assertSame('ghi', descendant.opcodes[8]);
 
-    descendant = result.context.descendants[1];
+    descendant = env.context.allEnvironments[2];
     assertSame(2, descendant.opcodes.length);
     assertSame('op_appendContent', descendant.opcodes[0]);
     assertSame('def', descendant.opcodes[1]);
@@ -209,14 +211,15 @@ testCase('compiler', {
   'test Compiler: inverse': function () {
     var program = this.parser.parse('{{^hoge}}abc{{/hoge}}');
     var compiler = new this.compiler.Compiler(program);
-    var result = compiler.compile();
-    assertSame(5, result.opcodes.length);
-    assertSame('op_lookupFromContext', result.opcodes[0]);
-    assertSame('hoge', result.opcodes[1]);
-    assertSame('op_invokeProgramInverse', result.opcodes[2]);
-    assertSame(0, result.opcodes[3]);
-    assertSame('op_append', result.opcodes[4]);
-    assertSame(1, result.context.descendants.length);
+    var env = compiler.compile();
+    assertSame(2, env.context.allEnvironments.length);
+    assertSame(env, env.context.allEnvironments[0]);
+    assertSame(5, env.opcodes.length);
+    assertSame('op_lookupFromContext', env.opcodes[0]);
+    assertSame('hoge', env.opcodes[1]);
+    assertSame('op_invokeProgramInverse', env.opcodes[2]);
+    assertSame(1, env.opcodes[3]);
+    assertSame('op_append', env.opcodes[4]);
   },
 
   'test Compiler: content': function () {
@@ -236,7 +239,7 @@ testCase('compiler', {
   },
 
   'test JsCompiler: string: spike': function () {
-    var program = this.parser.parse('{{#hoge}}{{test.aaa}}{{/hoge}}');
+    var program = this.parser.parse('{{#hoge}}{{test.aaa}}{{#foo}}bar{{/foo}}{{/hoge}}');
     var compiler = new this.compiler.Compiler(program);
     var environment = compiler.compile(program);
     var jsCompiler = new this.compiler.JsCompiler(environment);
