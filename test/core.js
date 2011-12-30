@@ -30,7 +30,7 @@ testCase('core', {
     var context = {
       array: ['aaa', 'bbb', 'ccc']
     };
-    var result = this.core.handleBlock(context, {}, context.array, function (context) {
+    var result = this.core.handleBlock(context, [], context.array, function (context) {
       return context + '-';
     });
     assertSame('aaa-bbb-ccc-', result);
@@ -43,7 +43,7 @@ testCase('core', {
         return true;
       }
     };
-    var result = this.core.handleBlock(context, {}, context.fn, function (context) {
+    var result = this.core.handleBlock(context, [], context.fn, function (context) {
       return context.name;
     });
     assertSame('aaa', result);
@@ -56,7 +56,7 @@ testCase('core', {
         return false;
       }
     };
-    var result = this.core.handleBlock(context, {}, context.fn, function (context) {
+    var result = this.core.handleBlock(context, [], context.fn, function (context) {
       return context.name;
     });
     assertSame('', result);
@@ -69,7 +69,7 @@ testCase('core', {
         name: 'bbb'
       }
     };
-    var result = this.core.handleBlock(context, {}, context.person, function (context) {
+    var result = this.core.handleBlock(context, [], context.person, function (context) {
       return context.name;
     });
     assertSame('bbb', result);
@@ -80,7 +80,7 @@ testCase('core', {
       name: 'aaa',
       flag: true
     };
-    var result = this.core.handleBlock(context, {}, context.flag, function (context) {
+    var result = this.core.handleBlock(context, [], context.flag, function (context) {
       return context.name;
     });
     assertSame('aaa', result);
@@ -91,7 +91,7 @@ testCase('core', {
       name: 'aaa',
       flag: false
     };
-    var result = this.core.handleBlock(context, {}, context.flag, function (context) {
+    var result = this.core.handleBlock(context, [], context.flag, function (context) {
       return context.name;
     });
     assertSame('', result);
@@ -102,7 +102,7 @@ testCase('core', {
       name: 'aaa',
       flag: false
     };
-    var result = this.core.handleInverse(context, {}, context.flag, function (context) {
+    var result = this.core.handleInverse(context, [], context.flag, function (context) {
       return context.name;
     });
     assertSame('aaa', result);
@@ -115,7 +115,7 @@ testCase('core', {
         return false;
       }
     };
-    var result = this.core.handleInverse(context, {}, context.fn, function (context) {
+    var result = this.core.handleInverse(context, [], context.fn, function (context) {
       return context.name;
     });
     assertSame('aaa', result);
@@ -128,7 +128,7 @@ testCase('core', {
         return true;
       }
     };
-    var result = this.core.handleInverse(context, {}, context.fn, function (context) {
+    var result = this.core.handleInverse(context, [], context.fn, function (context) {
       return context.name;
     });
     assertSame('', result);
@@ -139,7 +139,7 @@ testCase('core', {
       name: 'aaa',
       array: []
     };
-    var result = this.core.handleInverse(context, {}, context.array, function (context) {
+    var result = this.core.handleInverse(context, [], context.array, function (context) {
       return context.name;
     });
     assertSame('aaa', result);

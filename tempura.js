@@ -1532,7 +1532,7 @@
     JsCompiler.prototype = {
 
       nameLookup: function (contextVar, name) {
-        return contextVar + "['" + name + "']";
+        return contextVar + '["' + name + '"]';
       },
 
       appendToBuffer: function (s) {
@@ -1589,11 +1589,11 @@
           this.source[0] += ', ' + this.stackVars.join(', ');
         }
         if (this.isChild) {
-          this.source[0] += ", buffer = ''";
+          this.source[0] += ', buffer = ""';
         } else {
-          this.source[0] += ", buffer = '', undef, escape = this.escape, handleBlock = this.handleBlock, " +
-            "handleInverse = this.handleInverse, noSuchValue = this.noSuchValue, noSuchPipe = this.noSuchPipe, " +
-            "prePipeProcess = this.prePipeProcess, postPipeProcess = this.postPipeProcess, pipes = this.pipes, pipe";
+          this.source[0] += ', rootContext = context, buffer = "", undef, escape = this.escape, handleBlock = this.handleBlock, ' +
+            'handleInverse = this.handleInverse, noSuchValue = this.noSuchValue, noSuchPipe = this.noSuchPipe, ' +
+            'prePipeProcess = this.prePipeProcess, postPipeProcess = this.postPipeProcess, pipes = this.pipes, pipe';
         }
         if (this.source[0]) {
           this.source[0] = 'var' + this.source[0].slice(1) + ';';
@@ -1604,9 +1604,9 @@
         this.source.push('return buffer;');
         body = '  ' + indent + this.source.join('\n  ' + indent);
         if (asObject) {
-          return new Function('context', 'options', body);
+          return new Function('context', 'ancestor', body);
         } else {
-          expr = indent + 'function ' + (this.name || '') + ' (context, options) {\n' + body + '\n'+ indent + '}';
+          expr = indent + 'function ' + (this.name || '') + ' (context, ancestor) {\n' + body + '\n'+ indent + '}';
           return expr;
         }
       },
@@ -1635,52 +1635,38 @@
         return 'stack' + this.stackSlot;
       },
 
-      assign: function (expr) {
-        var stack = this.currentStack();
-        this.source.push(stack + ' = ' + expr + ';');
-      },
-
       op_invokeProgram: function (guid) {
         var stack = this.currentStack();
         var envChild = this.environment.children[guid];
-        var expr = 'handleBlock(context, options, ' + stack + ', ' + envChild.name + ')';
-        this.assign(expr);
+        this.source.push(stack + ' = handleBlock(context, ancestor, ' + stack + ', ' + envChild.name + ');');
       },
 
       op_invokeProgramInverse: function (guid) {
         var stack = this.currentStack();
         var envChild = this.environment.children[guid];
-        var expr = 'handleInverse(context, options, ' + stack + ', ' + envChild.name + ')';
-        this.assign(expr);
-      },
-
-      op_invokeMustache: function () {
-        // todo unnecessary ?
+        this.source.push(stack + ' = handleInverse(context, ancestor, ' + stack + ', ' + envChild.name + ');');
       },
 
       op_applyPipe: function (pipeName, valueName) {
         var stack = this.currentStack();
-        this.source.push("pipe = " + this.nameLookup('pipes', pipeName) + ";");
-        this.source.push("if (typeof pipe === 'function') { " + stack + " = pipe.call(context, " + stack + "); }");
-        this.source.push("else { noSuchPipe.call(context, '" + pipeName +"', " + stack + ", '" + valueName + "'); }");
+        this.source.push('pipe = ' + this.nameLookup('pipes', pipeName) + ';');
+        this.source.push('if (typeof pipe === "function") { ' + stack + ' = pipe.call(context, ' + stack + '); }');
+        this.source.push('else { noSuchPipe.call(context, "' + pipeName + '", ' + stack + ', "' + valueName + '"); }');
       },
 
       op_applyPrePipeProcess: function (valueName) {
         var stack = this.currentStack();
-        var expr = "prePipeProcess(" + stack + ", '" + valueName + "')";
-        this.assign(expr);
+        this.source.push(stack + ' = prePipeProcess(' + stack + ', "' + valueName + '");');
       },
 
       op_applyPostPipeProcess: function (valueName) {
         var stack = this.currentStack();
-        var expr = "postPipeProcess(" + stack + ", '" + valueName + "')";
-        this.assign(expr);
+        this.source.push(stack + ' = postPipeProcess(' + stack + ', "' + valueName + '");');
       },
 
       op_escape: function () {
         var stack = this.currentStack();
-        var expr = 'escape(' + stack + ')';
-        this.assign(expr);
+        this.source.push(stack + ' = escape(' + stack + ');');
       },
 
       op_append: function () {
@@ -1696,27 +1682,43 @@
 
       op_applyNoSuchValue: function (name) {
         var stack = this.currentStack();
-        var statements = "if (" + stack + " === undef) { " + stack + " = " + "noSuchValue.call(context, '" + name + "'); }";
+        var statements = 'if (' + stack + ' === undef) { ' + stack + ' = ' + 'noSuchValue.call(context, "' + name + '"); }';
         this.source.push(statements);
       },
 
       op_lookupFromContext: function (name) {
-        var expr = name === '$this' ? 'context': this.nameLookup('context', name);
-        this.expandStack();
-        this.assign(expr);
+        var stack = this.expandStack();
+        var expr;
+        if (name === '$root') {
+          expr = 'context';
+          this.source.push('ancestor = [];');
+        } else if (name === '$parent') {
+          expr = 'ancestor.pop()';
+        } else if (name === '$this') {
+          expr = 'context';
+        } else {
+          expr = this.nameLookup('context', name);
+          this.source.push('ancestor.push(context);');
+        }
+        this.source.push(stack + ' = ' + expr + ';');
       },
 
       op_lookupFromStack: function (name) {
-        var expr;
         var stack = this.currentStack();
-        // todo
-        if (name === '$this') {
+        var expr;
+        if (name === '$root') {
+          expr = 'context';
+          this.source.push('ancestor = [];');
+        } else if (name === '$parent') {
+          expr = 'ancestor.pop()';
+        } else if (name === '$this') {
           expr = stack;
         } else {
           expr = '(' + stack + ' === null || ' + stack + ' === undef) ? '
             + stack + ' : ' + this.nameLookup(stack, name) + '';
+          this.source.push('ancestor.push(context);');
         }
-        this.assign(expr);
+        this.source.push(stack + ' = ' + expr + ';');
       }
     };
 
@@ -1737,39 +1739,43 @@
 
   var core = {
 
-    handleBlock: function (context, options, value, fn) {
+    handleBlock: function (context, ancestor, value, fn) {
       var result = '';
       var i;
       var len;
       var array = [];
       if (util.isArray(value)) {
+        ancestor.push(value);
         len = value.length;
         for (i = 0; i < len; i++) {
-          array[i] = fn(value[i], options);
+          array[i] = fn(value[i], ancestor);
         }
         result = array.join('');
+        ancestor.pop();
       } else if (util.isFunction(value)) {
         if (value.call(context)) {
-          result = fn(context, options);
+          result = fn(context, ancestor);
         }
       } else if (util.isObject(value)) {
-        result = fn(value, options);
+        ancestor.push(value);
+        result = fn(value, ancestor);
+        ancestor.pop();
       } else if (value) {
-        result = fn(context, options);
+        result = fn(context, ancestor);
       }
       return result;
     },
 
-    handleInverse: function (context, options, value, fn) {
+    handleInverse: function (context, ancestor, value, fn) {
       var result = '';
       if (!value) {
-        result = fn(context, options);
+        result = fn(context, ancestor);
       } else if (util.isFunction(value)) {
         if (!value.call(context)) {
-          result = fn(context, options);
+          result = fn(context, ancestor);
         }
       } else if ((util.isArray(value) && value.length === 0)) {
-        result = fn(context, options);
+        result = fn(context, ancestor);
       }
       return result;
     },
@@ -1788,7 +1794,7 @@
       var compiledTemplate = compiler.compile(template);
       return {
         render: function (data) {
-          return compiledTemplate.call(renderContext, data, options);
+          return compiledTemplate.call(renderContext, data, []);
         }
       };
     }
