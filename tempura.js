@@ -1875,8 +1875,19 @@
       }
     };
 
+    var parse = function (template) {
+      try {
+        return parser.parse(template);
+      } catch (e) {
+        if (e.name == 'SyntaxError') {
+          throw new Error(e.message + ' line=' + e.line + '. column=' + e.column + '.\n' + template);
+        }
+        throw e;
+      }
+    };
+
     var compile = function (template) {
-      var program = parser.parse(template);
+      var program = parse(template);
       var compiler = new Compiler(program);
       var environment = compiler.compile(program);
       var jsCompiler = new JsCompiler(environment);
@@ -1886,6 +1897,7 @@
     return {
       Compiler: Compiler,
       JsCompiler: JsCompiler,
+      parse: parse,
       compile: compile
     };
   }());

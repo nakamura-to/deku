@@ -380,6 +380,17 @@ testCase('compiler', {
     var fn = this.compiler.compile('{{^array}}{{name}}{{/array}}');
     var result = fn.call(this.renderContext, {name: 'aaa', array: [] }, []);
     assertSame('aaa', result);
+  },
+
+  'test parse: error': function () {
+    try {
+      this.compiler.parse('{{#aaa}}bbb');
+      fail();
+    } catch (e) {
+      assertEquals('Error', e.name);
+      assertEquals('Expected "{{{" or any character but end of input found. line=1. column=12.\n{{#aaa}}bbb', e.message);
+    }
   }
+
 
 });

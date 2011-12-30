@@ -19,7 +19,7 @@ testCase('parser', {
   },
 
   'test whitespaces': function () {
-    var result = this.parser.parse('{{# aaa }} {{ bbb }} {{^ ccc }} {{{ ddd }}} {{/ ccc }} {{/ aaa }}');
+    var result = this.parser.parse('{{# aaa }} {{ bbb | xxx | yyy }} {{^ ccc }} {{{ ddd }}} {{/ ccc }} {{/ aaa }}');
     assertNotUndefined(result);
   }
 
