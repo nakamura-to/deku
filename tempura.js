@@ -1525,10 +1525,13 @@
       this.stackSlot = 0;
       this.stackVars = [];
       this.isChild = !!jscContext;
-      this.renderContext = jscContext || {
+      this.jscContext = jscContext || {
         programs: []
       };
     };
+    JsCompiler.ROOT_CONTEXT = '$root';
+    JsCompiler.PARENT_CONTEXT = '$parent';
+    JsCompiler.THIS_CONTEXT = '$this';
     JsCompiler.prototype = {
 
       nameLookup: function (contextVar, name) {
@@ -1553,12 +1556,12 @@
         var index;
         for (i = 0; i < len; i++) {
           envChild = envChildren[i];
-          this.renderContext.programs.push('');
-          index = this.renderContext.programs.length;
+          this.jscContext.programs.push('');
+          index = this.jscContext.programs.length;
           envChild.index = index;
           envChild.name = 'program' + index;
-          jsc = new JsCompiler(envChild, this.renderContext);
-          this.renderContext.programs[index] = jsc.compile(false);
+          jsc = new JsCompiler(envChild, this.jscContext);
+          this.jscContext.programs[index] = jsc.compile(false);
         }
       },
 
@@ -1599,7 +1602,7 @@
           this.source[0] = 'var' + this.source[0].slice(1) + ';';
         }
         if (!this.isChild) {
-          this.source[0] += '\n' + this.renderContext.programs.join('\n') + '\n';
+          this.source[0] += '\n' + this.jscContext.programs.join('\n') + '\n';
         }
         this.source.push('return buffer;');
         body = '  ' + indent + this.source.join('\n  ' + indent);
@@ -1689,12 +1692,12 @@
       op_lookupFromContext: function (name) {
         var stack = this.expandStack();
         var expr;
-        if (name === '$root') {
-          expr = 'context';
+        if (name === JsCompiler.ROOT_CONTEXT) {
+          expr = 'rootContext';
           this.source.push('ancestor = [];');
-        } else if (name === '$parent') {
+        } else if (name === JsCompiler.PARENT_CONTEXT) {
           expr = 'ancestor.pop()';
-        } else if (name === '$this') {
+        } else if (name === JsCompiler.THIS_CONTEXT) {
           expr = 'context';
         } else {
           expr = this.nameLookup('context', name);
@@ -1706,12 +1709,12 @@
       op_lookupFromStack: function (name) {
         var stack = this.currentStack();
         var expr;
-        if (name === '$root') {
-          expr = 'context';
+        if (name === JsCompiler.ROOT_CONTEXT) {
+          expr = 'rootContext';
           this.source.push('ancestor = [];');
-        } else if (name === '$parent') {
+        } else if (name === JsCompiler.PARENT_CONTEXT) {
           expr = 'ancestor.pop()';
-        } else if (name === '$this') {
+        } else if (name === JsCompiler.THIS_CONTEXT) {
           expr = stack;
         } else {
           expr = '(' + stack + ' === null || ' + stack + ' === undef) ? '
