@@ -1413,10 +1413,17 @@
     var Compiler;
     var JsCompiler;
 
-    Compiler = function (program) { 
+    Compiler = function (program, context) {
       this.program = program;
       this.opcodes = [];
-      this.children = [];
+      this.context = context || {
+        descendants: []
+      };
+      this.index = this.context.descendants.length;
+      this.name = 'program' + this.index;
+      if (context) {
+        this.context.descendants.push(this);
+      }
     };
     Compiler.OPCODE_PARAMLENGTH_MAP = {
       op_append: 0,
@@ -1433,8 +1440,6 @@
     };
     Compiler.prototype = {
 
-      guid: 0,
-
       compile: function () {
         var statements = this.program.statements;
         var statement;
@@ -1448,10 +1453,8 @@
       },
       
       compileProgram: function (program) {
-        var compiler = new Compiler(program);
-        var guid = this.guid++;
-        this.children[guid] = compiler.compile();
-        return guid;
+        var compiler = new Compiler(program, this.context);
+        return compiler.compile();
       },
 
       pushOpcode: function (name, param1, param2) {
@@ -1465,18 +1468,16 @@
       },
 
       type_block : function (node) {
-        var guid;
+        var env = this.compileProgram(node.program);
         this.type_name(node.name);
-        guid = this.compileProgram(node.program);
-        this.pushOpcode('op_invokeProgram', guid);
+        this.pushOpcode('op_invokeProgram', env.index);
         this.pushOpcode('op_append');
       },
 
       type_inverse: function (node) {
-        var guid;
+        var env = this.compileProgram(node.program);
         this.type_name(node.name);
-        guid = this.compileProgram(node.program);
-        this.pushOpcode('op_invokeProgramInverse', guid);
+        this.pushOpcode('op_invokeProgramInverse', env.index);
         this.pushOpcode('op_append');
       },
 
@@ -1518,16 +1519,12 @@
 
     };
 
-    JsCompiler = function (environment, jscContext) {
+    JsCompiler = function (environment) {
       this.environment = environment;
       this.name = environment.name;
       this.source = [''];
       this.stackSlot = 0;
       this.stackVars = [];
-      this.isChild = !!jscContext;
-      this.jscContext = jscContext || {
-        programs: []
-      };
     };
     JsCompiler.ROOT_CONTEXT = '$root';
     JsCompiler.PARENT_CONTEXT = '$parent';
@@ -1547,22 +1544,21 @@
         return '"' + s + '"'
       },
 
-      compileChildren: function () {
-        var envChildren = this.environment.children;
-        var envChild;
+      compileDescendants: function () {
+        var result = [];
+        var descendants = this.environment.context.descendants;
+        var env;
         var jsc;
         var i;
-        var len = envChildren.length;
-        var index;
+        var len = descendants.length;
+        var subProgram;
         for (i = 0; i < len; i++) {
-          envChild = envChildren[i];
-          this.jscContext.programs.push('');
-          index = this.jscContext.programs.length;
-          envChild.index = index;
-          envChild.name = 'program' + index;
-          jsc = new JsCompiler(envChild, this.jscContext);
-          this.jscContext.programs[index] = jsc.compile(false);
+          env = descendants[i];
+          jsc = new JsCompiler(env);
+          subProgram = jsc.compileSubProgram();
+          result.push(subProgram);
         }
+        return result;
       },
 
       execOpcodes: function () {
@@ -1584,40 +1580,51 @@
         }
       },
 
-      generateJs: function (asObject) {
-        var indent = this.isChild ? '  ' : '';
+      generate: function (subPrograms, asObject) {
         var body;
-        var expr;
         if (this.stackVars.length > 0) {
           this.source[0] += ', ' + this.stackVars.join(', ');
         }
-        if (this.isChild) {
-          this.source[0] += ', buffer = ""';
-        } else {
-          this.source[0] += ', rootContext = context, buffer = "", undef, escape = this.escape, handleBlock = this.handleBlock, ' +
-            'handleInverse = this.handleInverse, noSuchValue = this.noSuchValue, noSuchPipe = this.noSuchPipe, ' +
-            'prePipeProcess = this.prePipeProcess, postPipeProcess = this.postPipeProcess, pipes = this.pipes, pipe';
-        }
+        this.source[0] += ', rootContext = context, buffer = "", undef, escape = this.escape, handleBlock = this.handleBlock, ' +
+          'handleInverse = this.handleInverse, noSuchValue = this.noSuchValue, noSuchPipe = this.noSuchPipe, ' +
+          'prePipeProcess = this.prePipeProcess, postPipeProcess = this.postPipeProcess, pipes = this.pipes, pipe';
         if (this.source[0]) {
           this.source[0] = 'var' + this.source[0].slice(1) + ';';
         }
-        if (!this.isChild) {
-          this.source[0] += '\n' + this.jscContext.programs.join('\n') + '\n';
-        }
+        this.source[0] += '\n' + subPrograms.join('\n') + '\n';
         this.source.push('return buffer;');
-        body = '  ' + indent + this.source.join('\n  ' + indent);
+        body = '  ' + this.source.join('\n  ');
         if (asObject) {
           return new Function('context', 'ancestor', body);
         } else {
-          expr = indent + 'function ' + (this.name || '') + ' (context, ancestor) {\n' + body + '\n'+ indent + '}';
-          return expr;
+          return 'function (context, ancestor) {\n' + body + '\n' + '}';
         }
       },
 
+      generateSubProgram: function () {
+        var indent = '  ';
+        var body;
+        if (this.stackVars.length > 0) {
+          this.source[0] += ', ' + this.stackVars.join(', ');
+        }
+        this.source[0] += ', buffer = ""';
+        if (this.source[0]) {
+          this.source[0] = 'var' + this.source[0].slice(1) + ';';
+        }
+        this.source.push('return buffer;');
+        body = '  ' + indent + this.source.join('\n  ' + indent);
+        return indent + 'function ' + this.name + ' (context, ancestor) {\n' + body + '\n'+ indent + '}';
+      },
+
       compile: function (asObject) {
-        this.compileChildren();
+        var subPrograms = this.compileDescendants();
         this.execOpcodes();
-        return this.generateJs(asObject);
+        return this.generate(subPrograms, asObject);
+      },
+
+      compileSubProgram: function () {
+        this.execOpcodes();
+        return this.generateSubProgram();
       },
 
       expandStack: function () {
@@ -1638,16 +1645,16 @@
         return 'stack' + this.stackSlot;
       },
 
-      op_invokeProgram: function (guid) {
+      op_invokeProgram: function (index) {
         var stack = this.currentStack();
-        var envChild = this.environment.children[guid];
-        this.source.push(stack + ' = handleBlock(context, ancestor, ' + stack + ', ' + envChild.name + ');');
+        var env = this.environment.context.descendants[index];
+        this.source.push(stack + ' = handleBlock(context, ancestor, ' + stack + ', ' + env.name + ');');
       },
 
-      op_invokeProgramInverse: function (guid) {
+      op_invokeProgramInverse: function (index) {
         var stack = this.currentStack();
-        var envChild = this.environment.children[guid];
-        this.source.push(stack + ' = handleInverse(context, ancestor, ' + stack + ', ' + envChild.name + ');');
+        var env = this.environment.context.descendants[index];
+        this.source.push(stack + ' = handleInverse(context, ancestor, ' + stack + ', ' + env.name + ');');
       },
 
       op_applyPipe: function (pipeName, valueName) {

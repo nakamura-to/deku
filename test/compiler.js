@@ -54,7 +54,6 @@ testCase('compiler', {
     assertSame('hoge', result.opcodes[7]);
     assertSame('op_escape', result.opcodes[8]);
     assertSame('op_append', result.opcodes[9]);
-    assertSame(0, result.children.length);
   },
 
   'test Compiler: name: pipe': function () {
@@ -76,7 +75,6 @@ testCase('compiler', {
     assertSame('hoge', result.opcodes[10]);
     assertSame('op_escape', result.opcodes[11]);
     assertSame('op_append', result.opcodes[12]);
-    assertSame(0, result.children.length);
   },
 
   'test Compiler: name: multi pipes': function () {
@@ -101,7 +99,6 @@ testCase('compiler', {
     assertSame('hoge', result.opcodes[13]);
     assertSame('op_escape', result.opcodes[14]);
     assertSame('op_append', result.opcodes[15]);
-    assertSame(0, result.children.length);
   },
 
   'test Compiler: name: pathSegments': function () {
@@ -124,14 +121,13 @@ testCase('compiler', {
     assertSame('aaa.bbb.ccc', result.opcodes[11]);
     assertSame('op_escape', result.opcodes[12]);
     assertSame('op_append', result.opcodes[13]);
-    assertSame(0, result.children.length);
   },
 
   'test Compiler: block': function () {
     var program = this.parser.parse('{{#hoge}}abc{{/hoge}}');
     var compiler = new this.compiler.Compiler(program);
     var result = compiler.compile();
-    var child;
+    var descendant;
 
     assertSame(5, result.opcodes.length);
     assertSame('op_lookupFromContext', result.opcodes[0]);
@@ -139,21 +135,20 @@ testCase('compiler', {
     assertSame('op_invokeProgram', result.opcodes[2]);
     assertSame(0, result.opcodes[3]);
     assertSame('op_append', result.opcodes[4]);
-    assertSame(1, result.children.length);
 
-    child = result.children[0];
-    assertSame(2, child.opcodes.length);
-    assertSame('op_appendContent', child.opcodes[0]);
-    assertSame('abc', child.opcodes[1]);
-    assertSame(0, child.children.length);
+    assertSame(1, result.context.descendants.length);
+
+    descendant = result.context.descendants[0];
+    assertSame(2, descendant.opcodes.length);
+    assertSame('op_appendContent', descendant.opcodes[0]);
+    assertSame('abc', descendant.opcodes[1]);
   },
 
   'test Compiler: block: sibling': function () {
     var program = this.parser.parse('{{#hoge}}abc{{/hoge}}{{#foo}}def{{/foo}}');
     var compiler = new this.compiler.Compiler(program);
     var result = compiler.compile();
-    var child1;
-    var child2;
+    var descendant;
 
     assertSame(10, result.opcodes.length);
     assertSame('op_lookupFromContext', result.opcodes[0]);
@@ -166,27 +161,24 @@ testCase('compiler', {
     assertSame('op_invokeProgram', result.opcodes[7]);
     assertSame(1, result.opcodes[8]);
     assertSame('op_append', result.opcodes[9]);
-    assertSame(2, result.children.length);
+    assertSame(2, result.context.descendants.length);
 
-    child1 = result.children[0];
-    assertSame(2, child1.opcodes.length);
-    assertSame('op_appendContent', child1.opcodes[0]);
-    assertSame('abc', child1.opcodes[1]);
-    assertSame(0, child1.children.length);
+    descendant = result.context.descendants[0];
+    assertSame(2, descendant.opcodes.length);
+    assertSame('op_appendContent', descendant.opcodes[0]);
+    assertSame('abc', descendant.opcodes[1]);
 
-    child2 = result.children[1];
-    assertSame(2, child2.opcodes.length);
-    assertSame('op_appendContent', child2.opcodes[0]);
-    assertSame('def', child2.opcodes[1]);
-    assertSame(0, child2.children.length);
+    descendant = result.context.descendants[1];
+    assertSame(2, descendant.opcodes.length);
+    assertSame('op_appendContent', descendant.opcodes[0]);
+    assertSame('def', descendant.opcodes[1]);
   },
 
   'test Compiler: block: nesting': function () {
     var program = this.parser.parse('{{#hoge}}abc{{#foo}}def{{/foo}}ghi{{/hoge}}');
     var compiler = new this.compiler.Compiler(program);
     var result = compiler.compile();
-    var child;
-    var grandChild;
+    var descendant;
 
     assertSame(5, result.opcodes.length);
     assertSame('op_lookupFromContext', result.opcodes[0]);
@@ -194,26 +186,24 @@ testCase('compiler', {
     assertSame('op_invokeProgram', result.opcodes[2]);
     assertSame(0, result.opcodes[3]);
     assertSame('op_append', result.opcodes[4]);
-    assertSame(1, result.children.length);
+    assertSame(2, result.context.descendants.length);
 
-    child = result.children[0];
-    assertSame(9, child.opcodes.length);
-    assertSame('op_appendContent', child.opcodes[0]);
-    assertSame('abc', child.opcodes[1]);
-    assertSame('op_lookupFromContext', child.opcodes[2]);
-    assertSame('foo', child.opcodes[3]);
-    assertSame('op_invokeProgram', child.opcodes[4]);
-    assertSame(0, child.opcodes[5]);
-    assertSame('op_append', child.opcodes[6]);
-    assertSame('op_appendContent', child.opcodes[7]);
-    assertSame('ghi', child.opcodes[8]);
-    assertSame(1, child.children.length);
+    descendant = result.context.descendants[0];
+    assertSame(9, descendant.opcodes.length);
+    assertSame('op_appendContent', descendant.opcodes[0]);
+    assertSame('abc', descendant.opcodes[1]);
+    assertSame('op_lookupFromContext', descendant.opcodes[2]);
+    assertSame('foo', descendant.opcodes[3]);
+    assertSame('op_invokeProgram', descendant.opcodes[4]);
+    assertSame(1, descendant.opcodes[5]);
+    assertSame('op_append', descendant.opcodes[6]);
+    assertSame('op_appendContent', descendant.opcodes[7]);
+    assertSame('ghi', descendant.opcodes[8]);
 
-    grandChild = child.children[0];
-    assertSame(2, grandChild.opcodes.length);
-    assertSame('op_appendContent', grandChild.opcodes[0]);
-    assertSame('def', grandChild.opcodes[1]);
-    assertSame(0, grandChild.children.length);
+    descendant = result.context.descendants[1];
+    assertSame(2, descendant.opcodes.length);
+    assertSame('op_appendContent', descendant.opcodes[0]);
+    assertSame('def', descendant.opcodes[1]);
   },
 
   'test Compiler: inverse': function () {
@@ -226,7 +216,7 @@ testCase('compiler', {
     assertSame('op_invokeProgramInverse', result.opcodes[2]);
     assertSame(0, result.opcodes[3]);
     assertSame('op_append', result.opcodes[4]);
-    assertSame(1, result.children.length);
+    assertSame(1, result.context.descendants.length);
   },
 
   'test Compiler: content': function () {
@@ -236,7 +226,6 @@ testCase('compiler', {
     assertSame(2, result.opcodes.length);
     assertSame('op_appendContent', result.opcodes[0]);
     assertSame('hoge', result.opcodes[1]);
-    assertSame(0, result.children.length);
   },
 
   'test Compiler: comment': function () {
@@ -244,7 +233,6 @@ testCase('compiler', {
     var compiler = new this.compiler.Compiler(program);
     var result = compiler.compile();
     assertSame(0, result.opcodes.length);
-    assertSame(0, result.children.length);
   },
 
   'test JsCompiler: string: spike': function () {
