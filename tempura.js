@@ -143,7 +143,10 @@
             for (i = 0; i < len; i++) {
               statements.push(tail[i]);
             }
-            return ast.newProgram(statements);
+            return {
+              type: 'type_program',
+              statements: statements
+            };
           })(result5[0], result5[1])
             : null;
           if (result6 !== null) {
@@ -167,7 +170,10 @@
             }
             var result3 = result2 !== null
               ? (function() {
-              return ast.newProgram([]);
+              return {
+                type: 'type_program',
+                statements: []
+              }
             })()
               : null;
             if (result3 !== null) {
@@ -345,7 +351,11 @@
           }
           var result2 = result1 !== null
             ? (function(open, program, close) {
-            return ast.newBlock(open, program, close);
+            return {
+              type: 'type_block',
+              name: open,
+              program: program
+            };
           })(result1[3], result1[6], result1[10])
             : null;
           if (result2 !== null) {
@@ -472,7 +482,11 @@
           }
           var result2 = result1 !== null
             ? (function(open, program, close) {
-            return ast.newInverse(open, program, close);
+            return {
+              type: 'type_inverse',
+              name: open,
+              program: program
+            };
           })(result1[3], result1[6], result1[10])
             : null;
           if (result2 !== null) {
@@ -540,8 +554,13 @@
             pos = savedPos3;
           }
           var result12 = result11 !== null
-            ? (function(path, pipes) {
-            return ast.newMustache(path, pipes, true);
+            ? (function(name, pipes) {
+            return {
+              type: 'type_mustache',
+              name: name,
+              pipes: pipes,
+              escape: true
+            };
           })(result11[2], result11[3])
             : null;
           if (result12 !== null) {
@@ -593,8 +612,13 @@
               pos = savedPos1;
             }
             var result3 = result2 !== null
-              ? (function(path, pipes) {
-              return ast.newMustache(path, pipes, false);
+              ? (function(name, pipes) {
+              return {
+                type: 'type_mustache',
+                name: name,
+                pipes: pipes,
+                escape: false
+              };
             })(result2[2], result2[3])
               : null;
             if (result3 !== null) {
@@ -870,7 +894,10 @@
             for (i = 0; i < len; i++) {
               chars.push(comment[i][1]);
             }
-            return ast.newComment(chars.join(''));
+            return {
+              type: 'type_comment',
+              comment: chars.join('')
+            };
           })(result1[2])
             : null;
           if (result2 !== null) {
@@ -979,7 +1006,10 @@
             for (i = 0; i < len; i++) {
               chars.push(content[i][1]);
             }
-            return ast.newContent(chars.join(''));
+            return {
+              type: 'type_content',
+              content: chars.join('')
+            };
           })(result1)
             : null;
           if (result2 !== null) {
@@ -1077,7 +1107,12 @@
             for (i = 0; i < len; i++) {
               segments.push(tail[i][1]);
             }
-            return ast.newName(segments);
+            return {
+              type: 'type_name',
+              path: segments.join('.'),
+              segments: segments,
+              isSimple: segments.length === 1
+            };
           })(result1[0], result1[1])
             : null;
           if (result2 !== null) {
@@ -1499,65 +1534,6 @@
       });
     }
 
-  };
-
-  var ast = {
-    newProgram: function (statements) {
-      return {
-        type: 'type_program',
-        statements: statements
-      };
-    },
-
-    newBlock: function (name, program, close) {
-      // TODO verify
-      return {
-        type: 'type_block',
-        name: name,
-        program: program
-      };
-    },
-
-    newInverse: function (name, program, close) {
-      // TODO verify
-      return {
-        type: 'type_inverse',
-        name: name,
-        program: program
-      };
-    },
-
-    newContent: function (content) {
-      return {
-        type: 'type_content',
-        content: content
-      };
-    },
-
-    newComment: function (comment) {
-      return {
-        type: 'type_comment',
-        comment: comment
-      };
-    },
-
-    newMustache: function (name, pipes, escape) {
-      return {
-        type: 'type_mustache',
-        name: name,
-        pipes: pipes,
-        escape: escape
-      };
-    },
-
-    newName: function (segments) {
-      return {
-        type: 'type_name',
-        path: segments.join('.'),
-        segments: segments,
-        isSimple: segments.length === 1
-      };
-    }
   };
 
   var compiler = (function () {
@@ -2033,9 +2009,8 @@
       },
 
       internal: {
-        util: util,
-        ast: ast,
         parser: parser,
+        util: util,
         compiler: compiler,
         core: core
       }

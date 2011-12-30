@@ -9,10 +9,16 @@ Program
       for (i = 0; i < len; i++) {
         statements.push(tail[i]);
       }
-      return ast.newProgram(statements);
+      return {
+        type: 'type_program',
+        statements: statements
+      };
     }
   / '' {
-      return ast.newProgram([]);
+      return {
+        type: 'type_program',
+        statements: []
+      }
     }
 
 Statement
@@ -24,20 +30,38 @@ Statement
 
 Block
   = Open '#' _ open:Path _ Close program:Program Open '/' _ close:Path _ Close {
-      return ast.newBlock(open, program, close);
+      return {
+        type: 'type_block',
+        name: open,
+        program: program
+      };
     }
 
 Inverse
   = Open '^' _ open:Path _ Close program:Program Open '/' _ close:Path _ Close {
-      return ast.newInverse(open, program, close);
+      return {
+        type: 'type_inverse',
+        name: open,
+        program: program
+      };
     }
 
 Mustache
-  = Open _ path:Path pipes:Pipes _ Close {
-      return ast.newMustache(path, pipes, true);
+  = Open _ name:Path pipes:Pipes _ Close {
+      return {
+        type: 'type_mustache',
+        name: name,
+        pipes: pipes,
+        escape: true
+      };
     }
-  / OpenUnescape _ path:Path pipes:Pipes _ CloseUnescape {
-      return ast.newMustache(path, pipes, false);
+  / OpenUnescape _ name:Path pipes:Pipes _ CloseUnescape {
+      return {
+        type: 'type_mustache',
+        name: name,
+        pipes: pipes,
+        escape: false
+      };
     }
 
 Pipes
@@ -62,7 +86,10 @@ Comment
       for (i = 0; i < len; i++) {
         chars.push(comment[i][1]);
       }
-      return ast.newComment(chars.join(''));
+      return {
+        type: 'type_comment',
+        comment: chars.join('')
+      };
     }
 
 Content
@@ -73,7 +100,10 @@ Content
       for (i = 0; i < len; i++) {
         chars.push(content[i][1]);
       }
-      return ast.newContent(chars.join(''));
+      return {
+        type: 'type_content',
+        content: chars.join('')
+      };
     }
 
 Path
@@ -84,7 +114,12 @@ Path
       for (i = 0; i < len; i++) {
         segments.push(tail[i][1]);
       }
-      return ast.newName(segments);
+      return {
+        type: 'type_name',
+        path: segments.join('.'),
+        segments: segments,
+        isSimple: segments.length === 1
+      };
     }
 
 Id
