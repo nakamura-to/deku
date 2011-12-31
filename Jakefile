@@ -53,13 +53,13 @@ var copyFile = function (src, dest) {
   fs.writeFileSync(dest, fs.readFileSync(src));
 };
 
-desc('Cleans dist directory.');
+desc('Clean dist directory.');
 task('clean', function () {
   mkdirUnlessExists('./dist');
   cleanDir('./dist');
 });
 
-desc('Generates parser.js.');
+desc('Generate parser.js.');
 task('parser', ['clean'], function () {
   var process = childProcess.spawn(
     'pegjs',
@@ -69,7 +69,7 @@ task('parser', ['clean'], function () {
   process.on('exit', function () { complete(); });
 }, {async: true});
 
-desc('Generates tempura.js.');
+desc('Generate tempura.js.');
 task('build', ['parser'], function () {
   var parser = fs.readFileSync(PARSER_FILE, 'utf-8');
   var tempura = fs.readFileSync(TEMPURA_FILE, 'utf-8');
@@ -88,10 +88,15 @@ task('minify', ['build'], function () {
   process.on('exit', function () { complete(); });
 }, {async: true});
 
-task('test', function () {});
+//desc('Run test.');
+//task('test', function () {
+//  var process = childProcess.spawn('./test/it/run');
+//  process.on('exit', function () { complete(); });
+//}, {async: true});
 
-task('dist', ['minify'], function () {
+task('dist', ['minify', 'test'], function () {
   copyFile(TEMPURA_DIST_FILE, TEMPURA_FILE);
+  console.log('dist task done.');
 });
 
 task('default', ['dist']);
