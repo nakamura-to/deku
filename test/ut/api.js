@@ -15,13 +15,13 @@ TestCase('api', {
      <div id="template">
      {{name}} is {{age}} years old.
      </div>
-     <div id="result">
+     <div id="expected">
      hoge is 20 years old.
      </div>
      */
     var template = tempura.prepare(this.html('template'));
     var result = template.render({name: 'hoge', age: 20});
-    assertSame(this.html('result'), result);
+    assertSame(this.html('expected'), result);
   },
 
   'test prepare and render: it should use a "pipes" option prior to a "pipes" setting': function () {
@@ -29,7 +29,7 @@ TestCase('api', {
      <div id="template">
      {{name|enclose}} is {{age}} years old.
      </div>
-     <div id="result">
+     <div id="expected">
      [hoge] is 20 years old.
      </div>
      */
@@ -45,15 +45,15 @@ TestCase('api', {
     };
     var template = tempura.prepare(this.html('template'), options);
     var result = template.render({name: 'hoge', age: 20});
-    assertSame(this.html('result'), result);
+    assertSame(this.html('expected'), result);
   },
 
-  'IGNORE test prepare and render: it should use a "pipes" setting, if a "pipes" option does not exist': function () {
+  'test prepare and render: it should use a "pipes" setting, if a "pipes" option does not exist': function () {
     /*:DOC +=
      <div id="template">
      {{name|enclose}} is {{age}} years old.
      </div>
-     <div id="result">
+     <div id="expected">
      [hoge] is 20 years old.
      </div>
      */
@@ -62,19 +62,19 @@ TestCase('api', {
     };
     var template = tempura.prepare(this.html('template'));
     var result = template.render({name: 'hoge', age: 20});
-    assertSame(this.html('result'), result);
+    assertSame(this.html('expected'), result);
   },
 
-  'IGNORE test prepare and render: it should use a "noSuchValue" option prior to a "noSuchValue" setting': function () {
+  'test prepare and render: it should use a "noSuchValue" option prior to a "noSuchValue" setting': function () {
     /*:DOC +=
      <div id="template">
      {{hoge}} is {{age}} years old.
      </div>
-     <div id="result">
+     <div id="expected">
      [hoge is not found] is 20 years old.
      </div>
      */
-    tempura.setSettings.noSuchValue = function (name) {
+    tempura.settings.noSuchValue = function (name) {
       return undefined;
     };
     var options = {
@@ -84,7 +84,7 @@ TestCase('api', {
     };
     var template = tempura.prepare(this.html('template'), options);
     var result = template.render({age: 20});
-    assertSame(this.html('result'), result);
+    assertSame(this.html('expected'), result);
   },
 
   'test prepare and render: it should use a "noSuchValue" setting, if a "noSuchValue" option does not exitst': function () {
@@ -92,7 +92,7 @@ TestCase('api', {
      <div id="template">
      {{hoge}} is {{age}} years old.
      </div>
-     <div id="result">
+     <div id="expected">
      [hoge is not found] is 20 years old.
      </div>
      */
@@ -101,50 +101,46 @@ TestCase('api', {
     };
     var template = tempura.prepare(this.html('template'));
     var result = template.render({name: 'hoge', age: 20});
-    assertSame(this.html('result'), result);
+    assertSame(this.html('expected'), result);
   },
 
-  'IGNORE test prepare and render: it should use a "noSuchPipe" option prior to a "noSuchPipe" setting': function () {
+  'test prepare and render: it should use a "noSuchPipe" option prior to a "noSuchPipe" setting': function () {
     /*:DOC +=
      <div id="template">
      {{name|foo}} is {{age}} years old.
      </div>
-     <div id="result">
-     [foo,0,hoge] is 20 years old.
+     <div id="expected">
+     [foo,hoge,name] is 20 years old.
      </div>
      */
-    tempura.setSettings({
-      noSuchPipe: function (name, index, value) {
-        return undefined;
-      }
-    });
+    tempura.settings.noSuchPipe = function (pipeName, value, valueName) {
+      return undefined;
+    }
     var options = {
-      noSuchPipe: function (name, index, value) {
-        return '[' + name + ',' + index + ',' + value + ']';
+      noSuchPipe: function (pipeName, value, valueName) {
+        return '[' + pipeName + ',' + value + ',' + valueName + ']';
       }
     };
     var template = tempura.prepare(this.html('template'), options);
     var result = template.render({name: 'hoge', age: 20});
-    assertSame(this.html('result'), result);
+    assertSame(this.html('expected'), result);
   },
 
-  'IGNORE test prepare and render: it should use a "noSuchPipe" setting, if a "noSuchPipe" option does not exitst': function () {
+  'test prepare and render: it should use a "noSuchPipe" setting, if a "noSuchPipe" option does not exitst': function () {
     /*:DOC +=
      <div id="template">
      {{name|foo}} is {{age}} years old.
      </div>
-     <div id="result">
-     [foo,0,hoge] is 20 years old.
+     <div id="expected">
+     [foo,hoge,name] is 20 years old.
      </div>
      */
-    tempura.setSettings({
-      noSuchPipe: function (name, index, value) {
-        return '[' + name + ',' + index + ',' + value + ']';
-      }
-    });
+    tempura.settings.noSuchPipe = function (pipeName, value, valueName) {
+      return '[' + pipeName + ',' + value + ',' + valueName + ']';
+    };
     var template = tempura.prepare(this.html('template'));
     var result = template.render({name: 'hoge', age: 20});
-    assertSame(this.html('result'), result);
+    assertSame(this.html('expected'), result);
   }
 
 });

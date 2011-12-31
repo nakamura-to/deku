@@ -1688,8 +1688,8 @@ var parser = (function(){
           opcode = opcodes[i];
           params = [];
           paramLen = Compiler.OPCODE_PARAMLENGTH_MAP[opcode];
-          for (i++, j = 0; j < paramLen && i < len; i++, j++) {
-            params.push(opcodes[i + j]);
+          for (i++, j = 0; j < paramLen && i < len; j++, i++) {
+            params.push(opcodes[i]);
           }
           this[opcode].apply(this, params);
         }
@@ -1774,9 +1774,11 @@ var parser = (function(){
 
       op_applyPipe: function (pipeName, valueName) {
         var stack = this.currentStack();
-        this.source.push('pipe = ' + this.nameLookup('pipes', pipeName) + ';');
+        this.source.push('pipe = ' + this.nameLookup('context', pipeName) + ';');
         this.source.push('if (typeof pipe === "function") { ' + stack + ' = pipe.call(context, ' + stack + '); }');
-        this.source.push('else { noSuchPipe.call(context, "' + pipeName + '", ' + stack + ', "' + valueName + '"); }');
+        this.source.push('else { pipe = ' + this.nameLookup('pipes', pipeName) + ';');
+        this.source.push('  if (typeof pipe === "function") { ' + stack + ' = pipe.call(context, ' + stack + '); }');
+        this.source.push('  else { ' + stack + ' = noSuchPipe.call(context, "' + pipeName + '", ' + stack + ', "' + valueName + '"); }}');
       },
 
       op_applyPrePipeProcess: function (valueName) {
