@@ -1384,7 +1384,7 @@ var parser = (function(){
       
         var errorPosition = computeErrorPosition();
       
-        throw new this.SyntaxError(
+        throw new parser.SyntaxError(
       
           open.path + " doesn't match " + close.path,
       
@@ -1664,12 +1664,12 @@ var parser = (function(){
         var all = this.environment.context.allEnvironments;
         var i;
         var len = all.length;
-        var env;
+        var environment;
         var jsc;
         var subProgram;
         for (i = 1; i < len; i++) {
-          env = all[i];
-          jsc = new JsCompiler(env);
+          environment = all[i];
+          jsc = new JsCompiler(environment);
           subProgram = jsc.compileSubProgram();
           result.push(subProgram);
         }
@@ -1688,7 +1688,7 @@ var parser = (function(){
           opcode = opcodes[i];
           params = [];
           paramLen = Compiler.OPCODE_PARAMLENGTH_MAP[opcode];
-          for (i++, j = 0; j < paramLen && i < len; j++, i++) {
+          for (i++, j = 0; i < len && j < paramLen; i++, j++) {
             params.push(opcodes[i]);
           }
           this[opcode].apply(this, params);
@@ -1803,7 +1803,7 @@ var parser = (function(){
       },
 
       op_appendContent: function (content) {
-        var content = this.quoteString(content);
+        content = this.quoteString(content);
         this.appendToBuffer(content);
       },
 
@@ -1871,7 +1871,7 @@ var parser = (function(){
     var compile = function (template) {
       var program = parse(template);
       var compiler = new Compiler(program);
-      var environment = compiler.compile(program);
+      var environment = compiler.compile();
       var jsCompiler = new JsCompiler(environment);
       return jsCompiler.compile(true);
     };

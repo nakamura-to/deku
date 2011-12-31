@@ -2,7 +2,7 @@
   function verifyMatch(open, close)  {
     if (open.path !== close.path) {
       var errorPosition = computeErrorPosition();
-      throw new this.SyntaxError(
+      throw new parser.SyntaxError(
         open.path + " doesn't match " + close.path,
         errorPosition.line,
         errorPosition.column
