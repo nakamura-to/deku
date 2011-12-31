@@ -1,4 +1,6 @@
-build/
+benchmark/
+dist/
+src/
 test/
-test-it/
+Jakefile
 jsTestDriver.conf

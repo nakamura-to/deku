@@ -7,12 +7,12 @@ var pkg = JSON.parse(fs.readFileSync('./package.json').toString());
 var version = pkg.version;
 
 var SRC_DIR = './src';
-var DIST_DIR = './dist';
+var DIST_DIR = './dist/' + version;
 var PEGJS_FILE = SRC_DIR + '/tempura.pegjs';
 var PARSER_FILE = DIST_DIR + '/parser.js';
 var TEMPURA_FILE = 'tempura.js';
-var TEMPURA_DIST_FILE = DIST_DIR + '/tempura-' + version + '.js';
-var TEMPURA_MIN_DIST_FILE = DIST_DIR + '/tempura-' + version + '-min.js';
+var TEMPURA_DIST_FILE = DIST_DIR + '/tempura.js';
+var TEMPURA_MIN_DIST_FILE = DIST_DIR + '/tempura-min.js';
 
 var mkdirUnlessExists = function (dir)  {
   try {
@@ -55,8 +55,8 @@ var copyFile = function (src, dest) {
 
 desc('Clean dist directory.');
 task('clean', function () {
-  mkdirUnlessExists('./dist');
-  cleanDir('./dist');
+  mkdirUnlessExists(DIST_DIR);
+  cleanDir(DIST_DIR);
 });
 
 desc('Generate parser.js.');

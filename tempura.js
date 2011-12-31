@@ -1955,7 +1955,7 @@ var parser = (function(){
     return {
       name: 'tempura',
 
-      version: '0.0.3-dev',
+      version: '0.0.3',
 
       settings: {
 

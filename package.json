@@ -1,12 +1,17 @@
 {
     "name"          : "tempura",
     "description"   : "simple templating library in javascript.",
-    "homepage"      : "https://github.com/nakamura-to/tempura",
+    "homepage"      : "http://nakamura-to.github.com/tempura/",
     "keywords"      : ["template", "mustache"],
     "author"        : "Toshihiro Nakamura <toshihiro.nakamura@gmail.com>",
     "contributors"  : [],
     "dependencies"  : [],
+    "devDependencies": {
+        "jake":      ">= 0.1.22",
+        "pegjs":     ">= 0.6.2",
+        "uglify-js": ">= 1.2.3"
+    },
     "repository"    : {"type": "git", "url": "git@github.com:nakamura-to/tempura.git"},
     "main"          : "tempura.js",
-    "version"       : "0.0.3-dev"
+    "version"       : "0.0.3"
 }
