@@ -32,7 +32,7 @@ TestCase('compiler', {
     assertSame(10, result.opcodes.length);
     assertSame('op_lookupFromContext', result.opcodes[0]);
     assertSame('hoge', result.opcodes[1]);
-    assertSame('op_applyNoSuchValue', result.opcodes[2]);
+    assertSame('op_evaluateValue', result.opcodes[2]);
     assertSame('hoge', result.opcodes[3]);
     assertSame('op_applyPrePipeProcess', result.opcodes[4]);
     assertSame('hoge', result.opcodes[5]);
@@ -50,7 +50,7 @@ TestCase('compiler', {
     assertSame(13, result.opcodes.length);
     assertSame('op_lookupFromContext', result.opcodes[0]);
     assertSame('hoge', result.opcodes[1]);
-    assertSame('op_applyNoSuchValue', result.opcodes[2]);
+    assertSame('op_evaluateValue', result.opcodes[2]);
     assertSame('hoge', result.opcodes[3]);
     assertSame('op_applyPrePipeProcess', result.opcodes[4]);
     assertSame('hoge', result.opcodes[5]);
@@ -71,7 +71,7 @@ TestCase('compiler', {
     assertSame(16, result.opcodes.length);
     assertSame('op_lookupFromContext', result.opcodes[0]);
     assertSame('hoge', result.opcodes[1]);
-    assertSame('op_applyNoSuchValue', result.opcodes[2]);
+    assertSame('op_evaluateValue', result.opcodes[2]);
     assertSame('hoge', result.opcodes[3]);
     assertSame('op_applyPrePipeProcess', result.opcodes[4]);
     assertSame('hoge', result.opcodes[5]);
@@ -99,7 +99,7 @@ TestCase('compiler', {
     assertSame('bbb', result.opcodes[3]);
     assertSame('op_lookupFromStack', result.opcodes[4]);
     assertSame('ccc', result.opcodes[5]);
-    assertSame('op_applyNoSuchValue', result.opcodes[6]);
+    assertSame('op_evaluateValue', result.opcodes[6]);
     assertSame('aaa.bbb.ccc', result.opcodes[7]);
     assertSame('op_applyPrePipeProcess', result.opcodes[8]);
     assertSame('aaa.bbb.ccc', result.opcodes[9]);
@@ -120,7 +120,7 @@ TestCase('compiler', {
     assertSame(7, env.opcodes.length);
     assertSame('op_lookupFromContext', env.opcodes[0]);
     assertSame('hoge', env.opcodes[1]);
-    assertSame('op_applyNoSuchValue', env.opcodes[2]);
+    assertSame('op_evaluateValue', env.opcodes[2]);
     assertSame('hoge', env.opcodes[3]);
     assertSame('op_invokeProgram', env.opcodes[4]);
     assertSame(1, env.opcodes[5]);
@@ -143,14 +143,14 @@ TestCase('compiler', {
     assertSame(14, env.opcodes.length);
     assertSame('op_lookupFromContext', env.opcodes[0]);
     assertSame('hoge', env.opcodes[1]);
-    assertSame('op_applyNoSuchValue', env.opcodes[2]);
+    assertSame('op_evaluateValue', env.opcodes[2]);
     assertSame('hoge', env.opcodes[3]);
     assertSame('op_invokeProgram', env.opcodes[4]);
     assertSame(1, env.opcodes[5]);
     assertSame('op_append', env.opcodes[6]);
     assertSame('op_lookupFromContext', env.opcodes[7]);
     assertSame('foo', env.opcodes[8]);
-    assertSame('op_applyNoSuchValue', env.opcodes[9]);
+    assertSame('op_evaluateValue', env.opcodes[9]);
     assertSame('foo', env.opcodes[10]);
     assertSame('op_invokeProgram', env.opcodes[11]);
     assertSame(2, env.opcodes[12]);
@@ -178,7 +178,7 @@ TestCase('compiler', {
     assertSame(7, env.opcodes.length);
     assertSame('op_lookupFromContext', env.opcodes[0]);
     assertSame('hoge', env.opcodes[1]);
-    assertSame('op_applyNoSuchValue', env.opcodes[2]);
+    assertSame('op_evaluateValue', env.opcodes[2]);
     assertSame('hoge', env.opcodes[3]);
     assertSame('op_invokeProgram', env.opcodes[4]);
     assertSame(1, env.opcodes[5]);
@@ -190,7 +190,7 @@ TestCase('compiler', {
     assertSame('abc', descendant.opcodes[1]);
     assertSame('op_lookupFromContext', descendant.opcodes[2]);
     assertSame('foo', descendant.opcodes[3]);
-    assertSame('op_applyNoSuchValue', descendant.opcodes[4]);
+    assertSame('op_evaluateValue', descendant.opcodes[4]);
     assertSame('foo', descendant.opcodes[5]);
     assertSame('op_invokeProgram', descendant.opcodes[6]);
     assertSame(2, descendant.opcodes[7]);
@@ -213,7 +213,7 @@ TestCase('compiler', {
     assertSame(7, env.opcodes.length);
     assertSame('op_lookupFromContext', env.opcodes[0]);
     assertSame('hoge', env.opcodes[1]);
-    assertSame('op_applyNoSuchValue', env.opcodes[2]);
+    assertSame('op_evaluateValue', env.opcodes[2]);
     assertSame('hoge', env.opcodes[3]);
     assertSame('op_invokeProgramInverse', env.opcodes[4]);
     assertSame(1, env.opcodes[5]);

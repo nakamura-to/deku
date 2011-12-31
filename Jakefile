@@ -78,6 +78,7 @@ task('build', ['parser'], function () {
   tempura = tempura.replace(/(version: ').+?(',)/g, '$1' + version + '$2');
   tempura = tempura.replace(/(\/\/ BEGIN PARSER\n)[\s\S]*?(\/\/ END PARSER)/g, '$1' + parser + '$2');
   fs.writeFileSync(TEMPURA_DIST_FILE, tempura, 'utf-8');
+  fs.unlinkSync(PARSER_FILE);
 });
 
 desc('Generate tempura-min.js.');

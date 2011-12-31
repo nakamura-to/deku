@@ -20,32 +20,6 @@ TestCase('core', {
     assertSame('aaa-bbb-ccc-', result);
   },
 
-  'test handleBlock: it should accept function and handle the original context in the handler when the function returns truthy value': function () {
-    var context = {
-      name: 'aaa',
-      fn: function () {
-        return true;
-      }
-    };
-    var result = this.core.handleBlock(context, [], context.fn, function (context) {
-      return context.name;
-    });
-    assertSame('aaa', result);
-  },
-
-  'test handleBlock: it should accept function and not call the handler when the function returns falsy value': function () {
-    var context = {
-      name: 'aaa',
-      fn: function () {
-        return false;
-      }
-    };
-    var result = this.core.handleBlock(context, [], context.fn, function (context) {
-      return context.name;
-    });
-    assertSame('', result);
-  },
-
   'test handleBlock: it should accept object and handle it in the handler': function () {
     var context = {
       name: 'aaa',
@@ -90,32 +64,6 @@ TestCase('core', {
       return context.name;
     });
     assertSame('aaa', result);
-  },
-
-  'test handleInverse: it should accept function and handle the original context in the handler when the function returns falsy value': function () {
-    var context = {
-      name: 'aaa',
-      fn: function () {
-        return false;
-      }
-    };
-    var result = this.core.handleInverse(context, [], context.fn, function (context) {
-      return context.name;
-    });
-    assertSame('aaa', result);
-  },
-
-  'test handleInverse: it should accept function and not call the handler when the function returns truthy value': function () {
-    var context = {
-      name: 'aaa',
-      fn: function () {
-        return true;
-      }
-    };
-    var result = this.core.handleInverse(context, [], context.fn, function (context) {
-      return context.name;
-    });
-    assertSame('', result);
   },
 
   'test handleInverse: it should accept empty array and handle the original context in the handler': function () {

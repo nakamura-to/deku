@@ -23,8 +23,6 @@ var result = tempura.prepare(tmpl).render(data);
 console.log(result); // Joe spends 4200
 ```
 
-See [jsfiddle](http://jsfiddle.net/nakamura_to/MbEJw/).
-
 Differences Between tempura and mustache.js
 -------------------------------------------
 

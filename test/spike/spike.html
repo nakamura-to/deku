@@ -6,7 +6,7 @@
 <body>
     <script id="template" type="text/template">
         <div>
-            <h1 class='header'>{{header|ban}}</h1>
+            <h1 class='header'>{{ban}}</h1>
             <h2 class='header2'>{{header2}}</h2>
             <h3 class='header3'>{{header3}}</h3>
             <h4 class='header4'>{{header4}}</h4>
@@ -42,8 +42,8 @@
             header6: "Header6",
             hoge: {bbb: {ccc: {}}},
             list: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
-            ban: function (value) {
-                return value + '!';
+            ban: function () {
+                return '!';
             }
         };
 

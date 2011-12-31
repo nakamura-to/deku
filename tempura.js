@@ -1533,12 +1533,12 @@ var parser = (function(){
 
     Compiler.OPCODE_PARAMLENGTH_MAP = {
       op_append: 0,
-      op_applyNoSuchValue: 1,
       op_appendContent: 1,
       op_applyPipe: 2,
       op_applyPrePipeProcess: 1,
       op_applyPostPipeProcess: 1,
       op_escape: 0,
+      op_evaluateValue: 1,
       op_lookupFromContext: 1,
       op_lookupFromStack: 1,
       op_invokeProgram: 1,
@@ -1578,7 +1578,7 @@ var parser = (function(){
         var env = this.compileProgram(node.program);
         var name = node.name;
         this.type_name(name);
-        this.pushOpcode('op_applyNoSuchValue', name.path);
+        this.pushOpcode('op_evaluateValue', name.path);
         this.pushOpcode('op_invokeProgram', env.index);
         this.pushOpcode('op_append');
       },
@@ -1587,7 +1587,7 @@ var parser = (function(){
         var env = this.compileProgram(node.program);
         var name = node.name;
         this.type_name(name);
-        this.pushOpcode('op_applyNoSuchValue', name.path);
+        this.pushOpcode('op_evaluateValue', name.path);
         this.pushOpcode('op_invokeProgramInverse', env.index);
         this.pushOpcode('op_append');
       },
@@ -1606,7 +1606,7 @@ var parser = (function(){
         var name = node.name;
         var path = name.path;
         this.type_name(name);
-        this.pushOpcode('op_applyNoSuchValue', path);
+        this.pushOpcode('op_evaluateValue', path);
         this.pushOpcode('op_applyPrePipeProcess', path);
         for (i = 0; i < len; i++) {
           this.pushOpcode('op_applyPipe', pipes[i], path);
@@ -1807,10 +1807,10 @@ var parser = (function(){
         this.appendToBuffer(content);
       },
 
-      op_applyNoSuchValue: function (name) {
+      op_evaluateValue: function (name) {
         var stack = this.currentStack();
-        var statements = 'if (' + stack + ' === undef) { ' + stack + ' = ' + 'noSuchValue.call(context, "' + name + '"); }';
-        this.source.push(statements);
+        this.source.push('if (typeof ' + stack + ' === "function") { ' + stack + ' = ' + stack + '.call(context); }');
+        this.source.push('else if (' + stack + ' === undef) { ' + stack + ' = ' + 'noSuchValue.call(context, "' + name + '"); }');
       },
 
       op_lookupFromContext: function (name) {
@@ -1899,10 +1899,6 @@ var parser = (function(){
         }
         result = array.join('');
         ancestor.pop();
-      } else if (util.isFunction(value)) {
-        if (value.call(context)) {
-          result = fn(context, ancestor);
-        }
       } else if (util.isObject(value)) {
         ancestor.push(value);
         result = fn(value, ancestor);
@@ -1917,10 +1913,6 @@ var parser = (function(){
       var result = '';
       if (!value) {
         result = fn(context, ancestor);
-      } else if (util.isFunction(value)) {
-        if (!value.call(context)) {
-          result = fn(context, ancestor);
-        }
       } else if ((util.isArray(value) && value.length === 0)) {
         result = fn(context, ancestor);
       }
