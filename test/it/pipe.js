@@ -1,4 +1,3 @@
-/*jslint sloppy: true, indent: 2 */
 var data = {
   value: 10,
   double: function (value) {

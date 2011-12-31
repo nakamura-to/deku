@@ -1,5 +1,5 @@
 <ul>
 {{#names}}
-<li>{{$this}}</li>
+    <li>{{$this}}</li>
 {{/names}}
 </ul>

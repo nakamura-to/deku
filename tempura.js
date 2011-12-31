@@ -2,8 +2,6 @@
  * tempura - simple templating library in javascript.
  * https://github.com/nakamura-to/tempura
  */
-/*jslint forin: true, indent:2, plusplus: true, vars: true */
-/*global module:false, define:false */
 //noinspection ThisExpressionReferencesGlobalObjectJS
 (function (global) {
   'use strict';

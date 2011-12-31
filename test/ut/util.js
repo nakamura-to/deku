@@ -1,18 +1,4 @@
-/*jslint browser: true, indent: 2, plusplus: true, sloppy: true, vars: true */
-/*global
- tempura: false,
- TestCase: false,
- assertEquals: false,
- assertException: false,
- assertFalse: false,
- assertNotNull: false,
- assertNotUndefined: false,
- assertNull: false,
- assertSame: true,
- assertTrue: false,
- fail: false */
-var testCase = TestCase;
-testCase('util', {
+TestCase('util', {
 
   'setUp': function () {
     this.util = tempura.internal.util;

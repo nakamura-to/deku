@@ -1,20 +1,4 @@
-/*jslint browser: true, indent: 2, plusplus: true, sloppy: true, vars: true */
-/*global
- tempura: false,
- TestCase: false,
- assertEquals: false,
- assertFalse: false,
- assertFunction: false,
- assertNotNull: false,
- assertNotSame: false,
- assertNotUndefined: false,
- assertNull: false,
- assertObject: false,
- assertSame: true,
- assertTrue: false,
- fail: false */
-var testCase = TestCase;
-testCase('core', {
+TestCase('core', {
 
   'setUp': function () {
     this.core = tempura.internal.core;
