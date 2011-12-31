@@ -2,7 +2,7 @@
 var fs = require('fs');
 var assert = require('assert');
 var util = require('util');
-var tempura = require('../tempura.js');
+var tempura = require('../../tempura.js');
 var compare = function (file, template, expected, data) {
   var message;
   var actual;
@@ -28,14 +28,12 @@ var compare = function (file, template, expected, data) {
   }
 };
 
-tempura.setSettings({
-  noSuchValue: function (name) {
-    throw new Error('noSuchValue: ' + name);
-  },
-  noSuchPipe: function (name) {
-    throw new Error('noSuchPipe: ' + name);
-  }
-});
+tempura.settings.noSuchValue = function (name) {
+  throw new Error('noSuchValue: ' + name);
+};
+tempura.settings.noSuchPipe = function (name) {
+  throw new Error('noSuchPipe: ' + name);
+};
 
 fs.readdir('.', function (err, files) {
   files.forEach(function (file) {
