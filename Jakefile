@@ -7,7 +7,7 @@ var pkg = JSON.parse(fs.readFileSync('./package.json').toString());
 var version = pkg.version;
 
 var SRC_DIR = './src';
-var DIST_DIR = './dist/' + version;
+var DIST_DIR = './dist';
 var PEGJS_FILE = SRC_DIR + '/tempura.pegjs';
 var PARSER_FILE = DIST_DIR + '/parser.js';
 var TEMPURA_FILE = 'tempura.js';
