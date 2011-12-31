@@ -11,6 +11,7 @@ var DIST_DIR = './dist/' + version;
 var PEGJS_FILE = SRC_DIR + '/tempura.pegjs';
 var PARSER_FILE = DIST_DIR + '/parser.js';
 var TEMPURA_FILE = 'tempura.js';
+var TEMPURA_MIN_FILE = 'tempura-min.js';
 var TEMPURA_DIST_FILE = DIST_DIR + '/tempura.js';
 var TEMPURA_MIN_DIST_FILE = DIST_DIR + '/tempura-min.js';
 
@@ -73,6 +74,7 @@ desc('Generate tempura.js.');
 task('build', ['parser'], function () {
   var parser = fs.readFileSync(PARSER_FILE, 'utf-8');
   var tempura = fs.readFileSync(TEMPURA_FILE, 'utf-8');
+  tempura = tempura.replace(/(@VERSION@)/g, version);
   tempura = tempura.replace(/(version: ').+?(',)/g, '$1' + version + '$2');
   tempura = tempura.replace(/(\/\/ BEGIN PARSER\n)[\s\S]*?(\/\/ END PARSER)/g, '$1' + parser + '$2');
   fs.writeFileSync(TEMPURA_DIST_FILE, tempura, 'utf-8');
@@ -96,6 +98,7 @@ task('minify', ['build'], function () {
 
 task('dist', ['minify', 'test'], function () {
   copyFile(TEMPURA_DIST_FILE, TEMPURA_FILE);
+  copyFile(TEMPURA_MIN_DIST_FILE, TEMPURA_MIN_FILE);
   console.log('dist task done.');
 });
 

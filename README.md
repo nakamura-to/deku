@@ -54,8 +54,6 @@ var result = tempura.prepare(tmpl).render(data);
 console.log(result); // Joe spends $4,200
 ```
 
-See [jsfiddle](http://jsfiddle.net/nakamura_to/SSxmz/).
-
 More than one pipe function are available.
 
 ```js
@@ -74,21 +72,17 @@ var result = tempura.prepare(tmpl).render(data);
 console.log(result); // [Joe!]
 ```
 
-See [jsfiddle](http://jsfiddle.net/nakamura_to/6XHqU/).
-
 You can define global pipe functions.
 
 ```js
-tempura.mergeSettings({
-  pipes: {
-    yeah: function (value) {
-      return value + '!';
-    },
-    enclose: function (value) {
-      return '[' + value + ']';
-    }
+tempura.settings.pipes = {
+  yeah: function (value) {
+    return value + '!';
+  },
+  enclose: function (value) {
+    return '[' + value + ']';
   }
-});
+};
 
 var data = { name: 'Joe' };
 var tmpl = '{{name|yeah|enclose}}';
@@ -96,8 +90,6 @@ var result = tempura.prepare(tmpl).render(data);
 
 console.log(result); // [Joe!]
 ```
-
-See [jsfiddle](http://jsfiddle.net/nakamura_to/JFJkD/).
 
 ### Data Context Access
 
@@ -143,49 +135,20 @@ We'll get this output:
 </ul>
 ```
 
-See [jsfiddle](http://jsfiddle.net/nakamura_to/hvQk8/).
-
-You can also use special identifiers in a function.
-
-```js
-var data = {
-  rootName: 'root',
-  parent: {
-    parentName: 'parent',
-    child: {
-      childName: 'child',
-      path: function () {
-        return [this.$root.rootName,
-                this.$parent.parentName,
-                this.childName].join('/');
-      }
-    }
-  },
-};
-var tmpl = 'path: {{parent.child.path}}';
-var result = tempura.prepare(tmpl).render(data);
-
-console.log(result); // path: root/parent/child
-```
-
-See [jsfiddle](http://jsfiddle.net/nakamura_to/TNNey/).
-
 ### Error Handling
 
 tempura can handle the value missings.
 This feature is useful for debugging.
 
 ```js
-tempura.mergeSettings({
-  noSuchValue: function (name) {
-    console.warn('the value "' + name + '" is missing');
-    return undefined;
-  },
-  noSuchPipe: function (name, index, value) {
-    console.warn('the pipe "' + name + '" is missing');
-    return value;
-  }
-});
+tempura.settings.noSuchValue = function (name) {
+  console.warn('the value "' + name + '" is missing');
+  return undefined;
+};
+tempura.settings.noSuchPipe = function (name) {
+  console.warn('the pipe "' + name + '" is missing');
+  return value;
+};
 
 var data = { name: 'Joe' };
 var tmpl = '{{name|unknownPipe1}} is {{unkonwnValue|unknownPipe2}}';
@@ -194,17 +157,13 @@ var result = tempura.prepare(tmpl).render(data);
 console.log(result); // Joe is
 ```
 
-See [jsfiddle](http://jsfiddle.net/nakamura_to/GrNXg/).
-
 tempura provides a hook point to handle all values before and after applying pipeline functions.
 It's means you can check or convert erroneous values.
 (By the way, tempura converts undefined values to empty string by default preRender function.)
 
 ```js
-tempura.mergeSettings({
-  preRender: function (value, pipe) {
-    var result = pipe(value);
-    return result === null ? '***' : result;
+tempura.settings.postPipeProcess = function (value) {
+    return value === null ? '***' : value;
   }
 });
 
@@ -214,8 +173,6 @@ var result = tempura.prepare(tmpl).render(data);
 
 console.log(result); // name is ***
 ```
-
-See [jsfiddle](http://jsfiddle.net/nakamura_to/FWLrj/).
 
 ### Others
 

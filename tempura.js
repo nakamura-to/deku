@@ -1,7 +1,7 @@
-/**
- * tempura - simple templating library in javascript.
- * https://github.com/nakamura-to/tempura
- */
+// tempura.js 0.0.3
+// tempura is simple templating library in javascript.
+// For all details and documentation:
+// http://nakamura-to.github.com/tempura/
 //noinspection ThisExpressionReferencesGlobalObjectJS
 (function (global) {
   'use strict';
