@@ -1710,9 +1710,9 @@ var parser = (function(){
         this.source.push('return buffer;');
         body = '  ' + this.source.join('\n  ');
         if (asObject) {
-          return new Function('context', 'ancestor', body);
+          return new Function('context', 'ancestors', body);
         } else {
-          return 'function (context, ancestor) {\n' + body + '\n' + '}';
+          return 'function (context, ancestors) {\n' + body + '\n' + '}';
         }
       },
 
@@ -1728,7 +1728,7 @@ var parser = (function(){
         }
         this.source.push('return buffer;');
         body = '  ' + indent + this.source.join('\n  ' + indent);
-        return indent + 'function ' + this.name + ' (context, ancestor, index, hasNext) {\n' + body + '\n'+ indent + '}';
+        return indent + 'function ' + this.name + ' (context, ancestors, index, hasNext) {\n' + body + '\n'+ indent + '}';
       },
 
       compile: function (asObject) {
@@ -1763,13 +1763,13 @@ var parser = (function(){
       op_invokeProgram: function (index) {
         var stack = this.currentStack();
         var env = this.environment.context.allEnvironments[index];
-        this.source.push(stack + ' = handleBlock(context, ancestor, ' + stack + ', ' + env.name + ');');
+        this.source.push(stack + ' = handleBlock(context, ancestors, ' + stack + ', ' + env.name + ');');
       },
 
       op_invokeProgramInverse: function (index) {
         var stack = this.currentStack();
         var env = this.environment.context.allEnvironments[index];
-        this.source.push(stack + ' = handleInverse(context, ancestor, ' + stack + ', ' + env.name + ');');
+        this.source.push(stack + ' = handleInverse(context, ancestors, ' + stack + ', ' + env.name + ');');
       },
 
       op_applyPipe: function (pipeName, valueName) {
@@ -1818,9 +1818,9 @@ var parser = (function(){
         var expr;
         if (name === JsCompiler.ROOT_CONTEXT) {
           expr = 'rootContext';
-          this.source.push('ancestor = [];');
+          this.source.push('ancestors = [];');
         } else if (name === JsCompiler.PARENT_CONTEXT) {
-          expr = 'ancestor.pop()';
+          expr = 'ancestors.pop()';
         } else if (name === JsCompiler.THIS_CONTEXT) {
           expr = 'context';
         } else if (name === JsCompiler.INDEX) {
@@ -1829,7 +1829,7 @@ var parser = (function(){
           expr = 'hasNext';
         } else {
           expr = this.nameLookup('context', name);
-          this.source.push('ancestor.push(context);');
+          this.source.push('ancestors.push(context);');
         }
         this.source.push(stack + ' = ' + expr + ';');
       },
@@ -1839,9 +1839,9 @@ var parser = (function(){
         var expr;
         if (name === JsCompiler.ROOT_CONTEXT) {
           expr = 'rootContext';
-          this.source.push('ancestor = [];');
+          this.source.push('ancestors = [];');
         } else if (name === JsCompiler.PARENT_CONTEXT) {
-          expr = 'ancestor.pop()';
+          expr = 'ancestors.pop()';
         } else if (name === JsCompiler.THIS_CONTEXT) {
           expr = stack;
         } else if (name === JsCompiler.INDEX) {
@@ -1851,7 +1851,7 @@ var parser = (function(){
         } else {
           expr = '(' + stack + ' === null || ' + stack + ' === undef) ? '
             + stack + ' : ' + this.nameLookup(stack, name) + '';
-          this.source.push('ancestor.push(context);');
+          this.source.push('ancestors.push(context);');
         }
         this.source.push(stack + ' = ' + expr + ';');
       }
@@ -1868,8 +1868,8 @@ var parser = (function(){
       }
     };
 
-    var compile = function (template) {
-      var program = parse(template);
+    var compile = function (source) {
+      var program = parse(source);
       var compiler = new Compiler(program);
       var environment = compiler.compile();
       var jsCompiler = new JsCompiler(environment);
@@ -1886,41 +1886,41 @@ var parser = (function(){
 
   var core = {
 
-    handleBlock: function (context, ancestor, value, fn) {
+    handleBlock: function (context, ancestors, value, fn) {
       var result = '';
       var i;
       var len;
       var array = [];
       if (util.isArray(value)) {
-        ancestor.push(value);
+        ancestors.push(value);
         len = value.length;
         for (i = 0; i < len; i++) {
-          array[i] = fn(value[i], ancestor, i, i + 1 < len);
+          array[i] = fn(value[i], ancestors, i, i + 1 < len);
         }
         result = array.join('');
-        ancestor.pop();
+        ancestors.pop();
       } else if (util.isObject(value)) {
-        ancestor.push(value);
-        result = fn(value, ancestor);
-        ancestor.pop();
+        ancestors.push(value);
+        result = fn(value, ancestors);
+        ancestors.pop();
       } else if (value) {
-        result = fn(context, ancestor);
+        result = fn(context, ancestors);
       }
       return result;
     },
 
-    handleInverse: function (context, ancestor, value, fn) {
+    handleInverse: function (context, ancestors, value, fn) {
       var result = '';
       if (!value) {
-        result = fn(context, ancestor);
+        result = fn(context, ancestors);
       } else if ((util.isArray(value) && value.length === 0)) {
-        result = fn(context, ancestor);
+        result = fn(context, ancestors);
       }
       return result;
     },
 
-    prepare: function (template, options) {
-      var renderContext = {
+    prepare: function (source, options) {
+      var templateContext = {
         escape: util.escape,
         handleBlock: core.handleBlock,
         handleInverse: core.handleInverse,
@@ -1930,10 +1930,10 @@ var parser = (function(){
         postPipeProcess: options.postPipeProcess,
         pipes: options.pipes
       };
-      var compiledTemplate = compiler.compile(template);
+      var template = compiler.compile(source);
       return {
         render: function (data) {
-          return compiledTemplate.call(renderContext, data, []);
+          return template.call(templateContext, data, []);
         }
       };
     }
@@ -1971,7 +1971,7 @@ var parser = (function(){
         }
       },
 
-      prepare: function (template, options) {
+      prepare: function (source, options) {
         var opts = {};
         options = options || {};
         opts.noSuchValue = options.noSuchValue || this.settings.noSuchValue;
@@ -1991,7 +1991,7 @@ var parser = (function(){
         if (!util.isFunction(opts.postPipeProcess)) {
           throw new Error('the "postPipeProcess" option or setting must be function.');
         }
-        return core.prepare(template, opts);
+        return core.prepare(source, opts);
       },
 
       internal: {
