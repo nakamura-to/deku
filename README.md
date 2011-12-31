@@ -1,7 +1,7 @@
 tempura — simple templating library in javascript
 =================================================
 
-tempura is templating library inspired by [mustache.js](https://github.com/janl/mustache.js), 
+[tempura](http://nakamura-to.github.com/tempura/) is templating library inspired by [mustache.js](https://github.com/janl/mustache.js), 
 [tempo](https://github.com/twigkit/tempo) and [handlebars.js](https://github.com/wycats/handlebars.js/).
 
 Some features are similar with mustache.js.
@@ -24,6 +24,20 @@ var result = template.render(data);
 
 console.log(result); // Joe spends 4200
 ```
+
+## Installing
+
+### Node.js
+
+If you're developing with Node.js, just use NPM to add the tempura package.
+
+```
+$ npm install tempura
+```
+
+### Browser
+
+[Download](https://github.com/nakamura-to/tempura/tags) the tempura.js and include it in your web page using the script tag.
 
 Differences Between tempura and mustache.js
 -------------------------------------------
