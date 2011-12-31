@@ -151,7 +151,7 @@ tempura.settings.noSuchValue = function (name) {
     console.warn('the value "' + name + '" is missing');
     return undefined;
 };
-tempura.settings.noSuchPipe = function (name) {
+tempura.settings.noSuchPipe = function (name, value) {
     console.warn('the pipe "' + name + '" is missing');
     return value;
 };
