@@ -1,8 +1,8 @@
 tempura — simple templating library in javascript
 =================================================
 
-tempura is templating library inspired by [mustache.js](http://github.com/janl/mustache.js) and 
-[tempo](https://github.com/twigkit/tempo).
+tempura is templating library inspired by [mustache.js](https://github.com/janl/mustache.js), 
+[tempo](https://github.com/twigkit/tempo) and [handlebars.js](https://github.com/wycats/handlebars.js/).
 
 Some features are similar with mustache.js.
 
@@ -11,14 +11,16 @@ Some features are similar with mustache.js.
 Below is quick example how to use tempura:
 
 ```js
+var source = '{{name}} spends {{calc}}';
+var template = tempura.prepare(source);
+
 var data = {
-  name: 'Joe',
-  calc: function () {
-    return 200 + 4000;
-  }
+    name: 'Joe',
+    calc: function () {
+        return 200 + 4000;
+    }
 };
-var tmpl = '{{name}} spends {{calc}}';
-var result = tempura.prepare(tmpl).render(data);
+var result = template.render(data);
 
 console.log(result); // Joe spends 4200
 ```
@@ -32,22 +34,24 @@ The most unique feature in tempura is the pipeline processing.
 This feature is useful for formatting and coversion.
 
 ```js
+var source = '{{name}} spends {{calc|dollar}}';
+var template = tempura.prepare(source);
+
 var data = {
-  name: 'Joe',
-  calc: function () {
-    return 200 + 4000;
-  },
-  dollar: function (value) {
-    var regex = /(\d+)(\d{3})/;
-    var s = String(value);
-    while (s.match(regex)) {
-      s = s.replace(regex, '$1' + ',' + '$2');
+    name: 'Joe',
+    calc: function () {
+        return 200 + 4000;
+    },
+    dollar: function (value) {
+        var regex = /(\d+)(\d{3})/;
+        var s = String(value);
+        while (s.match(regex)) {
+          s = s.replace(regex, '$1' + ',' + '$2');
+        }
+        return '$' + s;
     }
-    return '$' + s;
-  }
 };
-var tmpl = '{{name}} spends {{calc|dollar}}';
-var result = tempura.prepare(tmpl).render(data);
+var result = template.render(data);
 
 console.log(result); // Joe spends $4,200
 ```
@@ -55,17 +59,19 @@ console.log(result); // Joe spends $4,200
 More than one pipe function are available.
 
 ```js
+var source = '{{name|yeah|enclose}}';
+var template = tempura.prepare(source);
+
 var data = {
-  name: 'Joe',
-  yeah: function (value) {
-    return value + '!';
-  },
-  enclose: function (value) {
-    return '[' + value + ']';
-  }
+    name: 'Joe',
+    yeah: function (value) {
+        return value + '!';
+    },
+    enclose: function (value) {
+        return '[' + value + ']';
+    }
 };
-var tmpl = '{{name|yeah|enclose}}';
-var result = tempura.prepare(tmpl).render(data);
+var result = template.render(data);
 
 console.log(result); // [Joe!]
 ```
@@ -74,17 +80,19 @@ You can define global pipe functions.
 
 ```js
 tempura.settings.pipes = {
-  yeah: function (value) {
-    return value + '!';
-  },
-  enclose: function (value) {
-    return '[' + value + ']';
-  }
+    yeah: function (value) {
+        return value + '!';
+    },
+    enclose: function (value) {
+        return '[' + value + ']';
+    }
 };
 
-var data = { name: 'Joe' };
-var tmpl = '{{name|yeah|enclose}}';
-var result = tempura.prepare(tmpl).render(data);
+var source = '{{name|yeah|enclose}}';
+var template = tempura.prepare(source);
+
+var data = {name: 'Joe'};
+var result = template.render(data);
 
 console.log(result); // [Joe!]
 ```
@@ -140,17 +148,19 @@ This feature is useful for debugging.
 
 ```js
 tempura.settings.noSuchValue = function (name) {
-  console.warn('the value "' + name + '" is missing');
-  return undefined;
+    console.warn('the value "' + name + '" is missing');
+    return undefined;
 };
 tempura.settings.noSuchPipe = function (name) {
-  console.warn('the pipe "' + name + '" is missing');
-  return value;
+    console.warn('the pipe "' + name + '" is missing');
+    return value;
 };
 
-var data = { name: 'Joe' };
-var tmpl = '{{name|unknownPipe1}} is {{unkonwnValue|unknownPipe2}}';
-var result = tempura.prepare(tmpl).render(data);
+var source = '{{name|unknownPipe1}} is {{unkonwnValue|unknownPipe2}}';
+var template = tempura.prepare(source);
+
+var data = {name: 'Joe'};
+var result = template.render(data);
 
 console.log(result); // Joe is
 ```
@@ -162,12 +172,13 @@ It's means you can check or convert erroneous values.
 ```js
 tempura.settings.postPipeProcess = function (value) {
     return value === null ? '***' : value;
-  }
-});
+};
 
-var data = { name: null };
-var tmpl = 'name is {{name}}';
-var result = tempura.prepare(tmpl).render(data);
+var source = 'name is {{name}}';
+var template = tempura.prepare(source);
+
+var data = {name: null};
+var result = template.render(data);
 
 console.log(result); // name is ***
 ```
