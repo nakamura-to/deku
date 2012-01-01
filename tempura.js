@@ -1974,7 +1974,7 @@ var parser = (function(){
         if (typeof opts.prePipeProcess !== 'function') {
           throw new Error('the "prePipeProcess" option or setting must be function.');
         }
-        if (typeof opts.postPipeProcess != 'function') {
+        if (typeof opts.postPipeProcess !== 'function') {
           throw new Error('the "postPipeProcess" option or setting must be function.');
         }
         return core.prepare(source, opts);
