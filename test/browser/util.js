@@ -19,18 +19,6 @@ TestCase('util', {
     assertFalse(this.util.isObject(undefined));
   },
 
-  'test isFunction': function () {
-    assertTrue(this.util.isFunction(function () {}));
-    assertFalse(this.util.isFunction({}));
-    assertFalse(this.util.isFunction([]));
-    assertFalse(this.util.isFunction('aaa'));
-    assertFalse(this.util.isFunction(1));
-    assertFalse(this.util.isFunction(new Date()));
-    assertFalse(this.util.isFunction(/aaa/));
-    assertFalse(this.util.isFunction(null));
-    assertFalse(this.util.isFunction(undefined));
-  },
-
   'test isArray': function () {
     assertTrue(this.util.isArray([]));
     assertFalse(this.util.isArray({}));

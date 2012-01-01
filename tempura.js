@@ -1474,10 +1474,6 @@ var parser = (function(){
       return util.toString.call(obj) === '[object Array]';
     },
 
-    isFunction: function (obj) {
-      return util.toString.call(obj) === '[object Function]';
-    },
-
     extend: function (target) {
       var args = util.slice.call(arguments, 1);
       var len = args.length;
@@ -1968,16 +1964,16 @@ var parser = (function(){
         opts.prePipeProcess = options.prePipeProcess || this.settings.prePipeProcess;
         opts.postPipeProcess = options.postPipeProcess || this.settings.postPipeProcess;
         opts.pipes = util.extend({}, options.pipes, this.settings.pipes);
-        if (!util.isFunction(opts.noSuchValue)) {
+        if (typeof opts.noSuchValue !== 'function') {
           throw new Error('the "noSuchValue" option or setting must be function.');
         }
-        if (!util.isFunction(opts.noSuchPipe)) {
+        if (typeof opts.noSuchPipe !== 'function') {
           throw new Error('the "noSuchPipe" option or setting must be function.');
         }
-        if (!util.isFunction(opts.prePipeProcess)) {
+        if (typeof opts.prePipeProcess !== 'function') {
           throw new Error('the "prePipeProcess" option or setting must be function.');
         }
-        if (!util.isFunction(opts.postPipeProcess)) {
+        if (typeof opts.postPipeProcess != 'function') {
           throw new Error('the "postPipeProcess" option or setting must be function.');
         }
         return core.prepare(source, opts);
