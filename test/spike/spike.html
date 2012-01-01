@@ -4,18 +4,9 @@
     <title></title>
 </head>
 <body>
-    <script id="t" type="text/template">
-      <ul>
-      {{#parent}}
-        {{#children}}
-      <li>{{$root.rootName}}/{{$parent.parentName}}/{{$this}}{{$index}}</li>
-        {{/children}}
-      {{/parent}}
-      </ul>
-    </script>
     <script id="template" type="text/template">
         <div>
-            <h1 class='header'>{{ban}}</h1>
+            <h1 class='header'>{{header}}</h1>
             <h2 class='header2'>{{header2}}</h2>
             <h3 class='header3'>{{header3}}</h3>
             <h4 class='header4'>{{header4}}</h4>
@@ -31,56 +22,27 @@
     <div id="result"></div>
     <script src="../../tempura.js"></script>
     <script>
-        function el(id) {
-            return document.getElementById(id);
-        };
-        function getHtml(id) {
-            return el(id).innerHTML;
-        };
-        function setHtml(id, html) {
-            return el(id).innerHTML = html;
-        };
+      function el(id) {
+        return document.getElementById(id);
+      };
+      function getHtml(id) {
+        return el(id).innerHTML;
+      };
+      function setHtml(id, html) {
+        return el(id).innerHTML = html;
+      };
 
-        var source =
-            [ '{{#container1}}',
-              '{{#container2}}',
-              '{{#container3}}{{$parent.name}}-{{name}}{{/container3}}',
-              '{{/container2}}',
-              '{{/container1}}' ].join('');
-        var data = {
-          container1: {
-            name: 'c1',
-            container2: {
-              name: 'c2',
-              container3: {
-                name: 'c3'
-              }
-            }
-          }
-        };
-        var result = tempura.prepare(source).render(data);
-        console.log(result);
-
-//        template = tempura.prepare(getHtml('view2'));
-//        setHtml('view2', template.render({people: [{name: 'aaa'}, {name: 'bbb'}, {name: 'ccc'}]}));
-//
-//        template = tempura.prepare(getHtml('view3'));
-//        setHtml('view3', template.render({value: true}));
-//
-//        template = tempura.prepare(getHtml('view4'));
-//        setHtml('view4', template.render({value: false}));
-//
-//        template = tempura.prepare(getHtml('view5'), {preserveUnknownTags: true});
-//        var text = template.render({people: {name:'parent'}});
-//        template = tempura.prepare(text, {
-//            preserveUnknownTags: true,
-//            pipes: {
-//                enclose: function (value) {
-//                    return '[' + value + ']';
-//                }
-//            }
-//        });
-//        setHtml('view5', template.render({children: [{name: 'chidl-1'}, {name:'child-2'}]}));
+      var template = tempura.prepare(getHtml('template'));
+      var result = template.render({
+        header: "Header",
+        header2: "Header2",
+        header3: "Header3",
+        header4: "Header4",
+        header5: "Header5",
+        header6: "Header6",
+        list: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
+      });
+      setHtml('result', result);
 
     </script>
 </body>

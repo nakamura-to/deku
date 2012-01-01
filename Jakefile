@@ -74,7 +74,7 @@ desc('Generate tempura.js.');
 task('build', ['parser'], function () {
   var parser = fs.readFileSync(PARSER_FILE, 'utf-8');
   var tempura = fs.readFileSync(TEMPURA_FILE, 'utf-8');
-  tempura = tempura.replace(/(@VERSION@)/g, version);
+  tempura = tempura.replace(/(tempura\.js ).*/, '$1' + version);
   tempura = tempura.replace(/(version: ').+?(',)/g, '$1' + version + '$2');
   tempura = tempura.replace(/(\/\/ BEGIN PARSER\n)[\s\S]*?(\/\/ END PARSER)/g, '$1' + parser + '$2');
   fs.writeFileSync(TEMPURA_DIST_FILE, tempura, 'utf-8');
