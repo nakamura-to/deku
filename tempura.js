@@ -1700,8 +1700,7 @@ var parser = (function(){
         if (this.stackVars.length > 0) {
           this.source[0] += ', ' + this.stackVars.join(', ');
         }
-        this.source[0] += ', root = context, buffer = "", ' +
-          'preservedAncestors = ancestors, ancestors = preservedAncestors.slice(0), depth = ancestors.length, undef, ' +
+        this.source[0] += ', buffer = "", contextStack = [context], undef, ' +
           'escape = this.escape, handleBlock = this.handleBlock, ' +
           'handleInverse = this.handleInverse, noSuchValue = this.noSuchValue, noSuchPipe = this.noSuchPipe, ' +
           'prePipeProcess = this.prePipeProcess, postPipeProcess = this.postPipeProcess, pipes = this.pipes, pipe';
@@ -1712,9 +1711,9 @@ var parser = (function(){
         this.source.push('return buffer;');
         body = '  ' + this.source.join('\n  ');
         if (asObject) {
-          return new Function('context', 'ancestors', body);
+          return new Function('context', body);
         } else {
-          return 'function (context, ancestors) {\n' + body + '\n' + '}';
+          return 'function (context) {\n' + body + '\n' + '}';
         }
       },
 
@@ -1724,14 +1723,13 @@ var parser = (function(){
         if (this.stackVars.length > 0) {
           this.source[0] += ', ' + this.stackVars.join(', ');
         }
-        this.source[0] += ', buffer = "", ' +
-          'preservedAncestors = ancestors, ancestors = preservedAncestors.slice(0), depth = ancestors.length';
+        this.source[0] += ', buffer = ""';
         if (this.source[0]) {
           this.source[0] = 'var' + this.source[0].slice(1) + ';';
         }
         this.source.push('return buffer;');
         body = '  ' + indent + this.source.join('\n  ' + indent);
-        return indent + 'function ' + this.name + ' (context, ancestors, index, hasNext) {\n' + body + '\n'+ indent + '}';
+        return indent + 'function ' + this.name + ' (context, contextStack, index, hasNext) {\n' + body + '\n'+ indent + '}';
       },
 
       compile: function (asObject) {
@@ -1757,7 +1755,6 @@ var parser = (function(){
 
       shrinkStack: function () {
         this.stackSlot--;
-        this.source.push('ancestors = preservedAncestors.slice(0)');
       },
 
       currentStack: function () {
@@ -1767,13 +1764,13 @@ var parser = (function(){
       op_invokeProgram: function (index) {
         var stack = this.currentStack();
         var env = this.environment.context.allEnvironments[index];
-        this.source.push(stack + ' = handleBlock(context, ancestors, ' + stack + ', ' + env.name + ');');
+        this.source.push(stack + ' = handleBlock(context, contextStack, ' + stack + ', ' + env.name + ');');
       },
 
       op_invokeProgramInverse: function (index) {
         var stack = this.currentStack();
         var env = this.environment.context.allEnvironments[index];
-        this.source.push(stack + ' = handleInverse(context, ancestors, ' + stack + ', ' + env.name + ');');
+        this.source.push(stack + ' = handleInverse(context, contextStack, ' + stack + ', ' + env.name + ');');
       },
 
       op_applyPipe: function (pipeName, valueName) {
@@ -1820,9 +1817,9 @@ var parser = (function(){
       op_lookupFromContext: function (name) {
         var stack = this.expandStack();
         if (name === JsCompiler.ROOT_CONTEXT) {
-          this.source.push(stack + ' = root;');
+          this.source.push(stack + ' = contextStack[0];');
         } else if (name === JsCompiler.PARENT_CONTEXT) {
-          this.source.push(stack + ' = ancestors[ancestors.length - 1];');
+          this.source.push(stack + ' = contextStack[contextStack.length - 2];');
         } else if (name === JsCompiler.THIS_CONTEXT) {
           this.source.push(stack + ' = context;');
         } else if (name === JsCompiler.INDEX) {
@@ -1830,7 +1827,6 @@ var parser = (function(){
         } else if (name === JsCompiler.HAS_NEXT) {
           this.source.push(stack + ' = hasNext;');
         } else {
-          this.source.push('ancestors.push(context);');
           this.source.push(stack + ' = ' + this.nameLookup('context', name) + ';');
         }
       },
@@ -1870,7 +1866,7 @@ var parser = (function(){
 
   var core = {
 
-    handleBlock: function (context, ancestors, value, fn) {
+    handleBlock: function (context, contextStack, value, fn) {
       var result = '';
       var i;
       var len;
@@ -1878,23 +1874,27 @@ var parser = (function(){
       if (util.isArray(value)) {
         len = value.length;
         for (i = 0; i < len; i++) {
-          array[i] = fn(value[i], ancestors, i, i + 1 < len);
+          contextStack.push(value[i]);
+          array[i] = fn(value[i], contextStack, i, i + 1 < len);
+          contextStack.pop();
         }
         result = array.join('');
       } else if (util.isObject(value)) {
-        result = fn(value, ancestors);
+        contextStack.push(value);
+        result = fn(value, contextStack);
+        contextStack.pop();
       } else if (value) {
-        result = fn(context, ancestors);
+        result = fn(context, contextStack);
       }
       return result;
     },
 
-    handleInverse: function (context, ancestors, value, fn) {
+    handleInverse: function (context, contextStack, value, fn) {
       var result = '';
       if (!value) {
-        result = fn(context, ancestors);
+        result = fn(context, contextStack);
       } else if ((util.isArray(value) && value.length === 0)) {
-        result = fn(context, ancestors);
+        result = fn(context, contextStack);
       }
       return result;
     },
@@ -1913,7 +1913,7 @@ var parser = (function(){
       var template = compiler.compile(source);
       return {
         render: function (data) {
-          return template.call(templateContext, data, []);
+          return template.call(templateContext, data);
         }
       };
     }
