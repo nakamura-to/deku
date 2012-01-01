@@ -1841,7 +1841,7 @@ var parser = (function(){
 
       op_lookupFromStack: function (name) {
         var tmp = this.getTmpVar();
-        this.source.push(tmp + ' = (' + tmp + ' === null || ' + tmp + ' === undef) ? ' + tmp + ' : ' + this.lookupProp(tmp, name) + ';');
+        this.source.push(tmp + ' = (' + tmp + ' == null) ? ' + tmp + ' : ' + this.lookupProp(tmp, name) + ';');
       }
     };
 
@@ -1933,8 +1933,6 @@ var parser = (function(){
 
   var tempura =  (function () {
 
-    var undef;
-
     return {
       name: 'tempura',
 
@@ -1950,11 +1948,11 @@ var parser = (function(){
         },
 
         postPipeProcess: function (value, valueName) {
-          return value === undef ? '': value;
+          return value == null ? '': value;
         },
 
         noSuchValue: function (valueName) {
-          return undef;
+          return;
         },
 
         noSuchPipe: function (pipeName, value, valueName) {
