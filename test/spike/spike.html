@@ -4,6 +4,15 @@
     <title></title>
 </head>
 <body>
+    <script id="t" type="text/template">
+      <ul>
+      {{#parent}}
+        {{#children}}
+      <li>{{$root.rootName}}/{{$parent.parentName}}/{{$this}}{{$index}}</li>
+        {{/children}}
+      {{/parent}}
+      </ul>
+    </script>
     <script id="template" type="text/template">
         <div>
             <h1 class='header'>{{ban}}</h1>
@@ -31,24 +40,21 @@
         function setHtml(id, html) {
             return el(id).innerHTML = html;
         };
-        
+
+        var template = tempura.prepare(getHtml('t'));
 
         var data = {
-            header: "Header",
-            header2: "Header2",
-            header3: "Header3",
-            header4: "Header4",
-            header5: "Header5",
-            header6: "Header6",
-            hoge: {bbb: {ccc: {}}},
-            list: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
-            ban: function () {
-                return '!';
-            }
+          rootName: 'root',
+          parent: {
+            parentName: 'parent',
+            children: [
+              'child',
+              'child'
+            ]
+          }
         };
-
-        var template = tempura.prepare(getHtml('template'), {pipes: {enclose: function (value) { return "[" + value + "]"; } }});
-        setHtml('result', template.render(data));
+        var result = template.render(data);
+        setHtml('result', result);
 
 //        template = tempura.prepare(getHtml('view2'));
 //        setHtml('view2', template.render({people: [{name: 'aaa'}, {name: 'bbb'}, {name: 'ccc'}]}));

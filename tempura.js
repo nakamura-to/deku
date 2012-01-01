@@ -1700,7 +1700,9 @@ var parser = (function(){
         if (this.stackVars.length > 0) {
           this.source[0] += ', ' + this.stackVars.join(', ');
         }
-        this.source[0] += ', rootContext = context, buffer = "", undef, escape = this.escape, handleBlock = this.handleBlock, ' +
+        this.source[0] += ', rootContext = context, buffer = "", ' +
+          'preservedAncestors = ancestors, ancestors = preservedAncestors.slice(0), depth = ancestors.length, undef, ' +
+          'escape = this.escape, handleBlock = this.handleBlock, ' +
           'handleInverse = this.handleInverse, noSuchValue = this.noSuchValue, noSuchPipe = this.noSuchPipe, ' +
           'prePipeProcess = this.prePipeProcess, postPipeProcess = this.postPipeProcess, pipes = this.pipes, pipe';
         if (this.source[0]) {
@@ -1722,7 +1724,8 @@ var parser = (function(){
         if (this.stackVars.length > 0) {
           this.source[0] += ', ' + this.stackVars.join(', ');
         }
-        this.source[0] += ', buffer = ""';
+        this.source[0] += ', buffer = "", ' +
+          'preservedAncestors = ancestors, ancestors = preservedAncestors.slice(0), depth = ancestors.length';
         if (this.source[0]) {
           this.source[0] = 'var' + this.source[0].slice(1) + ';';
         }
@@ -1754,6 +1757,8 @@ var parser = (function(){
 
       shrinkStack: function () {
         this.stackSlot--;
+        this.source.push('ancestors = preservedAncestors.slice(0)');
+        this.source.push('depth = ancestors.length');
       },
 
       currentStack: function () {
@@ -1815,45 +1820,44 @@ var parser = (function(){
 
       op_lookupFromContext: function (name) {
         var stack = this.expandStack();
-        var expr;
         if (name === JsCompiler.ROOT_CONTEXT) {
-          expr = 'rootContext';
-          this.source.push('ancestors = [];');
+          this.source.push(stack + ' = rootContext;');
+          this.source.push('depth = 0;');
         } else if (name === JsCompiler.PARENT_CONTEXT) {
-          expr = 'ancestors.pop()';
+          this.source.push('depth = depth - 1;');
+          this.source.push(stack + ' = ancestors[depth];');
         } else if (name === JsCompiler.THIS_CONTEXT) {
-          expr = 'context';
+          this.source.push(stack + ' = context;');
         } else if (name === JsCompiler.INDEX) {
-          expr = 'index';
+          this.source.push(stack + ' = index;');
         } else if (name === JsCompiler.HAS_NEXT) {
-          expr = 'hasNext';
+          this.source.push(stack + ' = hasNext;');
         } else {
-          expr = this.nameLookup('context', name);
           this.source.push('ancestors.push(context);');
+          this.source.push('depth = depth + 1;');
+          this.source.push(stack + ' = ' + this.nameLookup('context', name) + ';');
         }
-        this.source.push(stack + ' = ' + expr + ';');
       },
 
       op_lookupFromStack: function (name) {
         var stack = this.currentStack();
-        var expr;
         if (name === JsCompiler.ROOT_CONTEXT) {
-          expr = 'rootContext';
-          this.source.push('ancestors = [];');
+          this.source.push(stack + ' = rootContext;');
+          this.source.push('depth = 0;');
         } else if (name === JsCompiler.PARENT_CONTEXT) {
-          expr = 'ancestors.pop()';
+          this.source.push('depth = depth - 2;');
+          this.source.push(stack + ' = ancestors[depth];');
         } else if (name === JsCompiler.THIS_CONTEXT) {
-          expr = stack;
+          // do nothing
         } else if (name === JsCompiler.INDEX) {
-          expr = 'index';
+          this.source.push(stack + ' = index;');
         } else if (name === JsCompiler.HAS_NEXT) {
-          expr = 'hasNext';
+          this.source.push(stack + ' = hasNext;');
         } else {
-          expr = '(' + stack + ' === null || ' + stack + ' === undef) ? '
-            + stack + ' : ' + this.nameLookup(stack, name) + '';
-          this.source.push('ancestors.push(context);');
+          this.source.push('ancestors.push(' + stack + ');');
+          this.source.push('depth = depth + 1;');
+          this.source.push(stack + ' = (' + stack + ' === null || ' + stack + ' === undef) ? ' + stack + ' : ' + this.nameLookup(stack, name) + ';');
         }
-        this.source.push(stack + ' = ' + expr + ';');
       }
     };
 
@@ -1892,17 +1896,13 @@ var parser = (function(){
       var len;
       var array = [];
       if (util.isArray(value)) {
-        ancestors.push(value);
         len = value.length;
         for (i = 0; i < len; i++) {
           array[i] = fn(value[i], ancestors, i, i + 1 < len);
         }
         result = array.join('');
-        ancestors.pop();
       } else if (util.isObject(value)) {
-        ancestors.push(value);
         result = fn(value, ancestors);
-        ancestors.pop();
       } else if (value) {
         result = fn(context, ancestors);
       }
