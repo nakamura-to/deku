@@ -1841,23 +1841,9 @@ var parser = (function(){
 
       op_lookupFromStack: function (name) {
         var stack = this.currentStack();
-        if (name === JsCompiler.ROOT_CONTEXT) {
-          this.source.push(stack + ' = rootContext;');
-          this.source.push('depth = 0;');
-        } else if (name === JsCompiler.PARENT_CONTEXT) {
-          this.source.push('depth = depth - 2;');
-          this.source.push(stack + ' = ancestors[depth];');
-        } else if (name === JsCompiler.THIS_CONTEXT) {
-          // do nothing
-        } else if (name === JsCompiler.INDEX) {
-          this.source.push(stack + ' = index;');
-        } else if (name === JsCompiler.HAS_NEXT) {
-          this.source.push(stack + ' = hasNext;');
-        } else {
-          this.source.push('ancestors.push(' + stack + ');');
-          this.source.push('depth = depth + 1;');
-          this.source.push(stack + ' = (' + stack + ' === null || ' + stack + ' === undef) ? ' + stack + ' : ' + this.nameLookup(stack, name) + ';');
-        }
+        this.source.push('ancestors.push(' + stack + ');');
+        this.source.push('depth = depth + 1;');
+        this.source.push(stack + ' = (' + stack + ' === null || ' + stack + ' === undef) ? ' + stack + ' : ' + this.nameLookup(stack, name) + ';');
       }
     };
 

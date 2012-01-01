@@ -258,34 +258,6 @@ TestCase('compiler', {
     assertSame('hoge', result);
   },
 
-  'test compile: tag: pathSeguments: $root': function () {
-    var fn = this.compiler.compile('{{aaa.bbb.ccc.$root.ddd}}');
-    var data = {
-      aaa: {
-        bbb: {
-          ccc: 'hoge'
-        }
-      },
-      ddd: 'foo'
-    };
-    var result = fn.call(this.templateContext, data, []);
-    assertSame('foo', result);
-  },
-
-  'test compile: tag: pathSeguments: $parent': function () {
-    var fn = this.compiler.compile('{{aaa.bbb.$parent.ddd}}');
-    var data = {
-      aaa: {
-        bbb: {
-          ccc: 'hoge'
-        }
-      },
-      ddd: 'foo'
-    };
-    var result = fn.call(this.templateContext, data, []);
-    assertSame('foo', result);
-  },
-
   'test compile: tag: escape': function () {
     var fn = this.compiler.compile('{{name}}');
     var result = fn.call(this.templateContext, {name: '<b>"aaa"</b>' }, []);
@@ -338,6 +310,47 @@ TestCase('compiler', {
     var fn = this.compiler.compile('{{#array}}{{$this}}{{#$hasNext}}-{{/$hasNext}}{{/array}}');
     var result = fn.call(this.templateContext, {array: ['aaa', 'bbb']}, []);
     assertSame('aaa-bbb', result);
+  },
+
+  'test compile: block: $root': function () {
+    var fn = this.compiler.compile(
+      [ '{{#container1}}',
+        '{{#container2}}',
+        '{{#array}}{{$root.container1.name}}({{name}})-{{/array}}',
+        '{{/container2}}',
+        '{{/container1}}' ].join('')
+    );
+    var data = {
+      container1: {
+        name: 'c1',
+        container2: {
+          array: [{name:'aaa'},{name:'bbb'}]
+        }
+      }
+    };
+    var result = fn.call(this.templateContext, data, []);
+    assertSame('c1(aaa)-c1(bbb)-', result);
+  },
+
+  'test compile: block: $parent': function () {
+    var fn = this.compiler.compile(
+      [ '{{#container1}}',
+        '{{#container2}}',
+        '{{#array}}{{$parent.name}}({{name}})-{{/array}}',
+        '{{/container2}}',
+        '{{/container1}}' ].join('')
+    );
+    var data = {
+      container1: {
+        name: 'c1',
+        container2: {
+          name: 'c2',
+          array: [{name:'aaa'},{name:'bbb'}]
+        }
+      }
+    };
+    var result = fn.call(this.templateContext, data, []);
+    assertSame('c2(aaa)-c2(bbb)-', result);
   },
 
   'test compile: block: function: truthy': function () {
