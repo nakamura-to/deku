@@ -1700,7 +1700,7 @@ var parser = (function(){
         if (this.stackVars.length > 0) {
           this.source[0] += ', ' + this.stackVars.join(', ');
         }
-        this.source[0] += ', rootContext = context, buffer = "", ' +
+        this.source[0] += ', root = context, buffer = "", ' +
           'preservedAncestors = ancestors, ancestors = preservedAncestors.slice(0), depth = ancestors.length, undef, ' +
           'escape = this.escape, handleBlock = this.handleBlock, ' +
           'handleInverse = this.handleInverse, noSuchValue = this.noSuchValue, noSuchPipe = this.noSuchPipe, ' +
@@ -1758,7 +1758,6 @@ var parser = (function(){
       shrinkStack: function () {
         this.stackSlot--;
         this.source.push('ancestors = preservedAncestors.slice(0)');
-        this.source.push('depth = ancestors.length');
       },
 
       currentStack: function () {
@@ -1821,11 +1820,9 @@ var parser = (function(){
       op_lookupFromContext: function (name) {
         var stack = this.expandStack();
         if (name === JsCompiler.ROOT_CONTEXT) {
-          this.source.push(stack + ' = rootContext;');
-          this.source.push('depth = 0;');
+          this.source.push(stack + ' = root;');
         } else if (name === JsCompiler.PARENT_CONTEXT) {
-          this.source.push('depth = depth - 1;');
-          this.source.push(stack + ' = ancestors[depth];');
+          this.source.push(stack + ' = ancestors[ancestors.length - 1];');
         } else if (name === JsCompiler.THIS_CONTEXT) {
           this.source.push(stack + ' = context;');
         } else if (name === JsCompiler.INDEX) {
@@ -1834,15 +1831,12 @@ var parser = (function(){
           this.source.push(stack + ' = hasNext;');
         } else {
           this.source.push('ancestors.push(context);');
-          this.source.push('depth = depth + 1;');
           this.source.push(stack + ' = ' + this.nameLookup('context', name) + ';');
         }
       },
 
       op_lookupFromStack: function (name) {
         var stack = this.currentStack();
-        this.source.push('ancestors.push(' + stack + ');');
-        this.source.push('depth = depth + 1;');
         this.source.push(stack + ' = (' + stack + ' === null || ' + stack + ' === undef) ? ' + stack + ' : ' + this.nameLookup(stack, name) + ';');
       }
     };

@@ -288,6 +288,51 @@ TestCase('compiler', {
     assertSame('\n\t\b\r\f\v\b\\\'\"\x10\u1234', result);
   },
 
+  'test compile: block: $root': function () {
+    var fn = this.compiler.compile(
+      [ '{{#container1}}',
+        '{{#container2}}',
+        '{{#container3}}{{$root.container1.name}}-{{name}}{{/container3}}',
+        '{{/container2}}',
+        '{{/container1}}' ].join('')
+    );
+    var data = {
+      container1: {
+        name: 'c1',
+        container2: {
+          container3: {
+            name: 'c3'
+          }
+        }
+      }
+    };
+    var result = fn.call(this.templateContext, data, []);
+    assertSame('c1-c3', result);
+  },
+
+  'test compile: block: $parent': function () {
+    var fn = this.compiler.compile(
+      [ '{{#container1}}',
+        '{{#container2}}',
+        '{{#container3}}{{$parent.name}}-{{name}}{{/container3}}',
+        '{{/container2}}',
+        '{{/container1}}' ].join('')
+    );
+    var data = {
+      container1: {
+        name: 'c1',
+        container2: {
+          name: 'c2',
+          container3: {
+            name: 'c3'
+          }
+        }
+      }
+    };
+    var result = fn.call(this.templateContext, data, []);
+    assertSame('c2-c3', result);
+  },
+
   'test compile: block: array': function () {
     var fn = this.compiler.compile('{{#array}}{{name}}-{{/array}}');
     var result = fn.call(this.templateContext, {array: [{name:'aaa'},{name:'bbb'}] }, []);
@@ -312,7 +357,7 @@ TestCase('compiler', {
     assertSame('aaa-bbb', result);
   },
 
-  'test compile: block: $root': function () {
+  'test compile: block: array: $root': function () {
     var fn = this.compiler.compile(
       [ '{{#container1}}',
         '{{#container2}}',
@@ -332,7 +377,7 @@ TestCase('compiler', {
     assertSame('c1(aaa)-c1(bbb)-', result);
   },
 
-  'test compile: block: $parent': function () {
+  'test compile: block: array: $parent': function () {
     var fn = this.compiler.compile(
       [ '{{#container1}}',
         '{{#container2}}',

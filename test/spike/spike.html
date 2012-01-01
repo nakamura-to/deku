@@ -41,20 +41,25 @@
             return el(id).innerHTML = html;
         };
 
-        var template = tempura.prepare(getHtml('t'));
-
+        var source =
+            [ '{{#container1}}',
+              '{{#container2}}',
+              '{{#container3}}{{$parent.name}}-{{name}}{{/container3}}',
+              '{{/container2}}',
+              '{{/container1}}' ].join('');
         var data = {
-          rootName: 'root',
-          parent: {
-            parentName: 'parent',
-            children: [
-              'child',
-              'child'
-            ]
+          container1: {
+            name: 'c1',
+            container2: {
+              name: 'c2',
+              container3: {
+                name: 'c3'
+              }
+            }
           }
         };
-        var result = template.render(data);
-        setHtml('result', result);
+        var result = tempura.prepare(source).render(data);
+        console.log(result);
 
 //        template = tempura.prepare(getHtml('view2'));
 //        setHtml('view2', template.render({people: [{name: 'aaa'}, {name: 'bbb'}, {name: 'ccc'}]}));
