@@ -1463,28 +1463,29 @@ var parser = (function(){
 
     toString: Object.prototype.toString,
 
-    slice: Array.prototype.slice,
-
     isObject: function (obj) {
-      var toObject = Object;
-      return obj === toObject(obj);
+      return obj === Object(obj);
     },
 
-    isArray: function (obj) {
-      return util.toString.call(obj) === '[object Array]';
-    },
+    isArray: (function () {
+      if (Array.isArray) {
+        return Array.isArray;
+      }
+      return function (obj) {
+        return util.toString.call(obj) === '[object Array]';
+      }
+    }()),
 
     extend: function (target) {
-      var args = util.slice.call(arguments, 1);
-      var len = args.length;
+      var len = arguments.length;
       var i;
       var source;
       var key;
       if (target === null || target === undef || len === 0) {
         return target;
       }
-      for (i = 0; i < len; i++) {
-        source = args[i];
+      for (i = 1; i < len; i++) {
+        source = arguments[i];
         if (source !== null && source !== undef) {
           for (key in source) {
             if (target[key] === undef) {
