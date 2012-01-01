@@ -1634,8 +1634,8 @@ var parser = (function(){
       this.environment = environment;
       this.name = environment.name;
       this.source = [''];
-      this.stackSlot = 0;
-      this.stackVars = [];
+      this.tmpVarSlot = 0;
+      this.tmpVars = [];
     };
 
     JsCompiler.ROOT_CONTEXT = '$root';
@@ -1646,7 +1646,7 @@ var parser = (function(){
 
     JsCompiler.prototype = {
 
-      nameLookup: function (contextVar, name) {
+      lookupProp: function (contextVar, name) {
         return contextVar + '["' + name + '"]';
       },
 
@@ -1697,8 +1697,8 @@ var parser = (function(){
 
       generate: function (subPrograms, asObject) {
         var body;
-        if (this.stackVars.length > 0) {
-          this.source[0] += ', ' + this.stackVars.join(', ');
+        if (this.tmpVars.length > 0) {
+          this.source[0] += ', ' + this.tmpVars.join(', ');
         }
         this.source[0] += ', buffer = "", contextStack = [context], undef, ' +
           'escape = this.escape, handleBlock = this.handleBlock, ' +
@@ -1717,11 +1717,17 @@ var parser = (function(){
         }
       },
 
+      compile: function (asObject) {
+        var subPrograms = this.compileDescendants();
+        this.execOpcodes();
+        return this.generate(subPrograms, asObject);
+      },
+
       generateSubProgram: function () {
         var indent = '  ';
         var body;
-        if (this.stackVars.length > 0) {
-          this.source[0] += ', ' + this.stackVars.join(', ');
+        if (this.tmpVars.length > 0) {
+          this.source[0] += ', ' + this.tmpVars.join(', ');
         }
         this.source[0] += ', buffer = ""';
         if (this.source[0]) {
@@ -1732,75 +1738,69 @@ var parser = (function(){
         return indent + 'function ' + this.name + ' (context, contextStack, index, hasNext) {\n' + body + '\n'+ indent + '}';
       },
 
-      compile: function (asObject) {
-        var subPrograms = this.compileDescendants();
-        this.execOpcodes();
-        return this.generate(subPrograms, asObject);
-      },
-
       compileSubProgram: function () {
         this.execOpcodes();
         return this.generateSubProgram();
       },
 
-      expandStack: function () {
+      newTmpVar: function () {
         var name;
-        this.stackSlot++;
-        name = 'stack' + this.stackSlot;
-        if (this.stackSlot > this.stackVars.length) {
-          this.stackVars.push(name)
+        this.tmpVarSlot++;
+        name = 'tmp' + this.tmpVarSlot;
+        if (this.tmpVarSlot > this.tmpVars.length) {
+          this.tmpVars.push(name)
         }
         return name;
       },
 
-      shrinkStack: function () {
-        this.stackSlot--;
+      deleteTmpVar: function () {
+        this.tmpVarSlot--;
       },
 
-      currentStack: function () {
-        return 'stack' + this.stackSlot;
+      getTmpVar: function () {
+        return 'tmp' + this.tmpVarSlot;
       },
 
       op_invokeProgram: function (index) {
-        var stack = this.currentStack();
+        var tmp = this.getTmpVar();
         var env = this.environment.context.allEnvironments[index];
-        this.source.push(stack + ' = handleBlock(context, contextStack, ' + stack + ', ' + env.name + ');');
+        this.source.push(tmp + ' = handleBlock(context, contextStack, ' + tmp + ', ' + env.name + ');');
       },
 
       op_invokeProgramInverse: function (index) {
-        var stack = this.currentStack();
+        var tmp = this.getTmpVar();
         var env = this.environment.context.allEnvironments[index];
-        this.source.push(stack + ' = handleInverse(context, contextStack, ' + stack + ', ' + env.name + ');');
+        this.source.push(tmp + ' = handleInverse(context, contextStack, ' + tmp + ', ' + env.name + ');');
       },
 
       op_applyPipe: function (pipeName, valueName) {
-        var stack = this.currentStack();
-        this.source.push('pipe = ' + this.nameLookup('context', pipeName) + ';');
-        this.source.push('if (typeof pipe === "function") { ' + stack + ' = pipe.call(context, ' + stack + '); }');
-        this.source.push('else { pipe = ' + this.nameLookup('pipes', pipeName) + ';');
-        this.source.push('  if (typeof pipe === "function") { ' + stack + ' = pipe.call(context, ' + stack + '); }');
-        this.source.push('  else { ' + stack + ' = noSuchPipe.call(context, "' + pipeName + '", ' + stack + ', "' + valueName + '"); }}');
+        var tmp = this.getTmpVar();
+        this.source.push('pipe = ' + this.lookupProp('context', pipeName) + ';');
+        this.source.push('if (typeof pipe === "function") { ' + tmp + ' = pipe.call(context, ' + tmp + '); }');
+        this.source.push('else { pipe = ' + this.lookupProp('pipes', pipeName) + ';');
+        this.source.push('  if (typeof pipe === "function") { ' + tmp + ' = pipe.call(context, ' + tmp + '); }');
+        this.source.push('  else { ' + tmp + ' = noSuchPipe.call(context, "' + pipeName + '", ' + tmp + ', "' + valueName + '"); }}');
       },
 
       op_applyPrePipeProcess: function (valueName) {
-        var stack = this.currentStack();
-        this.source.push(stack + ' = prePipeProcess(' + stack + ', "' + valueName + '");');
+        var tmp = this.getTmpVar();
+        this.source.push(tmp + ' = prePipeProcess(' + tmp + ', "' + valueName + '");');
       },
 
       op_applyPostPipeProcess: function (valueName) {
-        var stack = this.currentStack();
-        this.source.push(stack + ' = postPipeProcess(' + stack + ', "' + valueName + '");');
+        var tmp = this.getTmpVar();
+        this.source.push(tmp + ' = postPipeProcess(' + tmp + ', "' + valueName + '");');
       },
 
       op_escape: function () {
-        var stack = this.currentStack();
-        this.source.push(stack + ' = escape(' + stack + ');');
+        var tmp = this.getTmpVar();
+        this.source.push(tmp + ' = escape(' + tmp + ');');
       },
 
       op_append: function () {
-        var stack = this.currentStack();
-        this.appendToBuffer(stack);
-        this.shrinkStack();
+        var tmp = this.getTmpVar();
+        this.appendToBuffer(tmp);
+        this.deleteTmpVar();
       },
 
       op_appendContent: function (content) {
@@ -1809,31 +1809,37 @@ var parser = (function(){
       },
 
       op_evaluateValue: function (name) {
-        var stack = this.currentStack();
-        this.source.push('if (typeof ' + stack + ' === "function") { ' + stack + ' = ' + stack + '.call(context); }');
-        this.source.push('else if (' + stack + ' === undef) { ' + stack + ' = ' + 'noSuchValue.call(context, "' + name + '"); }');
+        var tmp = this.getTmpVar();
+        this.source.push('if (typeof ' + tmp + ' === "function") { ' + tmp + ' = ' + tmp + '.call(context); }');
+        this.source.push('else if (' + tmp + ' === undef) { ' + tmp + ' = ' + 'noSuchValue.call(context, "' + name + '"); }');
       },
 
       op_lookupFromContext: function (name) {
-        var stack = this.expandStack();
-        if (name === JsCompiler.ROOT_CONTEXT) {
-          this.source.push(stack + ' = contextStack[0];');
-        } else if (name === JsCompiler.PARENT_CONTEXT) {
-          this.source.push(stack + ' = contextStack[contextStack.length - 2];');
-        } else if (name === JsCompiler.THIS_CONTEXT) {
-          this.source.push(stack + ' = context;');
-        } else if (name === JsCompiler.INDEX) {
-          this.source.push(stack + ' = index;');
-        } else if (name === JsCompiler.HAS_NEXT) {
-          this.source.push(stack + ' = hasNext;');
-        } else {
-          this.source.push(stack + ' = ' + this.nameLookup('context', name) + ';');
+        var tmp = this.newTmpVar();
+        switch (name) {
+          case JsCompiler.ROOT_CONTEXT:
+            this.source.push(tmp + ' = contextStack[0];')
+            break;
+          case JsCompiler.PARENT_CONTEXT:
+            this.source.push(tmp + ' = contextStack[contextStack.length - 2];');
+            break;
+          case JsCompiler.THIS_CONTEXT:
+            this.source.push(tmp + ' = context;');
+            break;
+          case JsCompiler.INDEX:
+            this.source.push(tmp + ' = index;');
+            break;
+          case JsCompiler.HAS_NEXT:
+            this.source.push(tmp + ' = hasNext;');
+            break;
+          default:
+            this.source.push(tmp + ' = ' + this.lookupProp('context', name) + ';');
         }
       },
 
       op_lookupFromStack: function (name) {
-        var stack = this.currentStack();
-        this.source.push(stack + ' = (' + stack + ' === null || ' + stack + ' === undef) ? ' + stack + ' : ' + this.nameLookup(stack, name) + ';');
+        var tmp = this.getTmpVar();
+        this.source.push(tmp + ' = (' + tmp + ' === null || ' + tmp + ' === undef) ? ' + tmp + ' : ' + this.lookupProp(tmp, name) + ';');
       }
     };
 
