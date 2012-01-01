@@ -1876,12 +1876,15 @@ var parser = (function(){
       var result = '';
       var i;
       var len;
-      var array = [];
+      var element;
+      var array;
       if (util.isArray(value)) {
         len = value.length;
+        array = [];
         for (i = 0; i < len; i++) {
-          contextStack.push(value[i]);
-          array[i] = fn(value[i], contextStack, i, i + 1 < len);
+          element = value[i];
+          contextStack.push(element);
+          array[i] = fn(element, contextStack, i, i + 1 < len);
           contextStack.pop();
         }
         result = array.join('');
