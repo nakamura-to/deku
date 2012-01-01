@@ -5,6 +5,7 @@ TestCase('compiler', {
     this.compiler = tempura.internal.compiler;
     this.templateContext = {
       escape: tempura.internal.util.escape,
+      isUndefined: tempura.internal.util.isUndefined,
       handleBlock: tempura.internal.core.handleBlock,
       handleInverse: tempura.internal.core.handleInverse,
       applyPipe: tempura.internal.core.applyPipe,

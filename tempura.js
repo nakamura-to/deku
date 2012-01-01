@@ -1457,8 +1457,6 @@ var parser = (function(){
 })();
 // END PARSER
 
-  var undef;
-
   var util = {
 
     toString: Object.prototype.toString,
@@ -1476,6 +1474,10 @@ var parser = (function(){
       }
     }()),
 
+    isUndefined: function (value) {
+      return value === void 0;
+    },
+
     extend: function (target) {
       var len = arguments.length;
       var i;
@@ -1488,7 +1490,7 @@ var parser = (function(){
         source = arguments[i];
         if (source != null) {
           for (key in source) {
-            if (target[key] === undef) {
+            if (util.isUndefined(target[key])) {
               target[key] = source[key];
             }
           }
@@ -1568,10 +1570,10 @@ var parser = (function(){
 
       pushOpcode: function (name, param1, param2) {
         this.opcodes.push(name);
-        if (param1 !== undef) {
+        if (!util.isUndefined(param1)) {
           this.opcodes.push(param1);
         }
-        if (param2 !== undef) {
+        if (!util.isUndefined(param2)) {
           this.opcodes.push(param2);
         }
       },
@@ -1702,8 +1704,8 @@ var parser = (function(){
         if (this.tmpVars.length > 0) {
           this.source[0] += ', ' + this.tmpVars.join(', ');
         }
-        this.source[0] += ', buffer = "", contextStack = [context], undef, ' +
-          'escape = this.escape, handleBlock = this.handleBlock, ' +
+        this.source[0] += ', buffer = "", contextStack = [context], ' +
+          'escape = this.escape, isUndefined = this.isUndefined, handleBlock = this.handleBlock, ' +
           'handleInverse = this.handleInverse, noSuchValue = this.noSuchValue, noSuchPipe = this.noSuchPipe, ' +
           'prePipeProcess = this.prePipeProcess, postPipeProcess = this.postPipeProcess, pipes = this.pipes, pipe';
         if (this.source[0]) {
@@ -1813,7 +1815,7 @@ var parser = (function(){
       op_evaluateValue: function (name) {
         var tmp = this.getTmpVar();
         this.source.push('if (typeof ' + tmp + ' === "function") { ' + tmp + ' = ' + tmp + '.call(context); }');
-        this.source.push('else if (' + tmp + ' === undef) { ' + tmp + ' = ' + 'noSuchValue.call(context, "' + name + '"); }');
+        this.source.push('else if (isUndefined(' + tmp + ')) { ' + tmp + ' = ' + 'noSuchValue.call(context, "' + name + '"); }');
       },
 
       op_lookupFromContext: function (name) {
@@ -1913,6 +1915,7 @@ var parser = (function(){
     prepare: function (source, options) {
       var templateContext = {
         escape: util.escape,
+        isUndefined: util.isUndefined,
         handleBlock: core.handleBlock,
         handleInverse: core.handleInverse,
         noSuchValue: options.noSuchValue,
