@@ -1,4 +1,4 @@
-// tempura.js 0.0.4-dev1
+// tempura.js 0.0.4-dev4
 // tempura is simple templating library in javascript.
 // For all details and documentation:
 // http://nakamura-to.github.com/tempura/
@@ -1542,6 +1542,7 @@ var parser = (function(){
       op_applyPrePipeProcess: 1,
       op_applyPostPipeProcess: 1,
       op_escape: 0,
+      op_escapeAndAppendContent: 1,
       op_evaluateValue: 1,
       op_lookupFromContext: 1,
       op_lookupFromStack: 1,
@@ -1556,9 +1557,13 @@ var parser = (function(){
         var statement;
         var i;
         var len = statements.length;
+        var isNextConsumed;
         for (i = 0; i < len; i++) {
           statement = statements[i];
-          this[statement.type](statement);
+          isNextConsumed = this[statement.type](statement, statements[i + 1]);
+          if (isNextConsumed) {
+            i++;
+          }
         }
         return this;
       },
@@ -1603,7 +1608,7 @@ var parser = (function(){
       type_comment: function () {
       },
 
-      type_mustache: function (node) {
+      type_mustache: function (node, next) {
         var pipes = node.pipes;
         var i;
         var len = pipes.length;
@@ -1617,9 +1622,15 @@ var parser = (function(){
         }
         this.pushOpcode('op_applyPostPipeProcess', path);
         if (node.escape) {
-          this.pushOpcode('op_escape');
+          if (next && next.type === 'type_content') {
+            this.pushOpcode('op_escapeAndAppendContent', next.content);
+            return true;
+          } else {
+            this.pushOpcode('op_escape');
+          }
         }
         this.pushOpcode('op_append');
+        return false;
       },
 
       type_name: function (node) {
@@ -1801,6 +1812,13 @@ var parser = (function(){
         this.source.push(tmp + ' = escape(' + tmp + ');');
       },
 
+      op_escapeAndAppendContent: function (content) {
+        var tmp = this.getTmpVar();
+        content = this.quoteString(content);
+        this.appendToBuffer('escape(' + tmp + ') + ' + content);
+        this.deleteTmpVar();
+      },
+
       op_append: function () {
         var tmp = this.getTmpVar();
         this.appendToBuffer(tmp);
@@ -1939,7 +1957,7 @@ var parser = (function(){
     return {
       name: 'tempura',
 
-      version: '0.0.4-beta1',
+      version: '0.0.4-dev4',
 
       settings: {
 
