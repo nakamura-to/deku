@@ -1481,12 +1481,12 @@ var parser = (function(){
       var i;
       var source;
       var key;
-      if (target === null || target === undef || len === 0) {
+      if (target == null) {
         return target;
       }
       for (i = 1; i < len; i++) {
         source = arguments[i];
-        if (source !== null && source !== undef) {
+        if (source != null) {
           for (key in source) {
             if (target[key] === undef) {
               target[key] = source[key];
@@ -1497,19 +1497,24 @@ var parser = (function(){
       return target;
     },
 
-    escape: function (html) {
-      html = (html === null || html === undef) ? '' : String(html);
-      return html.replace(/[&"'<>]/g, function (s) {
-        switch (s) {
-          case '&': return '&amp;';
-          case '"': return '&quot;';
-          case "'": return '&#39;';
-          case '<': return '&lt;';
-          case '>': return '&gt;';
-          default: return s;
+    escape: (function () {
+      var map = {
+        '&': '&amp;',
+        '"': '&quot;',
+        "'": '&#39;',
+        '<': '&lt;',
+        '>': '&gt;'
+      };
+      return function (value) {
+        if (value == null) {
+          return '';
         }
-      });
-    }
+        value = String(value);
+        return value.replace(/[&"'<>]/g, function (s) {
+          return map[s];
+        });
+      }
+    }())
 
   };
 
