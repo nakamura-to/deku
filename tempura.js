@@ -1,4 +1,4 @@
-// tempura.js 0.0.4-dev1
+// tempura.js 0.0.4-beta1
 // tempura is simple templating library in javascript.
 // For all details and documentation:
 // http://nakamura-to.github.com/tempura/
