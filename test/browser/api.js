@@ -141,6 +141,41 @@ TestCase('api', {
     var template = tempura.prepare(this.html('template'));
     var result = template.render({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);
+  },
+
+  'test processors: it should accept valueInfo': function () {
+    /*:DOC +=
+     <div id="template">
+     {{name|describe}} | {{age|describe}}
+     </div>
+     <div id="expected">
+     name=name, value=hoge, index=undefined, hasNext=undefined | name=age, value=20, index=undefined, hasNext=undefined
+     </div>
+     */
+    tempura.settings.processors.describe = function (value, valueName, index, hasNext) {
+      return 'name=' + valueName + ', value=' + value + ', index=' + index + ', hasNext=' + hasNext;
+    };
+    var template = tempura.prepare(this.html('template'));
+    var result = template.render({name: 'hoge', age: 20});
+    assertSame(this.html('expected'), result);
+  },
+
+  'test processors: it should accept valueInfo in array': function () {
+    /*:DOC +=
+     <div id="template">
+     {{#array}}{{$this|describe}}{{#$hasNext}} | {{/$hasNext}}{{/array}}
+     </div>
+     <div id="expected">
+     name=$this, value=aaa, index=0, hasNext=true | name=$this, value=bbb, index=1, hasNext=false
+     </div>
+     */
+    tempura.settings.processors.describe = function (value, valueName, index, hasNext) {
+      return 'name=' + valueName + ', value=' + value + ', index=' + index + ', hasNext=' + hasNext;
+    };
+    var template = tempura.prepare(this.html('template'));
+    var result = template.render({array:['aaa', 'bbb']});
+    assertSame(this.html('expected'), result);
   }
+
 
 });

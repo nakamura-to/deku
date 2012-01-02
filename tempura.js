@@ -1697,7 +1697,7 @@ var parser = (function(){
 
       generate: function (subPrograms, asObject) {
         var body;
-        this.source[0] = this.source[0] + 'var tmp, buffer = "", contextStack = [context], ' +
+        this.source[0] = this.source[0] + 'var tmp, buffer = "", contextStack = [context], index, hasNext, ' +
           'escape = this.escape, handleBlock = this.handleBlock, handleInverse = this.handleInverse, ' +
           'noSuchValue = this.noSuchValue, noSuchProcessor = this.noSuchProcessor, ' +
           'prePipeline = this.prePipeline, postPipeline = this.postPipeline, processors = this.processors, processor;' +
@@ -1741,18 +1741,18 @@ var parser = (function(){
 
       op_applyProcessor: function (processorName, valueName) {
         this.source.push('processor = ' + this.lookup('context', processorName) + ';');
-        this.source.push('if (typeof processor === "function") { tmp = processor.call(context, tmp); }');
+        this.source.push('if (typeof processor === "function") { tmp = processor.call(context, tmp, "' + valueName + '", index, hasNext); }');
         this.source.push('else { processor = ' + this.lookup('processors', processorName) + ';');
-        this.source.push('  if (typeof processor === "function") { tmp = processor.call(context, tmp); }');
+        this.source.push('  if (typeof processor === "function") { tmp = processor.call(context, tmp, "' + valueName + '", index, hasNext); }');
         this.source.push('  else { tmp = noSuchProcessor.call(context, "' + processorName + '", tmp, "' + valueName + '"); }}');
       },
 
       op_applyPrePipeline: function (valueName) {
-        this.source.push('tmp = prePipeline.call(context, tmp, "' + valueName + '");');
+        this.source.push('tmp = prePipeline.call(context, tmp, "' + valueName + '", index, hasNext);');
       },
 
       op_applyPostPipeline: function (valueName) {
-        this.source.push('tmp = postPipeline.call(context, tmp, "' + valueName + '");');
+        this.source.push('tmp = postPipeline.call(context, tmp, "' + valueName + '", index, hasNext);');
       },
 
       op_escape: function () {
@@ -1919,11 +1919,11 @@ var parser = (function(){
         processors: {
         },
 
-        prePipeline: function (value, valueName) {
+        prePipeline: function (value, valueName, index, hasNext) {
           return value;
         },
 
-        postPipeline: function (value, valueName) {
+        postPipeline: function (value, valueName, index, hasNext) {
           return value == null ? '': value;
         },
 
