@@ -1697,11 +1697,11 @@ var parser = (function(){
 
       generate: function (subPrograms, asObject) {
         var body;
-        this.source[0] += 'var tmp, buffer = "", contextStack = [context], ' +
+        this.source[0] = this.source[0] + 'var tmp, buffer = "", contextStack = [context], ' +
           'escape = this.escape, handleBlock = this.handleBlock, handleInverse = this.handleInverse, ' +
           'noSuchValue = this.noSuchValue, noSuchProcessor = this.noSuchProcessor, ' +
-          'prePipeline = this.prePipeline, postPipeline = this.postPipeline, processors = this.processors, processor';
-        this.source[0] += '\n\n' + subPrograms.join('\n\n') + '\n';
+          'prePipeline = this.prePipeline, postPipeline = this.postPipeline, processors = this.processors, processor' +
+          '\n\n' + subPrograms.join('\n\n') + '\n';
         this.source.push('return buffer;');
         body = '  ' + this.source.join('\n  ');
         if (asObject) {
@@ -1720,7 +1720,7 @@ var parser = (function(){
       generateSubProgram: function () {
         var body;
         var indent = '  ';
-        this.source[0] += 'var tmp, buffer = ""';
+        this.source[0] = this.source[0] + 'var tmp, buffer = ""';
         this.source.push('return buffer;');
         body = '  ' + indent + this.source.join('\n  ' + indent);
         return indent + 'function ' + this.name + ' (context, contextStack, index, hasNext) {\n' + body + '\n'+ indent + '}';
