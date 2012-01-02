@@ -96,9 +96,9 @@ TestCase('compiler', {
     assertSame(14, result.opcodes.length);
     assertSame('op_lookupFromContext', result.opcodes[0]);
     assertSame('aaa', result.opcodes[1]);
-    assertSame('op_lookupFromStack', result.opcodes[2]);
+    assertSame('op_lookupFromTmp', result.opcodes[2]);
     assertSame('bbb', result.opcodes[3]);
-    assertSame('op_lookupFromStack', result.opcodes[4]);
+    assertSame('op_lookupFromTmp', result.opcodes[4]);
     assertSame('ccc', result.opcodes[5]);
     assertSame('op_evaluateValue', result.opcodes[6]);
     assertSame('aaa.bbb.ccc', result.opcodes[7]);
@@ -124,7 +124,7 @@ TestCase('compiler', {
     assertSame('op_evaluateValue', env.opcodes[2]);
     assertSame('hoge', env.opcodes[3]);
     assertSame('op_invokeProgram', env.opcodes[4]);
-    assertSame(1, env.opcodes[5]);
+    assertSame('program1', env.opcodes[5]);
     assertSame('op_append', env.opcodes[6]);
 
     descendant = env.context.allEnvironments[1];
@@ -147,14 +147,14 @@ TestCase('compiler', {
     assertSame('op_evaluateValue', env.opcodes[2]);
     assertSame('hoge', env.opcodes[3]);
     assertSame('op_invokeProgram', env.opcodes[4]);
-    assertSame(1, env.opcodes[5]);
+    assertSame('program1', env.opcodes[5]);
     assertSame('op_append', env.opcodes[6]);
     assertSame('op_lookupFromContext', env.opcodes[7]);
     assertSame('foo', env.opcodes[8]);
     assertSame('op_evaluateValue', env.opcodes[9]);
     assertSame('foo', env.opcodes[10]);
     assertSame('op_invokeProgram', env.opcodes[11]);
-    assertSame(2, env.opcodes[12]);
+    assertSame('program2', env.opcodes[12]);
     assertSame('op_append', env.opcodes[13]);
 
     descendant = env.context.allEnvironments[1];
@@ -182,7 +182,7 @@ TestCase('compiler', {
     assertSame('op_evaluateValue', env.opcodes[2]);
     assertSame('hoge', env.opcodes[3]);
     assertSame('op_invokeProgram', env.opcodes[4]);
-    assertSame(1, env.opcodes[5]);
+    assertSame('program1', env.opcodes[5]);
     assertSame('op_append', env.opcodes[6]);
 
     descendant = env.context.allEnvironments[1];
@@ -194,7 +194,7 @@ TestCase('compiler', {
     assertSame('op_evaluateValue', descendant.opcodes[4]);
     assertSame('foo', descendant.opcodes[5]);
     assertSame('op_invokeProgram', descendant.opcodes[6]);
-    assertSame(2, descendant.opcodes[7]);
+    assertSame('program2', descendant.opcodes[7]);
     assertSame('op_append', descendant.opcodes[8]);
     assertSame('op_appendContent', descendant.opcodes[9]);
     assertSame('ghi', descendant.opcodes[10]);
@@ -217,7 +217,7 @@ TestCase('compiler', {
     assertSame('op_evaluateValue', env.opcodes[2]);
     assertSame('hoge', env.opcodes[3]);
     assertSame('op_invokeProgramInverse', env.opcodes[4]);
-    assertSame(1, env.opcodes[5]);
+    assertSame('program1', env.opcodes[5]);
     assertSame('op_append', env.opcodes[6]);
   },
 

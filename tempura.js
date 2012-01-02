@@ -1521,7 +1521,7 @@ var parser = (function(){
       op_escapeAndAppendContent: 1,
       op_evaluateValue: 1,
       op_lookupFromContext: 1,
-      op_lookupFromStack: 1,
+      op_lookupFromTmp: 1,
       op_invokeProgram: 1,
       op_invokeProgramInverse: 1
     };
@@ -1560,20 +1560,20 @@ var parser = (function(){
       },
 
       type_block : function (node) {
-        var env = this.compileProgram(node.program);
+        var environment = this.compileProgram(node.program);
         var name = node.name;
         this.type_name(name);
         this.pushOpcode('op_evaluateValue', name.path);
-        this.pushOpcode('op_invokeProgram', env.index);
+        this.pushOpcode('op_invokeProgram', environment.name);
         this.pushOpcode('op_append');
       },
 
       type_inverse: function (node) {
-        var env = this.compileProgram(node.program);
+        var environment = this.compileProgram(node.program);
         var name = node.name;
         this.type_name(name);
         this.pushOpcode('op_evaluateValue', name.path);
-        this.pushOpcode('op_invokeProgramInverse', env.index);
+        this.pushOpcode('op_invokeProgramInverse', environment.name);
         this.pushOpcode('op_append');
       },
 
@@ -1615,7 +1615,7 @@ var parser = (function(){
         var len = segments.length;
         this.pushOpcode('op_lookupFromContext', segments[0]);
         for (i = 1; i < len; i++) {
-          this.pushOpcode('op_lookupFromStack', segments[i]);
+          this.pushOpcode('op_lookupFromTmp', segments[i]);
         }
       }
     };
@@ -1623,6 +1623,7 @@ var parser = (function(){
     JsCompiler = function (environment) {
       this.environment = environment;
       this.name = environment.name;
+      this.allEnvironments = environment.context.allEnvironments;
       this.source = [''];
       this.tmpVarSlot = 0;
       this.tmpVars = [];
@@ -1636,8 +1637,8 @@ var parser = (function(){
 
     JsCompiler.prototype = {
 
-      lookupProp: function (contextVar, name) {
-        return contextVar + '["' + name + '"]';
+      lookup: function (contextName, propName) {
+        return contextName + '["' + propName + '"]';
       },
 
       appendToBuffer: function (s) {
@@ -1660,14 +1661,14 @@ var parser = (function(){
 
       compileDescendants: function () {
         var result = [];
-        var all = this.environment.context.allEnvironments;
+        var allEnvironments = this.allEnvironments;
         var i;
-        var len = all.length;
+        var len = allEnvironments.length;
         var environment;
         var jsc;
         var subProgram;
         for (i = 1; i < len; i++) {
-          environment = all[i];
+          environment = allEnvironments[i];
           jsc = new JsCompiler(environment);
           subProgram = jsc.compileSubProgram();
           result.push(subProgram);
@@ -1696,16 +1697,10 @@ var parser = (function(){
 
       generate: function (subPrograms, asObject) {
         var body;
-        if (this.tmpVars.length > 0) {
-          this.source[0] += ', ' + this.tmpVars.join(', ');
-        }
-        this.source[0] += ', buffer = "", contextStack = [context], ' +
-          'escape = this.escape, handleBlock = this.handleBlock, ' +
-          'handleInverse = this.handleInverse, noSuchValue = this.noSuchValue, noSuchProcessor = this.noSuchProcessor, ' +
+        this.source[0] += 'var tmp, buffer = "", contextStack = [context], ' +
+          'escape = this.escape, handleBlock = this.handleBlock, handleInverse = this.handleInverse, ' +
+          'noSuchValue = this.noSuchValue, noSuchProcessor = this.noSuchProcessor, ' +
           'prePipeline = this.prePipeline, postPipeline = this.postPipeline, processors = this.processors, processor';
-        if (this.source[0]) {
-          this.source[0] = 'var' + this.source[0].slice(1) + ';';
-        }
         this.source[0] += '\n\n' + subPrograms.join('\n\n') + '\n';
         this.source.push('return buffer;');
         body = '  ' + this.source.join('\n  ');
@@ -1723,15 +1718,9 @@ var parser = (function(){
       },
 
       generateSubProgram: function () {
-        var indent = '  ';
         var body;
-        if (this.tmpVars.length > 0) {
-          this.source[0] += ', ' + this.tmpVars.join(', ');
-        }
-        this.source[0] += ', buffer = ""';
-        if (this.source[0]) {
-          this.source[0] = 'var' + this.source[0].slice(1) + ';';
-        }
+        var indent = '  ';
+        this.source[0] += 'var tmp, buffer = ""';
         this.source.push('return buffer;');
         body = '  ' + indent + this.source.join('\n  ' + indent);
         return indent + 'function ' + this.name + ' (context, contextStack, index, hasNext) {\n' + body + '\n'+ indent + '}';
@@ -1742,71 +1731,41 @@ var parser = (function(){
         return this.generateSubProgram();
       },
 
-      newTmpVar: function () {
-        var name;
-        this.tmpVarSlot++;
-        name = 'tmp' + this.tmpVarSlot;
-        if (this.tmpVarSlot > this.tmpVars.length) {
-          this.tmpVars.push(name)
-        }
-        return name;
+      op_invokeProgram: function (name) {
+        this.source.push('tmp = handleBlock(context, contextStack, tmp, ' + name + ');');
       },
 
-      deleteTmpVar: function () {
-        this.tmpVarSlot--;
-      },
-
-      getTmpVar: function () {
-        return 'tmp' + this.tmpVarSlot;
-      },
-
-      op_invokeProgram: function (index) {
-        var tmp = this.getTmpVar();
-        var env = this.environment.context.allEnvironments[index];
-        this.source.push(tmp + ' = handleBlock(context, contextStack, ' + tmp + ', ' + env.name + ');');
-      },
-
-      op_invokeProgramInverse: function (index) {
-        var tmp = this.getTmpVar();
-        var env = this.environment.context.allEnvironments[index];
-        this.source.push(tmp + ' = handleInverse(context, contextStack, ' + tmp + ', ' + env.name + ');');
+      op_invokeProgramInverse: function (name) {
+        this.source.push('tmp = handleInverse(context, contextStack, tmp, ' + name + ');');
       },
 
       op_applyProcessor: function (processorName, valueName) {
-        var tmp = this.getTmpVar();
-        this.source.push('processor = ' + this.lookupProp('context', processorName) + ';');
-        this.source.push('if (typeof processor === "function") { ' + tmp + ' = processor.call(context, ' + tmp + '); }');
-        this.source.push('else { processor = ' + this.lookupProp('processors', processorName) + ';');
-        this.source.push('  if (typeof processor === "function") { ' + tmp + ' = processor.call(context, ' + tmp + '); }');
-        this.source.push('  else { ' + tmp + ' = noSuchProcessor.call(context, "' + processorName + '", ' + tmp + ', "' + valueName + '"); }}');
+        this.source.push('processor = ' + this.lookup('context', processorName) + ';');
+        this.source.push('if (typeof processor === "function") { tmp = processor.call(context, tmp); }');
+        this.source.push('else { processor = ' + this.lookup('processors', processorName) + ';');
+        this.source.push('  if (typeof processor === "function") { tmp = processor.call(context, tmp); }');
+        this.source.push('  else { tmp = noSuchProcessor.call(context, "' + processorName + '", tmp, "' + valueName + '"); }}');
       },
 
       op_applyPrePipeline: function (valueName) {
-        var tmp = this.getTmpVar();
-        this.source.push(tmp + ' = prePipeline(' + tmp + ', "' + valueName + '");');
+        this.source.push('tmp = prePipeline(tmp, "' + valueName + '");');
       },
 
       op_applyPostPipeline: function (valueName) {
-        var tmp = this.getTmpVar();
-        this.source.push(tmp + ' = postPipeline(' + tmp + ', "' + valueName + '");');
+        this.source.push('tmp = postPipeline(tmp, "' + valueName + '");');
       },
 
       op_escape: function () {
-        var tmp = this.getTmpVar();
-        this.source.push(tmp + ' = escape(' + tmp + ');');
+        this.source.push('tmp = escape(tmp);');
       },
 
       op_escapeAndAppendContent: function (content) {
-        var tmp = this.getTmpVar();
         content = this.quoteString(content);
-        this.appendToBuffer('escape(' + tmp + ') + ' + content);
-        this.deleteTmpVar();
+        this.appendToBuffer('escape(tmp) + ' + content);
       },
 
       op_append: function () {
-        var tmp = this.getTmpVar();
-        this.appendToBuffer(tmp);
-        this.deleteTmpVar();
+        this.appendToBuffer('tmp');
       },
 
       op_appendContent: function (content) {
@@ -1815,37 +1774,34 @@ var parser = (function(){
       },
 
       op_evaluateValue: function (name) {
-        var tmp = this.getTmpVar();
-        this.source.push('if (typeof ' + tmp + ' === "function") { ' + tmp + ' = ' + tmp + '.call(context); }');
-        this.source.push('else if (' + tmp + ' === void 0) { ' + tmp + ' = ' + 'noSuchValue.call(context, "' + name + '"); }');
+        this.source.push('if (typeof tmp === "function") { tmp = tmp.call(context); }');
+        this.source.push('else if (tmp === void 0) { tmp = noSuchValue.call(context, "' + name + '"); }');
       },
 
       op_lookupFromContext: function (name) {
-        var tmp = this.newTmpVar();
         switch (name) {
           case JsCompiler.ROOT_CONTEXT:
-            this.source.push(tmp + ' = contextStack[0];')
+            this.source.push('tmp = contextStack[0];')
             break;
           case JsCompiler.PARENT_CONTEXT:
-            this.source.push(tmp + ' = contextStack[contextStack.length - 2];');
+            this.source.push('tmp = contextStack[contextStack.length - 2];');
             break;
           case JsCompiler.THIS_CONTEXT:
-            this.source.push(tmp + ' = context;');
+            this.source.push('tmp = context;');
             break;
           case JsCompiler.INDEX:
-            this.source.push(tmp + ' = index;');
+            this.source.push('tmp = index;');
             break;
           case JsCompiler.HAS_NEXT:
-            this.source.push(tmp + ' = hasNext;');
+            this.source.push('tmp = hasNext;');
             break;
           default:
-            this.source.push(tmp + ' = ' + this.lookupProp('context', name) + ';');
+            this.source.push('tmp = ' + this.lookup('context', name) + ';');
         }
       },
 
-      op_lookupFromStack: function (name) {
-        var tmp = this.getTmpVar();
-        this.source.push(tmp + ' = (' + tmp + ' == null) ? ' + tmp + ' : ' + this.lookupProp(tmp, name) + ';');
+      op_lookupFromTmp: function (name) {
+        this.source.push('tmp = (tmp == null) ? tmp : ' + this.lookup('tmp', name) + ';');
       }
     };
 
