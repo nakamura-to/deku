@@ -1904,17 +1904,14 @@ var parser = (function(){
       var i;
       var len;
       var element;
-      var array;
       if (util.isArray(value)) {
         len = value.length;
-        array = [];
         for (i = 0; i < len; i++) {
           element = value[i];
           contextStack.push(element);
-          array[i] = fn(element, contextStack, i, i + 1 < len);
+          result += fn(element, contextStack, i, i + 1 < len);
           contextStack.pop();
         }
-        result = array.join('');
       } else if (util.isObject(value)) {
         contextStack.push(value);
         result = fn(value, contextStack);
