@@ -1,4 +1,4 @@
-// tempura.js 0.0.4-dev5
+// tempura.js 0.0.4-dev7
 // tempura is simple templating library in javascript.
 // For all details and documentation:
 // http://nakamura-to.github.com/tempura/
@@ -1665,10 +1665,19 @@ var parser = (function(){
         this.source.push('buffer += ' + s + ';');
       },
 
-      quoteString: function (s) {
-        s = s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
-        return '"' + s + '"'
-      },
+      quoteString: (function () {
+        var quoteMap =  {
+          '\\': '\\\\',
+            '"': '\\"',
+            '\n': '\\n',
+            '\r': '\\r'
+        };
+        return function (value) {
+          return '"' + value.replace(/[\\"\n\r]/g, function(s) {
+            return quoteMap[s];
+          }) + '"';
+        }
+      }()),
 
       compileDescendants: function () {
         var result = [];
@@ -1952,7 +1961,7 @@ var parser = (function(){
     return {
       name: 'tempura',
 
-      version: '0.0.4-dev5',
+      version: '0.0.4-dev7',
 
       settings: {
 
