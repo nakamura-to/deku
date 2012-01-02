@@ -26,9 +26,9 @@ TestCase('compiler', {
   },
 
   'test Compiler: name': function () {
-    var program = this.parser.parse('{{hoge}}');
-    var compiler = new this.compiler.Compiler(program);
-    var result = compiler.compile();
+    var ast = this.parser.parse('{{hoge}}');
+    var compiler = new this.compiler.Compiler();
+    var result = compiler.compile(ast);
 
     assertSame(10, result.opcodes.length);
     assertSame('op_lookupFromContext', result.opcodes[0]);
@@ -44,9 +44,9 @@ TestCase('compiler', {
   },
 
   'test Compiler: name: processor': function () {
-    var program = this.parser.parse('{{hoge|aaa}}');
-    var compiler = new this.compiler.Compiler(program);
-    var result = compiler.compile();
+    var ast = this.parser.parse('{{hoge|aaa}}');
+    var compiler = new this.compiler.Compiler();
+    var result = compiler.compile(ast);
 
     assertSame(13, result.opcodes.length);
     assertSame('op_lookupFromContext', result.opcodes[0]);
@@ -65,9 +65,9 @@ TestCase('compiler', {
   },
 
   'test Compiler: name: multi processors': function () {
-    var program = this.parser.parse('{{hoge|aaa|bbb}}');
-    var compiler = new this.compiler.Compiler(program);
-    var result = compiler.compile();
+    var ast = this.parser.parse('{{hoge|aaa|bbb}}');
+    var compiler = new this.compiler.Compiler();
+    var result = compiler.compile(ast);
 
     assertSame(16, result.opcodes.length);
     assertSame('op_lookupFromContext', result.opcodes[0]);
@@ -89,9 +89,9 @@ TestCase('compiler', {
   },
 
   'test Compiler: name: pathSegments': function () {
-    var program = this.parser.parse('{{aaa.bbb.ccc}}');
-    var compiler = new this.compiler.Compiler(program);
-    var result = compiler.compile();
+    var ast = this.parser.parse('{{aaa.bbb.ccc}}');
+    var compiler = new this.compiler.Compiler();
+    var result = compiler.compile(ast);
 
     assertSame(14, result.opcodes.length);
     assertSame('op_lookupFromContext', result.opcodes[0]);
@@ -111,9 +111,9 @@ TestCase('compiler', {
   },
 
   'test Compiler: block': function () {
-    var program = this.parser.parse('{{#hoge}}abc{{/hoge}}');
-    var compiler = new this.compiler.Compiler(program);
-    var env = compiler.compile();
+    var ast = this.parser.parse('{{#hoge}}abc{{/hoge}}');
+    var compiler = new this.compiler.Compiler();
+    var env = compiler.compile(ast);
     var descendant;
 
     assertSame(2, env.context.allEnvironments.length);
@@ -134,9 +134,9 @@ TestCase('compiler', {
   },
 
   'test Compiler: block: sibling': function () {
-    var program = this.parser.parse('{{#hoge}}abc{{/hoge}}{{#foo}}def{{/foo}}');
-    var compiler = new this.compiler.Compiler(program);
-    var env = compiler.compile();
+    var ast = this.parser.parse('{{#hoge}}abc{{/hoge}}{{#foo}}def{{/foo}}');
+    var compiler = new this.compiler.Compiler();
+    var env = compiler.compile(ast);
     var descendant;
 
     assertSame(3, env.context.allEnvironments.length);
@@ -169,9 +169,9 @@ TestCase('compiler', {
   },
 
   'test Compiler: block: nesting': function () {
-    var program = this.parser.parse('{{#hoge}}abc{{#foo}}def{{/foo}}ghi{{/hoge}}');
-    var compiler = new this.compiler.Compiler(program);
-    var env = compiler.compile();
+    var ast = this.parser.parse('{{#hoge}}abc{{#foo}}def{{/foo}}ghi{{/hoge}}');
+    var compiler = new this.compiler.Compiler();
+    var env = compiler.compile(ast);
     var descendant;
 
     assertSame(3, env.context.allEnvironments.length);
@@ -206,9 +206,9 @@ TestCase('compiler', {
   },
 
   'test Compiler: inverse': function () {
-    var program = this.parser.parse('{{^hoge}}abc{{/hoge}}');
-    var compiler = new this.compiler.Compiler(program);
-    var env = compiler.compile();
+    var ast = this.parser.parse('{{^hoge}}abc{{/hoge}}');
+    var compiler = new this.compiler.Compiler();
+    var env = compiler.compile(ast);
     assertSame(2, env.context.allEnvironments.length);
     assertSame(env, env.context.allEnvironments[0]);
     assertSame(7, env.opcodes.length);
@@ -222,25 +222,25 @@ TestCase('compiler', {
   },
 
   'test Compiler: content': function () {
-    var program = this.parser.parse('hoge');
-    var compiler = new this.compiler.Compiler(program);
-    var result = compiler.compile();
+    var ast = this.parser.parse('hoge');
+    var compiler = new this.compiler.Compiler();
+    var result = compiler.compile(ast);
     assertSame(2, result.opcodes.length);
     assertSame('op_appendContent', result.opcodes[0]);
     assertSame('hoge', result.opcodes[1]);
   },
 
   'test Compiler: comment': function () {
-    var program = this.parser.parse('{{! comment }}');
-    var compiler = new this.compiler.Compiler(program);
-    var result = compiler.compile();
+    var ast = this.parser.parse('{{! comment }}');
+    var compiler = new this.compiler.Compiler();
+    var result = compiler.compile(ast);
     assertSame(0, result.opcodes.length);
   },
 
   'test JsCompiler: string: spike': function () {
-    var program = this.parser.parse('{{#hoge}}{{test.aaa}}{{#foo}}bar{{/foo}}{{/hoge}}');
-    var compiler = new this.compiler.Compiler(program);
-    var environment = compiler.compile(program);
+    var ast = this.parser.parse('{{#hoge}}{{test.aaa}}{{#foo}}bar{{/foo}}{{/hoge}}');
+    var compiler = new this.compiler.Compiler();
+    var environment = compiler.compile(ast);
     var jsCompiler = new this.compiler.JsCompiler(environment);
     var result = jsCompiler.compile();
     assertNotUndefined(result);

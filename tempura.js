@@ -1501,8 +1501,7 @@ var parser = (function(){
     var Compiler;
     var JsCompiler;
 
-    Compiler = function (program, context) {
-      this.program = program;
+    Compiler = function (context) {
       this.opcodes = [];
       this.context = context || {
         allEnvironments: []
@@ -1529,8 +1528,8 @@ var parser = (function(){
 
     Compiler.prototype = {
 
-      compile: function () {
-        var statements = this.program.statements;
+      compile: function (program) {
+        var statements = program.statements;
         var statement;
         var i;
         var len = statements.length;
@@ -1546,8 +1545,8 @@ var parser = (function(){
       },
 
       compileProgram: function (program) {
-        var compiler = new Compiler(program, this.context);
-        return compiler.compile();
+        var compiler = new Compiler(this.context);
+        return compiler.compile(program);
       },
 
       pushOpcode: function (name, param1, param2) {
@@ -1862,9 +1861,9 @@ var parser = (function(){
     };
 
     var compile = function (source) {
-      var program = parse(source);
-      var compiler = new Compiler(program);
-      var environment = compiler.compile();
+      var ast = parse(source);
+      var compiler = new Compiler();
+      var environment = compiler.compile(ast);
       var jsCompiler = new JsCompiler(environment);
       return jsCompiler.compile(true);
     };
