@@ -1748,11 +1748,11 @@ var parser = (function(){
       },
 
       op_applyPrePipeline: function (valueName) {
-        this.source.push('tmp = prePipeline(tmp, "' + valueName + '");');
+        this.source.push('tmp = prePipeline.call(context, tmp, "' + valueName + '");');
       },
 
       op_applyPostPipeline: function (valueName) {
-        this.source.push('tmp = postPipeline(tmp, "' + valueName + '");');
+        this.source.push('tmp = postPipeline.call(context, tmp, "' + valueName + '");');
       },
 
       op_escape: function () {
