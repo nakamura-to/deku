@@ -31,18 +31,6 @@ TestCase('util', {
     assertFalse(this.util.isArray(undefined));
   },
 
-  'test isUndefined': function () {
-    assertTrue(this.util.isUndefined(undefined));
-    assertFalse(this.util.isUndefined([]));
-    assertFalse(this.util.isUndefined({}));
-    assertFalse(this.util.isUndefined(function () {}));
-    assertFalse(this.util.isUndefined('aaa'));
-    assertFalse(this.util.isUndefined(1));
-    assertFalse(this.util.isUndefined(new Date()));
-    assertFalse(this.util.isUndefined(/aaa/));
-    assertFalse(this.util.isUndefined(null));
-  },
-
   'test escape': function () {
     assertSame('&amp;', this.util.escape('&'));
     assertSame('&quot;', this.util.escape('"'));

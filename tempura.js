@@ -1,4 +1,4 @@
-// tempura.js 0.0.4-dev4
+// tempura.js 0.0.4-dev5
 // tempura is simple templating library in javascript.
 // For all details and documentation:
 // http://nakamura-to.github.com/tempura/
@@ -1474,10 +1474,6 @@ var parser = (function(){
       }
     }()),
 
-    isUndefined: function (value) {
-      return value === void 0;
-    },
-
     extend: function (target) {
       var len = arguments.length;
       var i;
@@ -1490,7 +1486,7 @@ var parser = (function(){
         source = arguments[i];
         if (source != null) {
           for (key in source) {
-            if (util.isUndefined(target[key])) {
+            if (target[key] === void 0) {
               target[key] = source[key];
             }
           }
@@ -1575,10 +1571,10 @@ var parser = (function(){
 
       pushOpcode: function (name, param1, param2) {
         this.opcodes.push(name);
-        if (!util.isUndefined(param1)) {
+        if (param1 !== void 0) {
           this.opcodes.push(param1);
         }
-        if (!util.isUndefined(param2)) {
+        if (param2 !== void 0) {
           this.opcodes.push(param2);
         }
       },
@@ -1716,7 +1712,7 @@ var parser = (function(){
           this.source[0] += ', ' + this.tmpVars.join(', ');
         }
         this.source[0] += ', buffer = "", contextStack = [context], ' +
-          'escape = this.escape, isUndefined = this.isUndefined, handleBlock = this.handleBlock, ' +
+          'escape = this.escape, handleBlock = this.handleBlock, ' +
           'handleInverse = this.handleInverse, noSuchValue = this.noSuchValue, noSuchPipe = this.noSuchPipe, ' +
           'prePipeProcess = this.prePipeProcess, postPipeProcess = this.postPipeProcess, pipes = this.pipes, pipe';
         if (this.source[0]) {
@@ -1833,7 +1829,7 @@ var parser = (function(){
       op_evaluateValue: function (name) {
         var tmp = this.getTmpVar();
         this.source.push('if (typeof ' + tmp + ' === "function") { ' + tmp + ' = ' + tmp + '.call(context); }');
-        this.source.push('else if (isUndefined(' + tmp + ')) { ' + tmp + ' = ' + 'noSuchValue.call(context, "' + name + '"); }');
+        this.source.push('else if (' + tmp + ' === void 0) { ' + tmp + ' = ' + 'noSuchValue.call(context, "' + name + '"); }');
       },
 
       op_lookupFromContext: function (name) {
@@ -1933,7 +1929,6 @@ var parser = (function(){
     prepare: function (source, options) {
       var templateContext = {
         escape: util.escape,
-        isUndefined: util.isUndefined,
         handleBlock: core.handleBlock,
         handleInverse: core.handleInverse,
         noSuchValue: options.noSuchValue,
@@ -1957,7 +1952,7 @@ var parser = (function(){
     return {
       name: 'tempura',
 
-      version: '0.0.4-dev4',
+      version: '0.0.4-dev5',
 
       settings: {
 
