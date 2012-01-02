@@ -75,6 +75,20 @@ TestCase('core', {
       return context.name;
     });
     assertSame('aaa', result);
+  },
+
+  'test escape': function () {
+    assertSame('&amp;', this.core.escape('&'));
+    assertSame('&quot;', this.core.escape('"'));
+    assertSame('&#39;', this.core.escape("'"));
+    assertSame('&lt;', this.core.escape('<'));
+    assertSame('&gt;', this.core.escape('>'));
+    assertSame('a&amp;b&quot;c&#39;d&lt;e&gt;f', this.core.escape('a&b"c\'d<e>f'));
+    assertSame('abc', this.core.escape('abc'));
+    assertSame('123', this.core.escape(123));
+    assertSame('', this.core.escape(null));
+    assertSame('', this.core.escape(undefined));
   }
+
 
 });

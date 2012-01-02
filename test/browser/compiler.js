@@ -4,7 +4,7 @@ TestCase('compiler', {
     this.parser = tempura.internal.parser;
     this.compiler = tempura.internal.compiler;
     this.templateContext = {
-      escape: tempura.internal.util.escape,
+      escape: tempura.internal.core.escape,
       isUndefined: tempura.internal.util.isUndefined,
       handleBlock: tempura.internal.core.handleBlock,
       handleInverse: tempura.internal.core.handleInverse,

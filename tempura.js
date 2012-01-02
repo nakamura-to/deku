@@ -1493,26 +1493,7 @@ var parser = (function(){
         }
       }
       return target;
-    },
-
-    escape: (function () {
-      var map = {
-        '&': '&amp;',
-        '"': '&quot;',
-        "'": '&#39;',
-        '<': '&lt;',
-        '>': '&gt;'
-      };
-      return function (value) {
-        if (value == null) {
-          return '';
-        }
-        value = String(value);
-        return value.replace(/[&"'<>]/g, function (s) {
-          return map[s];
-        });
-      }
-    }())
+    }
 
   };
 
@@ -1638,7 +1619,6 @@ var parser = (function(){
           this.pushOpcode('op_lookupFromStack', segments[i]);
         }
       }
-
     };
 
     JsCompiler = function (environment) {
@@ -1899,6 +1879,25 @@ var parser = (function(){
 
   var core = {
 
+    escape: (function () {
+      var map = {
+        '&': '&amp;',
+        '"': '&quot;',
+        "'": '&#39;',
+        '<': '&lt;',
+        '>': '&gt;'
+      };
+      return function (value) {
+        if (value == null) {
+          return '';
+        }
+        value = String(value);
+        return value.replace(/[&"'<>]/g, function (s) {
+          return map[s];
+        });
+      }
+    }()),
+
     handleBlock: function (context, contextStack, value, fn) {
       var result = '';
       var i;
@@ -1934,7 +1933,7 @@ var parser = (function(){
 
     prepare: function (source, options) {
       var templateContext = {
-        escape: util.escape,
+        escape: core.escape,
         handleBlock: core.handleBlock,
         handleInverse: core.handleInverse,
         noSuchValue: options.noSuchValue,

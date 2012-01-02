@@ -29,19 +29,6 @@ TestCase('util', {
     assertFalse(this.util.isArray(/aaa/));
     assertFalse(this.util.isArray(null));
     assertFalse(this.util.isArray(undefined));
-  },
-
-  'test escape': function () {
-    assertSame('&amp;', this.util.escape('&'));
-    assertSame('&quot;', this.util.escape('"'));
-    assertSame('&#39;', this.util.escape("'"));
-    assertSame('&lt;', this.util.escape('<'));
-    assertSame('&gt;', this.util.escape('>'));
-    assertSame('a&amp;b&quot;c&#39;d&lt;e&gt;f', this.util.escape('a&b"c\'d<e>f'));
-    assertSame('abc', this.util.escape('abc'));
-    assertSame('123', this.util.escape(123));
-    assertSame('', this.util.escape(null));
-    assertSame('', this.util.escape(undefined));
   }
 
 });
