@@ -1646,15 +1646,15 @@ var parser = (function(){
       },
 
       quoteString: (function () {
-        var quoteMap =  {
+        var map =  {
           '\\': '\\\\',
-            '"': '\\"',
-            '\n': '\\n',
-            '\r': '\\r'
+          '"': '\\"',
+          '\n': '\\n',
+          '\r': '\\r'
         };
         return function (value) {
           return '"' + value.replace(/[\\"\n\r]/g, function(s) {
-            return quoteMap[s];
+            return map[s];
           }) + '"';
         }
       }()),
