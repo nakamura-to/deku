@@ -24,7 +24,7 @@ TestCase('api', {
     assertSame(this.html('expected'), result);
   },
 
-  'test prepare and render: it should use a "pipes" option prior to a "pipes" setting': function () {
+  'test prepare and render: it should use a "processors" option prior to a "processors" setting': function () {
     /*:DOC +=
      <div id="template">
      {{name|enclose}} is {{age}} years old.
@@ -33,11 +33,11 @@ TestCase('api', {
      [hoge] is 20 years old.
      </div>
      */
-    tempura.settings.pipes.enclose = function (value) {
+    tempura.settings.processors.enclose = function (value) {
       return '%' + value + '%';
     };
     var options = {
-      pipes: {
+      processors: {
         enclose: function (value) {
           return '[' + value + ']';
         }
@@ -48,7 +48,7 @@ TestCase('api', {
     assertSame(this.html('expected'), result);
   },
 
-  'test prepare and render: it should use a "pipes" setting, if a "pipes" option does not exist': function () {
+  'test prepare and render: it should use a "processors" setting, if a "processors" option does not exist': function () {
     /*:DOC +=
      <div id="template">
      {{name|enclose}} is {{age}} years old.
@@ -57,7 +57,7 @@ TestCase('api', {
      [hoge] is 20 years old.
      </div>
      */
-    tempura.settings.pipes.enclose = function (value) {
+    tempura.settings.processors.enclose = function (value) {
       return '[' + value + ']';
     };
     var template = tempura.prepare(this.html('template'));
@@ -104,7 +104,7 @@ TestCase('api', {
     assertSame(this.html('expected'), result);
   },
 
-  'test prepare and render: it should use a "noSuchPipe" option prior to a "noSuchPipe" setting': function () {
+  'test prepare and render: it should use a "noSuchProcessor" option prior to a "noSuchProcessor" setting': function () {
     /*:DOC +=
      <div id="template">
      {{name|foo}} is {{age}} years old.
@@ -113,11 +113,11 @@ TestCase('api', {
      [foo,hoge,name] is 20 years old.
      </div>
      */
-    tempura.settings.noSuchPipe = function (pipeName, value, valueName) {
+    tempura.settings.noSuchProcessor = function (pipeName, value, valueName) {
       return undefined;
     }
     var options = {
-      noSuchPipe: function (pipeName, value, valueName) {
+      noSuchProcessor: function (pipeName, value, valueName) {
         return '[' + pipeName + ',' + value + ',' + valueName + ']';
       }
     };
@@ -126,7 +126,7 @@ TestCase('api', {
     assertSame(this.html('expected'), result);
   },
 
-  'test prepare and render: it should use a "noSuchPipe" setting, if a "noSuchPipe" option does not exitst': function () {
+  'test prepare and render: it should use a "noSuchProcessor" setting, if a "noSuchProcessor" option does not exitst': function () {
     /*:DOC +=
      <div id="template">
      {{name|foo}} is {{age}} years old.
@@ -135,8 +135,8 @@ TestCase('api', {
      [foo,hoge,name] is 20 years old.
      </div>
      */
-    tempura.settings.noSuchPipe = function (pipeName, value, valueName) {
-      return '[' + pipeName + ',' + value + ',' + valueName + ']';
+    tempura.settings.noSuchProcessor = function (processorName, value, valueName) {
+      return '[' + processorName + ',' + value + ',' + valueName + ']';
     };
     var template = tempura.prepare(this.html('template'));
     var result = template.render({name: 'hoge', age: 20});

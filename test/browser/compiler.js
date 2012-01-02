@@ -12,13 +12,13 @@ TestCase('compiler', {
       noSuchValue: function () {
         return undefined;
       },
-      noSuchPipe: function (name, value) {
+      noSuchProcessor: function (name, value) {
         return value;
       },
-      prePipeProcess: function (value, name) {
+      prePipeline: function (value, name) {
         return value;
       },
-      postPipeProcess: function (value, name) {
+      postPipeline: function (value, name) {
         return value;
       },
       pipes: {}
@@ -35,15 +35,15 @@ TestCase('compiler', {
     assertSame('hoge', result.opcodes[1]);
     assertSame('op_evaluateValue', result.opcodes[2]);
     assertSame('hoge', result.opcodes[3]);
-    assertSame('op_applyPrePipeProcess', result.opcodes[4]);
+    assertSame('op_applyPrePipeline', result.opcodes[4]);
     assertSame('hoge', result.opcodes[5]);
-    assertSame('op_applyPostPipeProcess', result.opcodes[6]);
+    assertSame('op_applyPostPipeline', result.opcodes[6]);
     assertSame('hoge', result.opcodes[7]);
     assertSame('op_escape', result.opcodes[8]);
     assertSame('op_append', result.opcodes[9]);
   },
 
-  'test Compiler: name: pipe': function () {
+  'test Compiler: name: processor': function () {
     var program = this.parser.parse('{{hoge|aaa}}');
     var compiler = new this.compiler.Compiler(program);
     var result = compiler.compile();
@@ -53,18 +53,18 @@ TestCase('compiler', {
     assertSame('hoge', result.opcodes[1]);
     assertSame('op_evaluateValue', result.opcodes[2]);
     assertSame('hoge', result.opcodes[3]);
-    assertSame('op_applyPrePipeProcess', result.opcodes[4]);
+    assertSame('op_applyPrePipeline', result.opcodes[4]);
     assertSame('hoge', result.opcodes[5]);
-    assertSame('op_applyPipe', result.opcodes[6]);
+    assertSame('op_applyProcessor', result.opcodes[6]);
     assertSame('aaa', result.opcodes[7]);
     assertSame('hoge', result.opcodes[8]);
-    assertSame('op_applyPostPipeProcess', result.opcodes[9]);
+    assertSame('op_applyPostPipeline', result.opcodes[9]);
     assertSame('hoge', result.opcodes[10]);
     assertSame('op_escape', result.opcodes[11]);
     assertSame('op_append', result.opcodes[12]);
   },
 
-  'test Compiler: name: multi pipes': function () {
+  'test Compiler: name: multi processors': function () {
     var program = this.parser.parse('{{hoge|aaa|bbb}}');
     var compiler = new this.compiler.Compiler(program);
     var result = compiler.compile();
@@ -74,15 +74,15 @@ TestCase('compiler', {
     assertSame('hoge', result.opcodes[1]);
     assertSame('op_evaluateValue', result.opcodes[2]);
     assertSame('hoge', result.opcodes[3]);
-    assertSame('op_applyPrePipeProcess', result.opcodes[4]);
+    assertSame('op_applyPrePipeline', result.opcodes[4]);
     assertSame('hoge', result.opcodes[5]);
-    assertSame('op_applyPipe', result.opcodes[6]);
+    assertSame('op_applyProcessor', result.opcodes[6]);
     assertSame('aaa', result.opcodes[7]);
     assertSame('hoge', result.opcodes[8]);
-    assertSame('op_applyPipe', result.opcodes[9]);
+    assertSame('op_applyProcessor', result.opcodes[9]);
     assertSame('bbb', result.opcodes[10]);
     assertSame('hoge', result.opcodes[11]);
-    assertSame('op_applyPostPipeProcess', result.opcodes[12]);
+    assertSame('op_applyPostPipeline', result.opcodes[12]);
     assertSame('hoge', result.opcodes[13]);
     assertSame('op_escape', result.opcodes[14]);
     assertSame('op_append', result.opcodes[15]);
@@ -102,9 +102,9 @@ TestCase('compiler', {
     assertSame('ccc', result.opcodes[5]);
     assertSame('op_evaluateValue', result.opcodes[6]);
     assertSame('aaa.bbb.ccc', result.opcodes[7]);
-    assertSame('op_applyPrePipeProcess', result.opcodes[8]);
+    assertSame('op_applyPrePipeline', result.opcodes[8]);
     assertSame('aaa.bbb.ccc', result.opcodes[9]);
-    assertSame('op_applyPostPipeProcess', result.opcodes[10]);
+    assertSame('op_applyPostPipeline', result.opcodes[10]);
     assertSame('aaa.bbb.ccc', result.opcodes[11]);
     assertSame('op_escape', result.opcodes[12]);
     assertSame('op_append', result.opcodes[13]);

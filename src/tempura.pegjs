@@ -62,32 +62,32 @@ Inverse
     }
 
 Mustache
-  = '{{' _ name:Path pipes:Pipes _ '}}' {
+  = '{{' _ name:Path processors:Pipeline _ '}}' {
       return {
         type: 'type_mustache',
         name: name,
-        pipes: pipes,
+        processors: processors,
         escape: true
       };
     }
-  / '{{{' _ name:Path pipes:Pipes _ '}}}' {
+  / '{{{' _ name:Path processors:Pipeline _ '}}}' {
       return {
         type: 'type_mustache',
         name: name,
-        pipes: pipes,
+        processors: processors,
         escape: false
       };
     }
 
-Pipes
+Pipeline
   = pipes:(_ '|' _ Id)* {
-      var result = [];
+      var processors = [];
       var i;
       var len = pipes.length;
       for (i = 0; i < len; i++) {
-        result.push(pipes[i][3]);
+        processors.push(pipes[i][3]);
       }
-      return result;
+      return processors;
     }
   / {
       return [];

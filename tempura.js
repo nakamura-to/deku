@@ -25,7 +25,7 @@ var parser = (function(){
         "Inverse": parse_Inverse,
         "Mustache": parse_Mustache,
         "Path": parse_Path,
-        "Pipes": parse_Pipes,
+        "Pipeline": parse_Pipeline,
         "Program": parse_Program,
         "Statement": parse_Statement,
         "Whitespace": parse_Whitespace,
@@ -534,7 +534,7 @@ var parser = (function(){
           if (result14 !== null) {
             var result15 = parse_Path();
             if (result15 !== null) {
-              var result16 = parse_Pipes();
+              var result16 = parse_Pipeline();
               if (result16 !== null) {
                 var result17 = parse__();
                 if (result17 !== null) {
@@ -574,11 +574,11 @@ var parser = (function(){
           pos = savedPos3;
         }
         var result12 = result11 !== null
-          ? (function(name, pipes) {
+          ? (function(name, processors) {
                 return {
                   type: 'type_mustache',
                   name: name,
-                  pipes: pipes,
+                  processors: processors,
                   escape: true
                 };
               })(result11[2], result11[3])
@@ -608,7 +608,7 @@ var parser = (function(){
             if (result5 !== null) {
               var result6 = parse_Path();
               if (result6 !== null) {
-                var result7 = parse_Pipes();
+                var result7 = parse_Pipeline();
                 if (result7 !== null) {
                   var result8 = parse__();
                   if (result8 !== null) {
@@ -648,11 +648,11 @@ var parser = (function(){
             pos = savedPos1;
           }
           var result3 = result2 !== null
-            ? (function(name, pipes) {
+            ? (function(name, processors) {
                   return {
                     type: 'type_mustache',
                     name: name,
-                    pipes: pipes,
+                    processors: processors,
                     escape: false
                   };
                 })(result2[2], result2[3])
@@ -679,8 +679,8 @@ var parser = (function(){
         return result0;
       }
       
-      function parse_Pipes() {
-        var cacheKey = 'Pipes@' + pos;
+      function parse_Pipeline() {
+        var cacheKey = 'Pipeline@' + pos;
         var cachedResult = cache[cacheKey];
         if (cachedResult) {
           pos = cachedResult.nextPos;
@@ -763,13 +763,13 @@ var parser = (function(){
         }
         var result6 = result5 !== null
           ? (function(pipes) {
-                var result = [];
+                var processors = [];
                 var i;
                 var len = pipes.length;
                 for (i = 0; i < len; i++) {
-                  result.push(pipes[i][3]);
+                  processors.push(pipes[i][3]);
                 }
-                return result;
+                return processors;
               })(result5)
           : null;
         if (result6 !== null) {
@@ -1515,9 +1515,9 @@ var parser = (function(){
     Compiler.OPCODE_PARAM_LENGTH_MAP = {
       op_append: 0,
       op_appendContent: 1,
-      op_applyPipe: 2,
-      op_applyPrePipeProcess: 1,
-      op_applyPostPipeProcess: 1,
+      op_applyProcessor: 2,
+      op_applyPrePipeline: 1,
+      op_applyPostPipeline: 1,
       op_escape: 0,
       op_escapeAndAppendContent: 1,
       op_evaluateValue: 1,
@@ -1586,18 +1586,18 @@ var parser = (function(){
       },
 
       type_mustache: function (node, next) {
-        var pipes = node.pipes;
+        var processors = node.processors;
         var i;
-        var len = pipes.length;
+        var len = processors.length;
         var name = node.name;
         var path = name.path;
         this.type_name(name);
         this.pushOpcode('op_evaluateValue', path);
-        this.pushOpcode('op_applyPrePipeProcess', path);
+        this.pushOpcode('op_applyPrePipeline', path);
         for (i = 0; i < len; i++) {
-          this.pushOpcode('op_applyPipe', pipes[i], path);
+          this.pushOpcode('op_applyProcessor', processors[i], path);
         }
-        this.pushOpcode('op_applyPostPipeProcess', path);
+        this.pushOpcode('op_applyPostPipeline', path);
         if (node.escape) {
           if (next && next.type === 'type_content') {
             this.pushOpcode('op_escapeAndAppendContent', next.content);
@@ -1702,8 +1702,8 @@ var parser = (function(){
         }
         this.source[0] += ', buffer = "", contextStack = [context], ' +
           'escape = this.escape, handleBlock = this.handleBlock, ' +
-          'handleInverse = this.handleInverse, noSuchValue = this.noSuchValue, noSuchPipe = this.noSuchPipe, ' +
-          'prePipeProcess = this.prePipeProcess, postPipeProcess = this.postPipeProcess, pipes = this.pipes, pipe';
+          'handleInverse = this.handleInverse, noSuchValue = this.noSuchValue, noSuchProcessor = this.noSuchProcessor, ' +
+          'prePipeline = this.prePipeline, postPipeline = this.postPipeline, processors = this.processors, processor';
         if (this.source[0]) {
           this.source[0] = 'var' + this.source[0].slice(1) + ';';
         }
@@ -1773,23 +1773,23 @@ var parser = (function(){
         this.source.push(tmp + ' = handleInverse(context, contextStack, ' + tmp + ', ' + env.name + ');');
       },
 
-      op_applyPipe: function (pipeName, valueName) {
+      op_applyProcessor: function (processorName, valueName) {
         var tmp = this.getTmpVar();
-        this.source.push('pipe = ' + this.lookupProp('context', pipeName) + ';');
-        this.source.push('if (typeof pipe === "function") { ' + tmp + ' = pipe.call(context, ' + tmp + '); }');
-        this.source.push('else { pipe = ' + this.lookupProp('pipes', pipeName) + ';');
-        this.source.push('  if (typeof pipe === "function") { ' + tmp + ' = pipe.call(context, ' + tmp + '); }');
-        this.source.push('  else { ' + tmp + ' = noSuchPipe.call(context, "' + pipeName + '", ' + tmp + ', "' + valueName + '"); }}');
+        this.source.push('processor = ' + this.lookupProp('context', processorName) + ';');
+        this.source.push('if (typeof processor === "function") { ' + tmp + ' = processor.call(context, ' + tmp + '); }');
+        this.source.push('else { processor = ' + this.lookupProp('processors', processorName) + ';');
+        this.source.push('  if (typeof processor === "function") { ' + tmp + ' = processor.call(context, ' + tmp + '); }');
+        this.source.push('  else { ' + tmp + ' = noSuchProcessor.call(context, "' + processorName + '", ' + tmp + ', "' + valueName + '"); }}');
       },
 
-      op_applyPrePipeProcess: function (valueName) {
+      op_applyPrePipeline: function (valueName) {
         var tmp = this.getTmpVar();
-        this.source.push(tmp + ' = prePipeProcess(' + tmp + ', "' + valueName + '");');
+        this.source.push(tmp + ' = prePipeline(' + tmp + ', "' + valueName + '");');
       },
 
-      op_applyPostPipeProcess: function (valueName) {
+      op_applyPostPipeline: function (valueName) {
         var tmp = this.getTmpVar();
-        this.source.push(tmp + ' = postPipeProcess(' + tmp + ', "' + valueName + '");');
+        this.source.push(tmp + ' = postPipeline(' + tmp + ', "' + valueName + '");');
       },
 
       op_escape: function () {
@@ -1937,10 +1937,10 @@ var parser = (function(){
         handleBlock: core.handleBlock,
         handleInverse: core.handleInverse,
         noSuchValue: options.noSuchValue,
-        noSuchPipe: options.noSuchPipe,
-        prePipeProcess: options.prePipeProcess,
-        postPipeProcess: options.postPipeProcess,
-        pipes: options.pipes
+        noSuchProcessor: options.noSuchProcessor,
+        prePipeline: options.prePipeline,
+        postPipeline: options.postPipeline,
+        processors: options.processors
       };
       var template = compiler.compile(source);
       return {
@@ -1961,14 +1961,14 @@ var parser = (function(){
 
       settings: {
 
-        pipes: {
+        processors: {
         },
 
-        prePipeProcess: function (value, valueName) {
+        prePipeline: function (value, valueName) {
           return value;
         },
 
-        postPipeProcess: function (value, valueName) {
+        postPipeline: function (value, valueName) {
           return value == null ? '': value;
         },
 
@@ -1976,7 +1976,7 @@ var parser = (function(){
           return;
         },
 
-        noSuchPipe: function (pipeName, value, valueName) {
+        noSuchProcessor: function (processorName, value, valueName) {
           return value;
         }
       },
@@ -1985,21 +1985,21 @@ var parser = (function(){
         var opts = {};
         options = options || {};
         opts.noSuchValue = options.noSuchValue || this.settings.noSuchValue;
-        opts.noSuchPipe = options.noSuchPipe || this.settings.noSuchPipe;
-        opts.prePipeProcess = options.prePipeProcess || this.settings.prePipeProcess;
-        opts.postPipeProcess = options.postPipeProcess || this.settings.postPipeProcess;
-        opts.pipes = util.extend({}, options.pipes, this.settings.pipes);
+        opts.noSuchProcessor = options.noSuchProcessor || this.settings.noSuchProcessor;
+        opts.prePipeline = options.prePipeline || this.settings.prePipeline;
+        opts.postPipeline = options.postPipeline || this.settings.postPipeline;
+        opts.processors = util.extend({}, options.processors, this.settings.processors);
         if (typeof opts.noSuchValue !== 'function') {
           throw new Error('the "noSuchValue" option or setting must be function.');
         }
-        if (typeof opts.noSuchPipe !== 'function') {
-          throw new Error('the "noSuchPipe" option or setting must be function.');
+        if (typeof opts.noSuchProcessor !== 'function') {
+          throw new Error('the "noSuchProcessor" option or setting must be function.');
         }
-        if (typeof opts.prePipeProcess !== 'function') {
-          throw new Error('the "prePipeProcess" option or setting must be function.');
+        if (typeof opts.prePipeline !== 'function') {
+          throw new Error('the "prePipeline" option or setting must be function.');
         }
-        if (typeof opts.postPipeProcess !== 'function') {
-          throw new Error('the "postPipeProcess" option or setting must be function.');
+        if (typeof opts.postPipeline !== 'function') {
+          throw new Error('the "postPipeline" option or setting must be function.');
         }
         return core.prepare(source, opts);
       },
