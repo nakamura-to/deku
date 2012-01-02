@@ -1512,7 +1512,7 @@ var parser = (function(){
       this.context.allEnvironments.push(this);
     };
 
-    Compiler.OPCODE_PARAMLENGTH_MAP = {
+    Compiler.OPCODE_PARAM_LENGTH_MAP = {
       op_append: 0,
       op_appendContent: 1,
       op_applyPipe: 2,
@@ -1687,7 +1687,7 @@ var parser = (function(){
         for (i = 0; i < len;) {
           opcode = opcodes[i];
           params = [];
-          paramLen = Compiler.OPCODE_PARAMLENGTH_MAP[opcode];
+          paramLen = Compiler.OPCODE_PARAM_LENGTH_MAP[opcode];
           for (i++, j = 0; i < len && j < paramLen; i++, j++) {
             params.push(opcodes[i]);
           }
