@@ -1809,7 +1809,7 @@ var parser = (function(){
       try {
         return parser.parse(template);
       } catch (e) {
-        if (e.name == 'SyntaxError') {
+        if (e.name === 'SyntaxError') {
           throw new Error(e.message + ' line=' + e.line + '. column=' + e.column + '.\n' + template);
         }
         throw e;
