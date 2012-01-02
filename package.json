@@ -13,5 +13,5 @@
     },
     "repository"    : {"type": "git", "url": "git@github.com:nakamura-to/tempura.git"},
     "main"          : "tempura.js",
-    "version"       : "0.0.4-dev10"
+    "version"       : "0.0.4-dev11"
 }
