@@ -1873,7 +1873,7 @@ var parser = (function(){
       op_invokePartial: function (partialName, context) {
         this.source.push('partial = ' + this.lookup('partials', partialName) + ';');
         this.source.push('if (partial == null) { tmp = noSuchPartial("' + partialName + '"); }');
-        this.source.push('else { tmp = handlePartial(context, contextStack, tmp, partial, templateContext); }');
+        this.source.push('else { tmp = handlePartial(context, contextStack, tmp, partial, "' + partialName + '", templateContext); }');
       },
 
       op_applyProcessor: function (processorName, valueName) {
@@ -2023,8 +2023,12 @@ var parser = (function(){
       return result;
     },
 
-    handlePartial: function (context, contextStack, value, partial, templateContext) {
-      var template = compiler.compile(partial);
+    handlePartial: function (context, contextStack, value, partial, partialName, templateContext) {
+      var template = partial;
+      if (typeof partial !== 'function') {
+        template = compiler.compile(partial);
+        templateContext.partials[partialName] = template;
+      }
       return templateContext.handleBlock(context, contextStack, value, function (context, contextStack, index, hasNext) {
         return template.call(templateContext, context, contextStack, index ,hasNext);
       });
