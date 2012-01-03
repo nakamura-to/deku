@@ -2082,23 +2082,22 @@ var parser = (function(){
       },
 
       noSuchValue: function (valueName) {
-        return;
+        throw new Error('The value "' + valueName + '" is not found.');
       },
 
       noSuchPartial: function (partialName) {
-        return;
+        throw new Error('The partial "' + partialName + '" is not found.');
       },
 
       noSuchProcessor: function (processorName, value, valueName) {
-        return value;
+        throw new Error('The processor "' + processorName + '" for the value "' + valueName + '" is not found.');
       }
-
     },
 
     prepare: function (source, options) {
       var opts = {};
       if (source == null) {
-        throw new Error('the "source" must be string.');
+        throw new Error('The argument "source" must be string.');
       }
       options = options || {};
       opts.noSuchValue = options.noSuchValue || this.settings.noSuchValue;
@@ -2109,19 +2108,19 @@ var parser = (function(){
       opts.partials = util.extend({}, options.partials, this.settings.partials)
       opts.processors = util.extend({}, options.processors, this.settings.processors);
       if (typeof opts.noSuchValue !== 'function') {
-        throw new Error('the "noSuchValue" option or setting must be function.');
+        throw new Error('The "noSuchValue" option or setting must be function.');
       }
       if (typeof opts.noSuchPartial !== 'function') {
-        throw new Error('the "noSuchPartial" option or setting must be function.');
+        throw new Error('The "noSuchPartial" option or setting must be function.');
       }
       if (typeof opts.noSuchProcessor !== 'function') {
-        throw new Error('the "noSuchProcessor" option or setting must be function.');
+        throw new Error('The "noSuchProcessor" option or setting must be function.');
       }
       if (typeof opts.prePipeline !== 'function') {
-        throw new Error('the "prePipeline" option or setting must be function.');
+        throw new Error('The "prePipeline" option or setting must be function.');
       }
       if (typeof opts.postPipeline !== 'function') {
-        throw new Error('the "postPipeline" option or setting must be function.');
+        throw new Error('The "postPipeline" option or setting must be function.');
       }
       return core.prepare(source, opts);
     },
