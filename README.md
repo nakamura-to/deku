@@ -93,7 +93,7 @@ console.log(result); // [Joe!]
 You can define global pipe functions.
 
 ```js
-tempura.settings.pipes = {
+tempura.settings.processors = {
     yeah: function (value) {
         return value + '!';
     },
@@ -165,8 +165,8 @@ tempura.settings.noSuchValue = function (name) {
     console.warn('the value "' + name + '" is missing');
     return undefined;
 };
-tempura.settings.noSuchPipe = function (name, value) {
-    console.warn('the pipe "' + name + '" is missing');
+tempura.settings.noSuchProcessor = function (name, value) {
+    console.warn('the processor "' + name + '" is missing');
     return value;
 };
 
@@ -184,7 +184,7 @@ It's means you can check or convert erroneous values.
 (By the way, tempura converts undefined values to empty string by default preRender function.)
 
 ```js
-tempura.settings.postPipeProcess = function (value) {
+tempura.settings.postPipeline = function (value) {
     return value === null ? '***' : value;
 };
 
