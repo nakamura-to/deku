@@ -1,4 +1,4 @@
-// tempura.js 0.0.4-dev11
+// tempura.js 0.0.4-dev12
 // tempura is simple templating library in javascript.
 // For all details and documentation:
 // http://nakamura-to.github.com/tempura/
@@ -1915,7 +1915,7 @@ var parser = (function(){
     return {
       name: 'tempura',
 
-      version: '0.0.4-dev11',
+      version: '0.0.4-dev12',
 
       settings: {
 
