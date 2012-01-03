@@ -5,12 +5,16 @@ TestCase('compiler', {
     this.compiler = tempura.internal.compiler;
     this.templateContext = {
       escape: tempura.internal.core.escape,
-      isUndefined: tempura.internal.util.isUndefined,
       handleBlock: tempura.internal.core.handleBlock,
       handleInverse: tempura.internal.core.handleInverse,
-      applyPipe: tempura.internal.core.applyPipe,
+      handlePartial: tempura.internal.core.handlePartial,
+      partials: {},
+      processors: {},
       noSuchValue: function () {
         return undefined;
+      },
+      noSuchPartial: function () {
+        return '';
       },
       noSuchProcessor: function (name, value) {
         return value;
@@ -20,8 +24,7 @@ TestCase('compiler', {
       },
       postPipeline: function (value, name) {
         return value;
-      },
-      pipes: {}
+      }
     };
   },
 
@@ -459,13 +462,31 @@ TestCase('compiler', {
     assertSame('aaa', result);
   },
 
+  'test compile: partial': function () {
+    var fn = this.compiler.compile('{{name}} is {{@link}}');
+    var data = {name:'foo', link: {url: '/hoge', title: 'HOGE'}};
+    var result;
+    this.templateContext.partials.link = '<a href="{{url}}">{{title}}</a>';
+    result = fn.call(this.templateContext, data, [data]);
+    assertSame('foo is <a href="/hoge">HOGE</a>', result);
+  },
+
+  'test compile: partial: context': function () {
+    var fn = this.compiler.compile('{{#person}}{{name}} is {{@link $root}}{{/person}}');
+    var data = {person: {name:'foo'}, link: {url: '/hoge', title: 'HOGE'}};
+    var result;
+    this.templateContext.partials.link = '<a href="{{link.url}}">{{link.title}}</a>';
+    result = fn.call(this.templateContext, data, [data]);
+    assertSame('foo is <a href="/hoge">HOGE</a>', result);
+  },
+
   'test parse: error': function () {
     try {
       this.compiler.parse('{{#aaa}}bbb');
       fail();
     } catch (e) {
       assertEquals('Error', e.name);
-      assertEquals('Expected \"{{!\", \"{{\", \"{{#\", \"{{/\", \"{{^\", \"{{{\" or any character but end of input found. line=1. column=12.\n{{#aaa}}bbb', e.message);
+      assertEquals('Expected \"{{!\", \"{{\", \"{{#\", \"{{/\", \"{{@\", \"{{^\", \"{{{\" or any character but end of input found. line=1. column=12.\n{{#aaa}}bbb', e.message);
     }
   }
 

@@ -6,6 +6,28 @@ TestCase('api', {
     };
   },
 
+  'tearDown': function () {
+    tempura.settings = {
+      partials: {},
+      processors: {},
+      prePipeline: function (value, valueName, index, hasNext) {
+        return value;
+      },
+      postPipeline: function (value, valueName, index, hasNext) {
+        return value == null ? '': value;
+      },
+      noSuchValue: function (valueName) {
+        return;
+      },
+      noSuchPartial: function (partialName) {
+        return;
+      },
+      noSuchProcessor: function (processorName, value, valueName) {
+        return value;
+      }
+    };
+  },
+
   'test version': function () {
     assertNotUndefined(tempura.version);
   },
@@ -34,6 +56,41 @@ TestCase('api', {
     var result = template.render([{name: 'hoge', age: 20}, {name: 'foo', age: 30}]);
     var expected = '\n     hoge is 20 years old. index=0 hasNext=true\n     \n     foo is 30 years old. index=1 hasNext=false\n     ';
     assertSame(expected, result);
+  },
+
+  'test prepare and render: it should use a "partials" option prior to a "partials" setting': function () {
+    /*:DOC +=
+     <div id="template">
+     {{@person}}
+     </div>
+     <div id="expected">
+     hoge is 20 years old.
+     </div>
+     */
+    tempura.settings.partials.person = "[{{name}}] is {{age}} years old.";
+    var options = {
+      partials: {
+        person: "{{name}} is {{age}} years old."
+      }
+    };
+    var template = tempura.prepare(this.html('template'), options);
+    var result = template.render({person: {name: 'hoge', age: 20}});
+    assertSame(this.html('expected'), result);
+  },
+
+  'test prepare and render: it should use a "partials" setting, if a "partials" option does not exist': function () {
+    /*:DOC +=
+     <div id="template">
+     {{@person}}
+     </div>
+     <div id="expected">
+     [hoge] is 20 years old.
+     </div>
+     */
+    tempura.settings.partials.person = "[{{name}}] is {{age}} years old.";
+    var template = tempura.prepare(this.html('template'));
+    var result = template.render({person: {name: 'hoge', age: 20}});
+    assertSame(this.html('expected'), result);
   },
 
   'test prepare and render: it should use a "processors" option prior to a "processors" setting': function () {
@@ -113,6 +170,45 @@ TestCase('api', {
     };
     var template = tempura.prepare(this.html('template'));
     var result = template.render({name: 'hoge', age: 20});
+    assertSame(this.html('expected'), result);
+  },
+
+  'test prepare and render: it should use a "noSuchPartial" option prior to a "noSuchPartial" setting': function () {
+    /*:DOC +=
+     <div id="template">
+     {{@person}}
+     </div>
+     <div id="expected">
+     [person is not found]
+     </div>
+     */
+    tempura.settings.noSuchPartial = function (name) {
+      return;
+    };
+    var options = {
+      noSuchPartial: function (name) {
+        return '[' + name + ' is not found]';
+      }
+    };
+    var template = tempura.prepare(this.html('template'), options);
+    var result = template.render({});
+    assertSame(this.html('expected'), result);
+  },
+
+  'test prepare and render: it should use a "noSuchPartial" setting, if a "noSuchPartial" option does not exitst': function () {
+    /*:DOC +=
+     <div id="template">
+     {{@person}}
+     </div>
+     <div id="expected">
+     [person is not found]
+     </div>
+     */
+    tempura.settings.noSuchPartial = function (name) {
+      return '[' + name + ' is not found]';
+    };
+    var template = tempura.prepare(this.html('template'));
+    var result = template.render({});
     assertSame(this.html('expected'), result);
   },
 

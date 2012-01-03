@@ -37,6 +37,7 @@ Program
 Statement
   = Block
   / Inverse
+  / Partial
   / Mustache
   / Comment
   / Content
@@ -58,6 +59,15 @@ Inverse
         type: 'type_inverse',
         name: open,
         program: program
+      };
+    }
+
+Partial
+  = '{{@' _ name:Path contextDef:(Whitespace+ Path)? _ '}}' {
+      return {
+        type: 'type_partial',
+        name: name,
+        context: contextDef[1]
       };
     }
 

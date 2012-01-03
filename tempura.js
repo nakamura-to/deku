@@ -24,6 +24,7 @@ var parser = (function(){
         "Id": parse_Id,
         "Inverse": parse_Inverse,
         "Mustache": parse_Mustache,
+        "Partial": parse_Partial,
         "Path": parse_Path,
         "Pipeline": parse_Pipeline,
         "Program": parse_Program,
@@ -201,27 +202,32 @@ var parser = (function(){
         }
         
         
-        var result5 = parse_Block();
-        if (result5 !== null) {
-          var result0 = result5;
+        var result6 = parse_Block();
+        if (result6 !== null) {
+          var result0 = result6;
         } else {
-          var result4 = parse_Inverse();
-          if (result4 !== null) {
-            var result0 = result4;
+          var result5 = parse_Inverse();
+          if (result5 !== null) {
+            var result0 = result5;
           } else {
-            var result3 = parse_Mustache();
-            if (result3 !== null) {
-              var result0 = result3;
+            var result4 = parse_Partial();
+            if (result4 !== null) {
+              var result0 = result4;
             } else {
-              var result2 = parse_Comment();
-              if (result2 !== null) {
-                var result0 = result2;
+              var result3 = parse_Mustache();
+              if (result3 !== null) {
+                var result0 = result3;
               } else {
-                var result1 = parse_Content();
-                if (result1 !== null) {
-                  var result0 = result1;
+                var result2 = parse_Comment();
+                if (result2 !== null) {
+                  var result0 = result2;
                 } else {
-                  var result0 = null;;
+                  var result1 = parse_Content();
+                  if (result1 !== null) {
+                    var result0 = result1;
+                  } else {
+                    var result0 = null;;
+                  };
                 };
               };
             };
@@ -492,6 +498,118 @@ var parser = (function(){
                   program: program
                 };
               })(result1[2], result1[5], result1[8])
+          : null;
+        if (result2 !== null) {
+          var result0 = result2;
+        } else {
+          var result0 = null;
+          pos = savedPos0;
+        }
+        
+        
+        
+        cache[cacheKey] = {
+          nextPos: pos,
+          result:  result0
+        };
+        return result0;
+      }
+      
+      function parse_Partial() {
+        var cacheKey = 'Partial@' + pos;
+        var cachedResult = cache[cacheKey];
+        if (cachedResult) {
+          pos = cachedResult.nextPos;
+          return cachedResult.result;
+        }
+        
+        
+        var savedPos0 = pos;
+        var savedPos1 = pos;
+        if (input.substr(pos, 3) === "{{@") {
+          var result3 = "{{@";
+          pos += 3;
+        } else {
+          var result3 = null;
+          if (reportMatchFailures) {
+            matchFailed("\"{{@\"");
+          }
+        }
+        if (result3 !== null) {
+          var result4 = parse__();
+          if (result4 !== null) {
+            var result5 = parse_Path();
+            if (result5 !== null) {
+              var savedPos2 = pos;
+              var result12 = parse_Whitespace();
+              if (result12 !== null) {
+                var result10 = [];
+                while (result12 !== null) {
+                  result10.push(result12);
+                  var result12 = parse_Whitespace();
+                }
+              } else {
+                var result10 = null;
+              }
+              if (result10 !== null) {
+                var result11 = parse_Path();
+                if (result11 !== null) {
+                  var result9 = [result10, result11];
+                } else {
+                  var result9 = null;
+                  pos = savedPos2;
+                }
+              } else {
+                var result9 = null;
+                pos = savedPos2;
+              }
+              var result6 = result9 !== null ? result9 : '';
+              if (result6 !== null) {
+                var result7 = parse__();
+                if (result7 !== null) {
+                  if (input.substr(pos, 2) === "}}") {
+                    var result8 = "}}";
+                    pos += 2;
+                  } else {
+                    var result8 = null;
+                    if (reportMatchFailures) {
+                      matchFailed("\"}}\"");
+                    }
+                  }
+                  if (result8 !== null) {
+                    var result1 = [result3, result4, result5, result6, result7, result8];
+                  } else {
+                    var result1 = null;
+                    pos = savedPos1;
+                  }
+                } else {
+                  var result1 = null;
+                  pos = savedPos1;
+                }
+              } else {
+                var result1 = null;
+                pos = savedPos1;
+              }
+            } else {
+              var result1 = null;
+              pos = savedPos1;
+            }
+          } else {
+            var result1 = null;
+            pos = savedPos1;
+          }
+        } else {
+          var result1 = null;
+          pos = savedPos1;
+        }
+        var result2 = result1 !== null
+          ? (function(name, contextDef) {
+                return {
+                  type: 'type_partial',
+                  name: name,
+                  context: contextDef[1]
+                };
+              })(result1[2], result1[3])
           : null;
         if (result2 !== null) {
           var result0 = result2;
@@ -1521,6 +1639,7 @@ var parser = (function(){
       op_evaluateValue: 1,
       op_lookupFromContext: 1,
       op_lookupFromTmp: 1,
+      op_invokePartial: 1,
       op_invokeProgram: 1,
       op_invokeProgramInverse: 1
     };
@@ -1576,11 +1695,16 @@ var parser = (function(){
         this.pushOpcode('op_append');
       },
 
-      type_content: function (node) {
-        this.pushOpcode('op_appendContent', node.content);
-      },
-
-      type_comment: function () {
+      type_partial: function (node) {
+        var name = node.name;
+        var context = node.context;
+        if (context) {
+          this.type_name(context);
+        } else {
+          this.type_name(name);
+        }
+        this.pushOpcode('op_invokePartial', name.path);
+        this.pushOpcode('op_append');
       },
 
       type_mustache: function (node, next) {
@@ -1606,6 +1730,13 @@ var parser = (function(){
         }
         this.pushOpcode('op_append');
         return false;
+      },
+
+      type_content: function (node) {
+        this.pushOpcode('op_appendContent', node.content);
+      },
+
+      type_comment: function () {
       },
 
       type_name: function (node) {
@@ -1696,10 +1827,11 @@ var parser = (function(){
 
       generate: function (subPrograms, asObject) {
         var body;
-        this.source[0] = this.source[0] + 'var tmp, buffer = "", ' +
+        this.source[0] = this.source[0] + 'var tmp, buffer = "", templateContext = this, ' +
           'escape = this.escape, handleBlock = this.handleBlock, handleInverse = this.handleInverse, ' +
-          'noSuchValue = this.noSuchValue, noSuchProcessor = this.noSuchProcessor, ' +
-          'prePipeline = this.prePipeline, postPipeline = this.postPipeline, processors = this.processors, processor;' +
+          'handlePartial = this.handlePartial, noSuchValue = this.noSuchValue, ' +
+          'noSuchPartial = this.noSuchPartial, noSuchProcessor = this.noSuchProcessor, ' +
+          'prePipeline = this.prePipeline, postPipeline = this.postPipeline, processors = this.processors, processor, partials = this.partials, partial;' +
           '\n\n' + subPrograms.join('\n\n') + '\n';
         this.source.push('return buffer;');
         body = '  ' + this.source.join('\n  ');
@@ -1730,12 +1862,18 @@ var parser = (function(){
         return this.generateSubProgram();
       },
 
-      op_invokeProgram: function (name) {
-        this.source.push('tmp = handleBlock(context, contextStack, tmp, ' + name + ');');
+      op_invokeProgram: function (programName) {
+        this.source.push('tmp = handleBlock(context, contextStack, tmp, ' + programName + ');');
       },
 
-      op_invokeProgramInverse: function (name) {
-        this.source.push('tmp = handleInverse(context, contextStack, tmp, ' + name + ');');
+      op_invokeProgramInverse: function (programName) {
+        this.source.push('tmp = handleInverse(context, contextStack, tmp, ' + programName + ');');
+      },
+
+      op_invokePartial: function (partialName, context) {
+        this.source.push('partial = ' + this.lookup('partials', partialName) + ';');
+        this.source.push('if (partial == null) { tmp = noSuchPartial("' + partialName + '"); }');
+        this.source.push('else { tmp = handlePartial(context, contextStack, tmp, partial, templateContext); }');
       },
 
       op_applyProcessor: function (processorName, valueName) {
@@ -1885,16 +2023,26 @@ var parser = (function(){
       return result;
     },
 
+    handlePartial: function (context, contextStack, value, partial, templateContext) {
+      var template = compiler.compile(partial);
+      return templateContext.handleBlock(context, contextStack, value, function (context, contextStack, index, hasNext) {
+        return template.call(templateContext, context, contextStack, index ,hasNext);
+      });
+    },
+
     prepare: function (source, options) {
       var template = compiler.compile(source);
       var templateContext = {
         escape: core.escape,
         handleBlock: core.handleBlock,
         handleInverse: core.handleInverse,
+        handlePartial: core.handlePartial,
         noSuchValue: options.noSuchValue,
+        noSuchPartial: options.noSuchPartial,
         noSuchProcessor: options.noSuchProcessor,
         prePipeline: options.prePipeline,
         postPipeline: options.postPipeline,
+        partials: options.partials,
         processors: options.processors
       };
       var program = function (context, contextStack, index, hasNext) {
@@ -1917,8 +2065,9 @@ var parser = (function(){
 
     settings: {
 
-      processors: {
-      },
+      partials: {},
+
+      processors: {},
 
       prePipeline: function (value, valueName, index, hasNext) {
         return value;
@@ -1932,9 +2081,14 @@ var parser = (function(){
         return;
       },
 
+      noSuchPartial: function (partialName) {
+        return;
+      },
+
       noSuchProcessor: function (processorName, value, valueName) {
         return value;
       }
+
     },
 
     prepare: function (source, options) {
@@ -1944,12 +2098,17 @@ var parser = (function(){
       }
       options = options || {};
       opts.noSuchValue = options.noSuchValue || this.settings.noSuchValue;
+      opts.noSuchPartial = options.noSuchPartial || this.settings.noSuchPartial;
       opts.noSuchProcessor = options.noSuchProcessor || this.settings.noSuchProcessor;
       opts.prePipeline = options.prePipeline || this.settings.prePipeline;
       opts.postPipeline = options.postPipeline || this.settings.postPipeline;
+      opts.partials = util.extend({}, options.partials, this.settings.partials)
       opts.processors = util.extend({}, options.processors, this.settings.processors);
       if (typeof opts.noSuchValue !== 'function') {
         throw new Error('the "noSuchValue" option or setting must be function.');
+      }
+      if (typeof opts.noSuchPartial !== 'function') {
+        throw new Error('the "noSuchPartial" option or setting must be function.');
       }
       if (typeof opts.noSuchProcessor !== 'function') {
         throw new Error('the "noSuchProcessor" option or setting must be function.');
