@@ -1910,66 +1910,67 @@ var parser = (function(){
 
   };
 
-  var tempura =  (function () {
+  var tempura = {
 
-    return {
-      name: 'tempura',
+    name: 'tempura',
 
-      version: '0.0.4-dev12',
+    version: '0.0.4-dev12',
 
-      settings: {
+    settings: {
 
-        processors: {
-        },
-
-        prePipeline: function (value, valueName, index, hasNext) {
-          return value;
-        },
-
-        postPipeline: function (value, valueName, index, hasNext) {
-          return value == null ? '': value;
-        },
-
-        noSuchValue: function (valueName) {
-          return;
-        },
-
-        noSuchProcessor: function (processorName, value, valueName) {
-          return value;
-        }
+      processors: {
       },
 
-      prepare: function (source, options) {
-        var opts = {};
-        options = options || {};
-        opts.noSuchValue = options.noSuchValue || this.settings.noSuchValue;
-        opts.noSuchProcessor = options.noSuchProcessor || this.settings.noSuchProcessor;
-        opts.prePipeline = options.prePipeline || this.settings.prePipeline;
-        opts.postPipeline = options.postPipeline || this.settings.postPipeline;
-        opts.processors = util.extend({}, options.processors, this.settings.processors);
-        if (typeof opts.noSuchValue !== 'function') {
-          throw new Error('the "noSuchValue" option or setting must be function.');
-        }
-        if (typeof opts.noSuchProcessor !== 'function') {
-          throw new Error('the "noSuchProcessor" option or setting must be function.');
-        }
-        if (typeof opts.prePipeline !== 'function') {
-          throw new Error('the "prePipeline" option or setting must be function.');
-        }
-        if (typeof opts.postPipeline !== 'function') {
-          throw new Error('the "postPipeline" option or setting must be function.');
-        }
-        return core.prepare(source, opts);
+      prePipeline: function (value, valueName, index, hasNext) {
+        return value;
       },
 
-      internal: {
-        parser: parser,
-        util: util,
-        compiler: compiler,
-        core: core
+      postPipeline: function (value, valueName, index, hasNext) {
+        return value == null ? '': value;
+      },
+
+      noSuchValue: function (valueName) {
+        return;
+      },
+
+      noSuchProcessor: function (processorName, value, valueName) {
+        return value;
       }
-    };
-  }());
+    },
+
+    prepare: function (source, options) {
+      var opts = {};
+      if (source == null) {
+        throw new Error('the "source" must be string.');
+      }
+      options = options || {};
+      opts.noSuchValue = options.noSuchValue || this.settings.noSuchValue;
+      opts.noSuchProcessor = options.noSuchProcessor || this.settings.noSuchProcessor;
+      opts.prePipeline = options.prePipeline || this.settings.prePipeline;
+      opts.postPipeline = options.postPipeline || this.settings.postPipeline;
+      opts.processors = util.extend({}, options.processors, this.settings.processors);
+      if (typeof opts.noSuchValue !== 'function') {
+        throw new Error('the "noSuchValue" option or setting must be function.');
+      }
+      if (typeof opts.noSuchProcessor !== 'function') {
+        throw new Error('the "noSuchProcessor" option or setting must be function.');
+      }
+      if (typeof opts.prePipeline !== 'function') {
+        throw new Error('the "prePipeline" option or setting must be function.');
+      }
+      if (typeof opts.postPipeline !== 'function') {
+        throw new Error('the "postPipeline" option or setting must be function.');
+      }
+      return core.prepare(source, opts);
+    },
+
+    internal: {
+      parser: parser,
+      util: util,
+      compiler: compiler,
+      core: core
+    }
+  };
 
   if (typeof module !== 'undefined') {
     module.exports = tempura;
