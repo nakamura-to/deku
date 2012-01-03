@@ -941,16 +941,16 @@ var parser = (function(){
           pos = savedPos1;
         }
         var result2 = result1 !== null
-          ? (function(comment) {
-                var chars = [];
+          ? (function(chars) {
+                var comment = '';
                 var i;
-                var len = comment.length;
+                var len = chars.length;
                 for (i = 0; i < len; i++) {
-                  chars.push(comment[i][1]);
+                  comment += chars[i][1];
                 }
                 return {
                   type: 'type_comment',
-                  comment: chars.join('')
+                  comment: comment
                 };
               })(result1[1])
           : null;
@@ -1069,16 +1069,16 @@ var parser = (function(){
           var result1 = null;
         }
         var result2 = result1 !== null
-          ? (function(content) {
-                var chars = [];
+          ? (function(chars) {
+                var content = '';
                 var i;
-                var len = content.length;
+                var len = chars.length;
                 for (i = 0; i < len; i++) {
-                  chars.push(content[i][1]);
+                  content += chars[i][1];
                 }
                 return {
                   type: 'type_content',
-                  content: chars.join('')
+                  content: content
                 };
               })(result1)
           : null;
@@ -1180,8 +1180,7 @@ var parser = (function(){
                 return {
                   type: 'type_name',
                   path: segments.join('.'),
-                  segments: segments,
-                  isSimple: segments.length === 1
+                  segments: segments
                 };
               })(result1[0], result1[1])
           : null;
@@ -1238,8 +1237,8 @@ var parser = (function(){
           var result1 = null;
         }
         var result2 = result1 !== null
-          ? (function(id) {
-                return id.join('');
+          ? (function(chars) {
+                return chars.join('');
               })(result1)
           : null;
         if (result2 !== null) {

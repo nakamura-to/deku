@@ -94,30 +94,30 @@ Pipeline
     }
 
 Comment
-  = '{{!' comment:(!'}}' .)* '}}' {
-      var chars = [];
+  = '{{!' chars:(!'}}' .)* '}}' {
+      var comment = '';
       var i;
-      var len = comment.length;
+      var len = chars.length;
       for (i = 0; i < len; i++) {
-        chars.push(comment[i][1]);
+        comment += chars[i][1];
       }
       return {
         type: 'type_comment',
-        comment: chars.join('')
+        comment: comment
       };
     }
 
 Content
-  = content:(!'{{' .)+  {
-      var chars = [];
+  = chars:(!'{{' .)+  {
+      var content = '';
       var i;
-      var len = content.length;
+      var len = chars.length;
       for (i = 0; i < len; i++) {
-        chars.push(content[i][1]);
+        content += chars[i][1];
       }
       return {
         type: 'type_content',
-        content: chars.join('')
+        content: content
       };
     }
 
@@ -132,14 +132,13 @@ Path
       return {
         type: 'type_name',
         path: segments.join('.'),
-        segments: segments,
-        isSimple: segments.length === 1
+        segments: segments
       };
     }
 
 Id
-  = id:[a-zA-Z0-9_$-%@!]+ {
-      return id.join('');
+  = chars:[a-zA-Z0-9_$-%@!]+ {
+      return chars.join('');
     }
 _
   = Whitespace*
