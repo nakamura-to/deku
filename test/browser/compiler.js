@@ -249,43 +249,50 @@ TestCase('compiler', {
 
   'test compile: tag': function () {
     var fn = this.compiler.compile('{{name}}');
-    var result = fn.call(this.templateContext, {name: 'hoge' });
+    var data = {name: 'hoge'};
+    var result = fn.call(this.templateContext, data, [data]);
     assertSame('hoge', result);
   },
 
   'test compile: tag: pathSeguments': function () {
     var fn = this.compiler.compile('{{aaa.bbb.ccc}}');
-    var result = fn.call(this.templateContext, {aaa: {bbb: {ccc: 'hoge'} } });
+    var data = {aaa: {bbb: {ccc: 'hoge'}}};
+    var result = fn.call(this.templateContext, data, [data]);
     assertSame('hoge', result);
   },
 
   'test compile: tag: escape': function () {
     var fn = this.compiler.compile('{{name}}');
-    var result = fn.call(this.templateContext, {name: '<b>"aaa"</b>' });
+    var data = {name: '<b>"aaa"</b>'};
+    var result = fn.call(this.templateContext, data, [data]);
     assertSame('&lt;b&gt;&quot;aaa&quot;&lt;/b&gt;', result);
   },
 
   'test compile: tag: unescape': function () {
     var fn = this.compiler.compile('{{{name}}}');
-    var result = fn.call(this.templateContext, {name: '<b>"aaa"</b>' });
+    var data = {name: '<b>"aaa"</b>'};
+    var result = fn.call(this.templateContext, data, [data]);
     assertSame('<b>"aaa"</b>', result);
   },
 
   'test compile: content': function () {
     var fn = this.compiler.compile('abc');
-    var result = fn.call(this.templateContext, {});
+    var data = {};
+    var result = fn.call(this.templateContext, data, [data]);
     assertSame('abc', result);
   },
 
   'test compile: content: quotation': function () {
     var fn = this.compiler.compile('\\"\n\r\\"\n\r');
-    var result = fn.call(this.templateContext, {});
+    var data = {};
+    var result = fn.call(this.templateContext, data, [data]);
     assertSame('\\"\n\r\\"\n\r', result);
   },
 
   'test compile: content: escape sequence': function () {
     var fn = this.compiler.compile('\n\t\b\r\f\v\b\\\'\"\x10\u1234');
-    var result = fn.call(this.templateContext, {});
+    var data = {};
+    var result = fn.call(this.templateContext, data, [data]);
     assertSame('\n\t\b\r\f\v\b\\\'\"\x10\u1234', result);
   },
 
@@ -307,7 +314,7 @@ TestCase('compiler', {
         }
       }
     };
-    var result = fn.call(this.templateContext, data);
+    var result = fn.call(this.templateContext, data, [data]);
     assertSame('c1-c3', result);
   },
 
@@ -330,31 +337,35 @@ TestCase('compiler', {
         }
       }
     };
-    var result = fn.call(this.templateContext, data);
+    var result = fn.call(this.templateContext, data, [data]);
     assertSame('c2-c3', result);
   },
 
   'test compile: block: array': function () {
     var fn = this.compiler.compile('{{#array}}{{name}}-{{/array}}');
-    var result = fn.call(this.templateContext, {array: [{name:'aaa'},{name:'bbb'}] });
+    var data = {array: [{name:'aaa'},{name:'bbb'}]};
+    var result = fn.call(this.templateContext, data, [data]);
     assertSame('aaa-bbb-', result);
   },
 
   'test compile: block: array: $this': function () {
     var fn = this.compiler.compile('{{#array}}{{$this}}-{{/array}}');
-    var result = fn.call(this.templateContext, {array: ['aaa', 'bbb']});
+    var data = {array: ['aaa', 'bbb']};
+    var result = fn.call(this.templateContext, data, [data]);
     assertSame('aaa-bbb-', result);
   },
 
   'test compile: block: array: $index': function () {
     var fn = this.compiler.compile('{{#array}}{{$this}}{{$index}}-{{/array}}');
-    var result = fn.call(this.templateContext, {array: ['aaa', 'bbb']});
+    var data = {array: ['aaa', 'bbb']};
+    var result = fn.call(this.templateContext, data, [data]);
     assertSame('aaa0-bbb1-', result);
   },
 
   'test compile: block: array: $hasNext': function () {
     var fn = this.compiler.compile('{{#array}}{{$this}}{{#$hasNext}}-{{/$hasNext}}{{/array}}');
-    var result = fn.call(this.templateContext, {array: ['aaa', 'bbb']});
+    var data = {array: ['aaa', 'bbb']};
+    var result = fn.call(this.templateContext, data, [data]);
     assertSame('aaa-bbb', result);
   },
 
@@ -374,7 +385,7 @@ TestCase('compiler', {
         }
       }
     };
-    var result = fn.call(this.templateContext, data);
+    var result = fn.call(this.templateContext, data, [data]);
     assertSame('c1(aaa)-c1(bbb)-', result);
   },
 
@@ -395,49 +406,56 @@ TestCase('compiler', {
         }
       }
     };
-    var result = fn.call(this.templateContext, data);
+    var result = fn.call(this.templateContext, data, [data]);
     assertSame('c2(aaa)-c2(bbb)-', result);
   },
 
   'test compile: block: function: truthy': function () {
     var fn = this.compiler.compile('{{#fn}}{{name}}{{/fn}}');
-    var result = fn.call(this.templateContext, {name: 'aaa', fn: function () { return true; } });
+    var data = {name: 'aaa', fn: function () { return true; }};
+    var result = fn.call(this.templateContext, data, [data]);
     assertSame('aaa', result);
   },
 
   'test compile: block: function: falsy': function () {
     var fn = this.compiler.compile('{{#fn}}{{name}}{{/fn}}');
-    var result = fn.call(this.templateContext, {name: 'aaa', fn: function () { return false; } });
+    var data = {name: 'aaa', fn: function () { return false; }};
+    var result = fn.call(this.templateContext, data, [data]);
     assertSame('', result);
   },
 
   'test compile: block: boolean: true': function () {
     var fn = this.compiler.compile('{{#bool}}{{name}}{{/bool}}');
-    var result = fn.call(this.templateContext, {name: 'aaa', bool: true });
+    var data = {name: 'aaa', bool: true};
+    var result = fn.call(this.templateContext, data, [data]);
     assertSame('aaa', result);
   },
 
   'test compile: block: boolean: false': function () {
     var fn = this.compiler.compile('{{#bool}}{{name}}{{/bool}}');
-    var result = fn.call(this.templateContext, {name: 'aaa', bool: false });
+    var data = {name: 'aaa', bool: false};
+    var result = fn.call(this.templateContext, data, [data]);
     assertSame('', result);
   },
 
   'test compile: inverse: boolean: false': function () {
     var fn = this.compiler.compile('{{^bool}}{{name}}{{/bool}}');
-    var result = fn.call(this.templateContext, {name: 'aaa', bool: true });
+    var data = {name: 'aaa', bool: true};
+    var result = fn.call(this.templateContext, data, [data]);
     assertSame('', result);
   },
 
   'test compile: inverse: boolean: false': function () {
     var fn = this.compiler.compile('{{^bool}}{{name}}{{/bool}}');
-    var result = fn.call(this.templateContext, {name: 'aaa', bool: false });
+    var data = {name: 'aaa', bool: false};
+    var result = fn.call(this.templateContext, data, [data]);
     assertSame('aaa', result);
   },
 
   'test compile: inverse: empty array': function () {
     var fn = this.compiler.compile('{{^array}}{{name}}{{/array}}');
-    var result = fn.call(this.templateContext, {name: 'aaa', array: [] });
+    var data = {name: 'aaa', array: []};
+    var result = fn.call(this.templateContext, data, [data]);
     assertSame('aaa', result);
   },
 

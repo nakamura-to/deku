@@ -1697,7 +1697,7 @@ var parser = (function(){
 
       generate: function (subPrograms, asObject) {
         var body;
-        this.source[0] = this.source[0] + 'var tmp, buffer = "", contextStack = [context], index, hasNext, ' +
+        this.source[0] = this.source[0] + 'var tmp, buffer = "", ' +
           'escape = this.escape, handleBlock = this.handleBlock, handleInverse = this.handleInverse, ' +
           'noSuchValue = this.noSuchValue, noSuchProcessor = this.noSuchProcessor, ' +
           'prePipeline = this.prePipeline, postPipeline = this.postPipeline, processors = this.processors, processor;' +
@@ -1705,9 +1705,9 @@ var parser = (function(){
         this.source.push('return buffer;');
         body = '  ' + this.source.join('\n  ');
         if (asObject) {
-          return new Function('context', body);
+          return new Function('context, contextStack, index, hasNext', body);
         } else {
-          return 'function (context) {\n' + body + '\n' + '}';
+          return 'function (context, contextStack, index, hasNext) {\n' + body + '\n' + '}';
         }
       },
 
@@ -1887,6 +1887,7 @@ var parser = (function(){
     },
 
     prepare: function (source, options) {
+      var template = compiler.compile(source);
       var templateContext = {
         escape: core.escape,
         handleBlock: core.handleBlock,
@@ -1897,10 +1898,12 @@ var parser = (function(){
         postPipeline: options.postPipeline,
         processors: options.processors
       };
-      var template = compiler.compile(source);
+      var program = function (context, contextStack, index, hasNext) {
+        return template.call(templateContext, context, contextStack, index ,hasNext);
+      };
       return {
         render: function (data) {
-          return template.call(templateContext, data);
+          return templateContext.handleBlock(data, [data], data, program);
         }
       };
     }
