@@ -29,15 +29,11 @@ TestCase('api', {
      <div id="template">
      {{name}} is {{age}} years old. index={{$index}} hasNext={{$hasNext}}
      </div>
-     <div id="expected">
-     hoge is 20 years old. index=0 hasNext=true
-
-     foo is 30 years old. index=1 hasNext=false
-     </div>
      */
     var template = tempura.prepare(this.html('template'));
     var result = template.render([{name: 'hoge', age: 20}, {name: 'foo', age: 30}]);
-    assertSame(this.html('expected'), result);
+    var expected = '\n     hoge is 20 years old. index=0 hasNext=true\n     \n     foo is 30 years old. index=1 hasNext=false\n     ';
+    assertSame(expected, result);
   },
 
   'test prepare and render: it should use a "processors" option prior to a "processors" setting': function () {
