@@ -202,6 +202,5 @@ console.log(result); // name is ***
 Currently, tempura doesn't support following features, which mustache.js has:
 
 * Higher Order Sections
-* View Partials
 * Streaming
 * Pragmas
