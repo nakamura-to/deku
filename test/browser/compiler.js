@@ -5,9 +5,9 @@ TestCase('compiler', {
     this.compiler = tempura.internal.compiler;
     this.templateContext = {
       escape: tempura.internal.core.escape,
+      compile: tempura.internal.compiler.compile,
       handleBlock: tempura.internal.core.handleBlock,
       handleInverse: tempura.internal.core.handleInverse,
-      handlePartial: tempura.internal.core.handlePartial,
       partials: {},
       processors: {},
       noSuchValue: function () {

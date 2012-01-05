@@ -1826,9 +1826,8 @@ var parser = (function(){
       generate: function (subPrograms, asObject) {
         var body;
         this.source[0] = this.source[0] + 'var tmp, buffer = "", contextStack = [context], index, hasNext, templateContext = this, ' +
-          'escape = this.escape, handleBlock = this.handleBlock, handleInverse = this.handleInverse, ' +
-          'handlePartial = this.handlePartial, noSuchValue = this.noSuchValue, ' +
-          'noSuchPartial = this.noSuchPartial, noSuchProcessor = this.noSuchProcessor, ' +
+          'escape = this.escape, compile = this.compile, handleBlock = this.handleBlock, handleInverse = this.handleInverse, ' +
+          'noSuchValue = this.noSuchValue, noSuchPartial = this.noSuchPartial, noSuchProcessor = this.noSuchProcessor, ' +
           'prePipeline = this.prePipeline, postPipeline = this.postPipeline, processors = this.processors, processor, partials = this.partials, partial;' +
           '\n\n' + subPrograms.join('\n\n') + '\n';
         this.source.push('return buffer;');
@@ -1871,7 +1870,8 @@ var parser = (function(){
       op_invokePartial: function (partialName, context) {
         this.source.push('partial = ' + this.lookup('partials', partialName) + ';');
         this.source.push('if (partial == null) { tmp = noSuchPartial("' + partialName + '"); }');
-        this.source.push('else { tmp = handlePartial(context, contextStack, tmp, partial, "' + partialName + '", templateContext); }');
+        this.source.push('else { if (typeof partial !== "function") { partial = compile(partial); partials["' + partialName + '"] = partial; }');
+        this.source.push('  tmp = partial.call(templateContext, tmp); }');
       },
 
       op_applyProcessor: function (processorName, valueName) {
@@ -2034,9 +2034,9 @@ var parser = (function(){
       var template = compiler.compile(source);
       var templateContext = {
         escape: core.escape,
+        compile: compiler.compile,
         handleBlock: core.handleBlock,
         handleInverse: core.handleInverse,
-        handlePartial: core.handlePartial,
         noSuchValue: options.noSuchValue,
         noSuchPartial: options.noSuchPartial,
         noSuchProcessor: options.noSuchProcessor,
