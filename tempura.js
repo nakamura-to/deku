@@ -1916,7 +1916,7 @@ var parser = (function(){
       op_lookupFromContext: function (name) {
         switch (name) {
           case JsCompiler.ROOT_CONTEXT:
-            this.source.push('tmp = contextStack[0];')
+            this.source.push('tmp = contextStack[0];');
             break;
           case JsCompiler.PARENT_CONTEXT:
             this.source.push('tmp = contextStack[contextStack.length - 2];');
@@ -2103,7 +2103,7 @@ var parser = (function(){
       opts.noSuchProcessor = options.noSuchProcessor || this.settings.noSuchProcessor;
       opts.prePipeline = options.prePipeline || this.settings.prePipeline;
       opts.postPipeline = options.postPipeline || this.settings.postPipeline;
-      opts.partials = util.extend({}, options.partials, this.settings.partials)
+      opts.partials = util.extend({}, options.partials, this.settings.partials);
       opts.processors = util.extend({}, options.processors, this.settings.processors);
       if (typeof opts.noSuchValue !== 'function') {
         throw new Error('The "noSuchValue" option or setting must be function.');
