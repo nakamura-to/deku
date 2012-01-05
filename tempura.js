@@ -1825,7 +1825,7 @@ var parser = (function(){
 
       generate: function (subPrograms, asObject) {
         var body;
-        this.source[0] = this.source[0] + 'var tmp, buffer = "", templateContext = this, ' +
+        this.source[0] = this.source[0] + 'var tmp, buffer = "", contextStack = [context], index, hasNext, templateContext = this, ' +
           'escape = this.escape, handleBlock = this.handleBlock, handleInverse = this.handleInverse, ' +
           'handlePartial = this.handlePartial, noSuchValue = this.noSuchValue, ' +
           'noSuchPartial = this.noSuchPartial, noSuchProcessor = this.noSuchProcessor, ' +
@@ -1834,9 +1834,9 @@ var parser = (function(){
         this.source.push('return buffer;');
         body = '  ' + this.source.join('\n  ');
         if (asObject) {
-          return new Function('context, contextStack, index, hasNext', body);
+          return new Function('context', body);
         } else {
-          return 'function (context, contextStack, index, hasNext) {\n' + body + '\n' + '}';
+          return 'function (context) {\n' + body + '\n' + '}';
         }
       },
 
@@ -2027,9 +2027,7 @@ var parser = (function(){
         template = compiler.compile(partial);
         templateContext.partials[partialName] = template;
       }
-      return templateContext.handleBlock(context, contextStack, value, function (context, contextStack, index, hasNext) {
-        return template.call(templateContext, context, contextStack, index ,hasNext);
-      });
+      return template.call(templateContext, value);
     },
 
     prepare: function (source, options) {
@@ -2047,12 +2045,9 @@ var parser = (function(){
         partials: options.partials,
         processors: options.processors
       };
-      var program = function (context, contextStack, index, hasNext) {
-        return template.call(templateContext, context, contextStack, index ,hasNext);
-      };
       return {
         render: function (data) {
-          return templateContext.handleBlock(data, [data], data, program);
+          return template.call(templateContext, data);
         }
       };
     }
