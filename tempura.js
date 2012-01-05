@@ -1755,8 +1755,6 @@ var parser = (function(){
       this.name = environment.name;
       this.allEnvironments = environment.context.allEnvironments;
       this.source = [''];
-      this.tmpVarSlot = 0;
-      this.tmpVars = [];
     };
 
     JsCompiler.ROOT_CONTEXT = '$root';
