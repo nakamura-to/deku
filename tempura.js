@@ -1867,7 +1867,7 @@ var parser = (function(){
         this.source.push('tmp = handleInverse(context, contextStack, tmp, ' + programName + ');');
       },
 
-      op_invokePartial: function (partialName, context) {
+      op_invokePartial: function (partialName) {
         this.source.push('partial = ' + this.lookup('partials', partialName) + ';');
         this.source.push('if (partial == null) { tmp = noSuchPartial("' + partialName + '"); }');
         this.source.push('else { if (typeof partial !== "function") { partial = compile(partial); partials["' + partialName + '"] = partial; }');
