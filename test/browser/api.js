@@ -125,9 +125,7 @@ TestCase('api', {
      [hoge is not found] is 20 years old.
      </div>
      */
-    tempura.noSuchValue = function (name) {
-      return undefined;
-    };
+    tempura.noSuchValue = function () {};
     var options = {
       noSuchValue: function (name) {
         return '[' + name + ' is not found]';
@@ -164,9 +162,7 @@ TestCase('api', {
      [person is not found]
      </div>
      */
-    tempura.noSuchPartial = function (name) {
-      return;
-    };
+    tempura.noSuchPartial = function () {};
     var options = {
       noSuchPartial: function (name) {
         return '[' + name + ' is not found]';
@@ -203,9 +199,7 @@ TestCase('api', {
      [foo,hoge,name] is 20 years old.
      </div>
      */
-    tempura.noSuchProcessor = function (pipeName, value, valueName) {
-      return undefined;
-    }
+    tempura.noSuchProcessor = function () {};
     var options = {
       noSuchProcessor: function (pipeName, value, valueName) {
         return '[' + pipeName + ',' + value + ',' + valueName + ']';

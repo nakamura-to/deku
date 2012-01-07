@@ -8,22 +8,22 @@ TestCase('compiler', {
       compile: tempura.internal.core.compile,
       handleBlock: tempura.internal.core.handleBlock,
       handleInverse: tempura.internal.core.handleInverse,
-      partials: {},
       templates: {},
-      noSuchValue: function () {
-        return undefined;
-      },
-      noSuchPartial: function () {
-        return '';
-      },
-      noSuchProcessor: function (name, value) {
+      processors: {},
+      prePipeline : function (value) {
         return value;
       },
-      prePipeline: function (value, name) {
-        return value;
+      postPipeline: function (value) {
+        return value == null ? '': value;
       },
-      postPipeline: function (value, name) {
-        return value;
+      noSuchValue: function (valueName) {
+        throw new Error('The value "' + valueName + '" is not found.');
+      },
+      noSuchPartial: function (partialName) {
+        throw new Error('The partial "' + partialName + '" is not found.');
+      },
+      noSuchProcessor: function (processorName, value, valueName) {
+        throw new Error('The processor "' + processorName + '" for the value "' + valueName + '" is not found.');
       }
     };
   },
@@ -266,16 +266,16 @@ TestCase('compiler', {
 
   'test compile: tag: escape': function () {
     var fn = this.compiler.compile('{{name}}');
-    var data = {name: '<b>"aaa"</b>'};
+    var data = {name: '<div>"aaa"</div>'};
     var result = fn.call(this.templateContext, data, [data]);
-    assertSame('&lt;b&gt;&quot;aaa&quot;&lt;/b&gt;', result);
+    assertSame('&lt;div&gt;&quot;aaa&quot;&lt;/div&gt;', result);
   },
 
   'test compile: tag: unescape': function () {
     var fn = this.compiler.compile('{{{name}}}');
-    var data = {name: '<b>"aaa"</b>'};
+    var data = {name: '<div>"aaa"</div>'};
     var result = fn.call(this.templateContext, data, [data]);
-    assertSame('<b>"aaa"</b>', result);
+    assertSame('<div>"aaa"</div>', result);
   },
 
   'test compile: content': function () {
@@ -441,7 +441,7 @@ TestCase('compiler', {
     assertSame('', result);
   },
 
-  'test compile: inverse: boolean: false': function () {
+  'test compile: inverse: boolean: true': function () {
     var fn = this.compiler.compile('{{^bool}}{{name}}{{/bool}}');
     var data = {name: 'aaa', bool: true};
     var result = fn.call(this.templateContext, data, [data]);
@@ -463,21 +463,21 @@ TestCase('compiler', {
   },
 
   'test compile: partial': function () {
-    var fn = this.compiler.compile('{{name}} is {{@link}}');
+    var fn = this.compiler.compile('{{name}} | {{@link}}');
     var data = {name:'foo', url: '/hoge', title: 'HOGE'};
     var result;
-    this.templateContext.templates.link = '<a href="{{url}}">{{title}}</a>';
+    this.templateContext.templates.link = '{{url}} : {{title}}';
     result = fn.call(this.templateContext, data, [data]);
-    assertSame('foo is <a href="/hoge">HOGE</a>', result);
+    assertSame('foo | /hoge : HOGE', result);
   },
 
   'test compile: partial: context': function () {
-    var fn = this.compiler.compile('{{name}} is {{@link link}}');
+    var fn = this.compiler.compile('{{name}} | {{@link link}}');
     var data = {name:'foo', link: {url: '/hoge', title: 'HOGE'}};
     var result;
-    this.templateContext.templates.link = '<a href="{{url}}">{{title}}</a>';
+    this.templateContext.templates.link = '{{url}} : {{title}}';
     result = fn.call(this.templateContext, data, [data]);
-    assertSame('foo is <a href="/hoge">HOGE</a>', result);
+    assertSame('foo | /hoge : HOGE', result);
   },
 
   'test parse: error': function () {
