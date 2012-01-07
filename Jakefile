@@ -80,7 +80,13 @@ task('makeParser', ['clean'], function () {
   });
 }, {async: true});
 
-task('test', ['makeParser'], function () {
+task('updateVersion', ['clean'], function () {
+  var content = fs.readFileSync(API_FILE, 'utf-8');
+  content = content.replace(/(tempura.version = ').+?(';)/g, '$1' + pkg.version + '$2');
+  fs.writeFileSync(API_FILE, content, 'utf-8');
+});
+
+task('test', ['makeParser', 'updateVersion'], function () {
   var process = childProcess.execFile('./test/node/run.js', function (error, stdout, stderr) {
     console.log(stdout);
     console.error(stderr);
