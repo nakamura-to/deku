@@ -4,28 +4,22 @@ TestCase('api', {
     this.html = function (id) {
       return document.getElementById(id).innerHTML;
     };
+    this.preseved = {};
+    this.preseved.prePipeline = tempura.prePipeline;
+    this.preseved.postPipeline = tempura.postPipeline;
+    this.preseved.noSuchValue = tempura.noSuchValue;
+    this.preseved.noSuchPartial = tempura.noSuchPartial;
+    this.preseved.noSuchProcessor = tempura.noSuchProcessor;
   },
 
   'tearDown': function () {
-    tempura.settings = {
-      templates: {},
-      processors: {},
-      prePipeline: function (value, valueName, index, hasNext) {
-        return value;
-      },
-      postPipeline: function (value, valueName, index, hasNext) {
-        return value == null ? '': value;
-      },
-      noSuchValue: function (valueName) {
-        return;
-      },
-      noSuchPartial: function (partialName) {
-        return;
-      },
-      noSuchProcessor: function (processorName, value, valueName) {
-        return value;
-      }
-    };
+    tempura.templates = {};
+    tempura.processors = {};
+    tempura.prePipeline = this.preseved.prePipeline;
+    tempura.postPipeline = this.preseved.postPipeline;
+    tempura.noSuchValue = this.preseved.noSuchValue;
+    tempura.noSuchPartial = this.preseved.noSuchPartial;
+    tempura.noSuchProcessor = this.preseved.noSuchProcessor;
   },
 
   'test version': function () {
@@ -55,7 +49,7 @@ TestCase('api', {
      hoge is 20 years old.
      </div>
      */
-    tempura.settings.templates.person = "[{{name}}] is {{age}} years old.";
+    tempura.templates.person = "[{{name}}] is {{age}} years old.";
     var options = {
       templates: {
         person: "{{name}} is {{age}} years old."
@@ -75,7 +69,7 @@ TestCase('api', {
      [hoge] is 20 years old.
      </div>
      */
-    tempura.settings.templates.person = "[{{name}}] is {{age}} years old.";
+    tempura.templates.person = "[{{name}}] is {{age}} years old.";
     var template = tempura.prepare(this.html('template'));
     var result = template.render({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);
@@ -90,7 +84,7 @@ TestCase('api', {
      [hoge] is 20 years old.
      </div>
      */
-    tempura.settings.processors.enclose = function (value) {
+    tempura.processors.enclose = function (value) {
       return '%' + value + '%';
     };
     var options = {
@@ -114,7 +108,7 @@ TestCase('api', {
      [hoge] is 20 years old.
      </div>
      */
-    tempura.settings.processors.enclose = function (value) {
+    tempura.processors.enclose = function (value) {
       return '[' + value + ']';
     };
     var template = tempura.prepare(this.html('template'));
@@ -131,7 +125,7 @@ TestCase('api', {
      [hoge is not found] is 20 years old.
      </div>
      */
-    tempura.settings.noSuchValue = function (name) {
+    tempura.noSuchValue = function (name) {
       return undefined;
     };
     var options = {
@@ -153,7 +147,7 @@ TestCase('api', {
      [hoge is not found] is 20 years old.
      </div>
      */
-    tempura.settings.noSuchValue = function (name) {
+    tempura.noSuchValue = function (name) {
       return '[' + name + ' is not found]';
     };
     var template = tempura.prepare(this.html('template'));
@@ -170,7 +164,7 @@ TestCase('api', {
      [person is not found]
      </div>
      */
-    tempura.settings.noSuchPartial = function (name) {
+    tempura.noSuchPartial = function (name) {
       return;
     };
     var options = {
@@ -192,7 +186,7 @@ TestCase('api', {
      [person is not found]
      </div>
      */
-    tempura.settings.noSuchPartial = function (name) {
+    tempura.noSuchPartial = function (name) {
       return '[' + name + ' is not found]';
     };
     var template = tempura.prepare(this.html('template'));
@@ -209,7 +203,7 @@ TestCase('api', {
      [foo,hoge,name] is 20 years old.
      </div>
      */
-    tempura.settings.noSuchProcessor = function (pipeName, value, valueName) {
+    tempura.noSuchProcessor = function (pipeName, value, valueName) {
       return undefined;
     }
     var options = {
@@ -231,7 +225,7 @@ TestCase('api', {
      [foo,hoge,name] is 20 years old.
      </div>
      */
-    tempura.settings.noSuchProcessor = function (processorName, value, valueName) {
+    tempura.noSuchProcessor = function (processorName, value, valueName) {
       return '[' + processorName + ',' + value + ',' + valueName + ']';
     };
     var template = tempura.prepare(this.html('template'));
@@ -248,7 +242,7 @@ TestCase('api', {
      name=name, value=hoge, index=undefined, hasNext=undefined | name=age, value=20, index=undefined, hasNext=undefined
      </div>
      */
-    tempura.settings.processors.describe = function (value, valueName, index, hasNext) {
+    tempura.processors.describe = function (value, valueName, index, hasNext) {
       return 'name=' + valueName + ', value=' + value + ', index=' + index + ', hasNext=' + hasNext;
     };
     var template = tempura.prepare(this.html('template'));
@@ -265,7 +259,7 @@ TestCase('api', {
      name=$this, value=aaa, index=0, hasNext=true | name=$this, value=bbb, index=1, hasNext=false
      </div>
      */
-    tempura.settings.processors.describe = function (value, valueName, index, hasNext) {
+    tempura.processors.describe = function (value, valueName, index, hasNext) {
       return 'name=' + valueName + ', value=' + value + ', index=' + index + ', hasNext=' + hasNext;
     };
     var template = tempura.prepare(this.html('template'));
