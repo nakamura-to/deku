@@ -464,7 +464,7 @@ TestCase('compiler', {
 
   'test compile: partial': function () {
     var fn = this.compiler.compile('{{name}} is {{@link}}');
-    var data = {name:'foo', link: {url: '/hoge', title: 'HOGE'}};
+    var data = {name:'foo', url: '/hoge', title: 'HOGE'};
     var result;
     this.templateContext.partials.link = '<a href="{{url}}">{{title}}</a>';
     result = fn.call(this.templateContext, data, [data]);
@@ -472,10 +472,10 @@ TestCase('compiler', {
   },
 
   'test compile: partial: context': function () {
-    var fn = this.compiler.compile('{{#person}}{{name}} is {{@link $root}}{{/person}}');
-    var data = {person: {name:'foo'}, link: {url: '/hoge', title: 'HOGE'}};
+    var fn = this.compiler.compile('{{name}} is {{@link link}}');
+    var data = {name:'foo', link: {url: '/hoge', title: 'HOGE'}};
     var result;
-    this.templateContext.partials.link = '<a href="{{link.url}}">{{link.title}}</a>';
+    this.templateContext.partials.link = '<a href="{{url}}">{{title}}</a>';
     result = fn.call(this.templateContext, data, [data]);
     assertSame('foo is <a href="/hoge">HOGE</a>', result);
   },

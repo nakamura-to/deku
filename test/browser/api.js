@@ -62,7 +62,7 @@ TestCase('api', {
       }
     };
     var template = tempura.prepare(this.html('template'), options);
-    var result = template.render({person: {name: 'hoge', age: 20}});
+    var result = template.render({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);
   },
 
@@ -77,7 +77,7 @@ TestCase('api', {
      */
     tempura.settings.partials.person = "[{{name}}] is {{age}} years old.";
     var template = tempura.prepare(this.html('template'));
-    var result = template.render({person: {name: 'hoge', age: 20}});
+    var result = template.render({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);
   },
 
