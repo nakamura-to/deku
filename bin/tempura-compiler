@@ -73,6 +73,7 @@ var processAll = function () {
 if (argv.amd) {
   buf.push('define(["' + argv.amd + '"], function (tempura) {\n');
   processAll();
+  buf.push('return tempura.templates;');
   buf.push('\n});');
 } else {
   buf.push('(function () {\n');
