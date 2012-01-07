@@ -1,4 +1,4 @@
-(function (tempura) {
+(function (pot) {
 // BEGIN PARSER
 {{{parser}}}
 // END PRASER
@@ -6,7 +6,7 @@
   if (typeof module !== 'undefined') {
     module.exports = parser;
   } else {
-    tempura.internal.parser = parser;
+    pot.internal.parser = parser;
   }
 
-}(typeof module !== 'undefined' ? {} : tempura));
+}(typeof module !== 'undefined' ? {} : pot));

@@ -3,13 +3,14 @@
 var fs = require('fs');
 var assert = require('assert');
 var path = require('path');
-var tempura = require('../..');
+var pot = require('../..');
+
 var compare = function (file, template, expected, data) {
   var message;
   var actual;
   try {
     console.log(file + ' Begun');
-    actual = tempura.prepare(template).render(data);
+    actual = pot.prepare(template).render(data);
     assert.equal(actual, expected);
     console.log(file + ' Passed');
   } catch (e) {
@@ -35,7 +36,7 @@ fs.readdir(__dirname, function (err, files) {
     return path.join(__dirname, name);
   });
   files.forEach(function (file) {
-    var match = file.match(/^([\s\S]*)\.tempura$/);
+    var match = file.match(/^([\s\S]*)\.pot$/);
     var base;
     var load = function (scope) {
       fs.readFile(file, 'utf8', function (err, template) {

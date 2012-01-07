@@ -1,7 +1,7 @@
 TestCase('parser', {
 
   'setUp': function () {
-    this.parser = tempura.internal.parser;
+    this.parser = pot.internal.parser;
   },
 
   'test whitespaces': function () {

@@ -1,18 +1,18 @@
-tempura — simple templating library in javascript
+pot — simple templating library in javascript
 =================================================
 
-[tempura](http://nakamura-to.github.com/tempura/) is templating library inspired by [mustache.js](https://github.com/janl/mustache.js), 
+[pot](http://nakamura-to.github.com/pot/) is templating library inspired by [mustache.js](https://github.com/janl/mustache.js),
 [tempo](https://github.com/twigkit/tempo) and [handlebars.js](https://github.com/wycats/handlebars.js/).
 
 Some features are similar with mustache.js.
 
 > Usage
 
-Below is quick example how to use tempura:
+Below is quick example how to use pot:
 
 ```js
 var source = '{{name}} spends {{calc}}';
-var template = tempura.prepare(source);
+var template = pot.prepare(source);
 
 var data = {
     name: 'Joe',
@@ -29,27 +29,27 @@ console.log(result); // Joe spends 4200
 
 ### Node.js
 
-If you're developing with Node.js, just use NPM to add the tempura package.
+If you're developing with Node.js, just use NPM to add the pot package.
 
 ```
-$ npm install tempura
+$ npm install pot
 ```
 
 ### Browser
 
-[Download](https://github.com/nakamura-to/tempura/tags) the tempura.js and include it in your web page using the script tag.
+[Download](https://github.com/nakamura-to/pot/tags) the pot.js and include it in your web page using the script tag.
 
-Differences Between tempura and mustache.js
+Differences Between pot and mustache.js
 -------------------------------------------
 
 ### Pipeline Processing
 
-The most unique feature in tempura is the pipeline processing. 
+The most unique feature in pot is the pipeline processing.
 This feature is useful for formatting and coversion.
 
 ```js
 var source = '{{name}} spends {{calc|dollar}}';
-var template = tempura.prepare(source);
+var template = pot.prepare(source);
 
 var data = {
     name: 'Joe',
@@ -74,7 +74,7 @@ More than one pipe function are available.
 
 ```js
 var source = '{{name|yeah|enclose}}';
-var template = tempura.prepare(source);
+var template = pot.prepare(source);
 
 var data = {
     name: 'Joe',
@@ -93,7 +93,7 @@ console.log(result); // [Joe!]
 You can define global pipe functions.
 
 ```js
-tempura.settings.processors = {
+pot.settings.processors = {
     yeah: function (value) {
         return value + '!';
     },
@@ -103,7 +103,7 @@ tempura.settings.processors = {
 };
 
 var source = '{{name|yeah|enclose}}';
-var template = tempura.prepare(source);
+var template = pot.prepare(source);
 
 var data = {name: 'Joe'};
 var result = template.render(data);
@@ -113,7 +113,7 @@ console.log(result); // [Joe!]
 
 ### Data Context Access
 
-tempura provides following special identifiers to access data context. 
+pot provides following special identifiers to access data context.
 
 * $root : the reference to the root data context
 * $parent : the reference to the parent data context
@@ -157,21 +157,21 @@ We'll get this output:
 
 ### Error Handling
 
-tempura can handle the value missings.
+pot can handle the value missings.
 This feature is useful for debugging.
 
 ```js
-tempura.settings.noSuchValue = function (name) {
+pot.settings.noSuchValue = function (name) {
     console.warn('the value "' + name + '" is missing');
     return undefined;
 };
-tempura.settings.noSuchProcessor = function (name, value) {
+pot.settings.noSuchProcessor = function (name, value) {
     console.warn('the processor "' + name + '" is missing');
     return value;
 };
 
 var source = '{{name|unknownPipe1}} is {{unkonwnValue|unknownPipe2}}';
-var template = tempura.prepare(source);
+var template = pot.prepare(source);
 
 var data = {name: 'Joe'};
 var result = template.render(data);
@@ -179,17 +179,17 @@ var result = template.render(data);
 console.log(result); // Joe is
 ```
 
-tempura provides a hook point to handle all values before and after applying pipeline functions.
+pot provides a hook point to handle all values before and after applying pipeline functions.
 It's means you can check or convert erroneous values.
-(By the way, tempura converts undefined values to empty string by default preRender function.)
+(By the way, pot converts undefined values to empty string by default preRender function.)
 
 ```js
-tempura.settings.postPipeline = function (value) {
+pot.settings.postPipeline = function (value) {
     return value === null ? '***' : value;
 };
 
 var source = 'name is {{name}}';
-var template = tempura.prepare(source);
+var template = pot.prepare(source);
 
 var data = {name: null};
 var result = template.render(data);
@@ -199,7 +199,7 @@ console.log(result); // name is ***
 
 ### Others
 
-Currently, tempura doesn't support following features, which mustache.js has:
+Currently, pot doesn't support following features, which mustache.js has:
 
 * Higher Order Sections
 * Streaming

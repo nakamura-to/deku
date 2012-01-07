@@ -5,25 +5,25 @@ TestCase('api', {
       return document.getElementById(id).innerHTML;
     };
     this.preseved = {};
-    this.preseved.prePipeline = tempura.prePipeline;
-    this.preseved.postPipeline = tempura.postPipeline;
-    this.preseved.noSuchValue = tempura.noSuchValue;
-    this.preseved.noSuchPartial = tempura.noSuchPartial;
-    this.preseved.noSuchProcessor = tempura.noSuchProcessor;
+    this.preseved.prePipeline = pot.prePipeline;
+    this.preseved.postPipeline = pot.postPipeline;
+    this.preseved.noSuchValue = pot.noSuchValue;
+    this.preseved.noSuchPartial = pot.noSuchPartial;
+    this.preseved.noSuchProcessor = pot.noSuchProcessor;
   },
 
   'tearDown': function () {
-    tempura.templates = {};
-    tempura.processors = {};
-    tempura.prePipeline = this.preseved.prePipeline;
-    tempura.postPipeline = this.preseved.postPipeline;
-    tempura.noSuchValue = this.preseved.noSuchValue;
-    tempura.noSuchPartial = this.preseved.noSuchPartial;
-    tempura.noSuchProcessor = this.preseved.noSuchProcessor;
+    pot.templates = {};
+    pot.processors = {};
+    pot.prePipeline = this.preseved.prePipeline;
+    pot.postPipeline = this.preseved.postPipeline;
+    pot.noSuchValue = this.preseved.noSuchValue;
+    pot.noSuchPartial = this.preseved.noSuchPartial;
+    pot.noSuchProcessor = this.preseved.noSuchProcessor;
   },
 
   'test version': function () {
-    assertNotUndefined(tempura.version);
+    assertNotUndefined(pot.version);
   },
 
   'test prepare and render: it shoud accept an object': function () {
@@ -35,7 +35,7 @@ TestCase('api', {
      hoge is 20 years old.
      </div>
      */
-    var template = tempura.prepare(this.html('template'));
+    var template = pot.prepare(this.html('template'));
     var result = template.render({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);
   },
@@ -49,13 +49,13 @@ TestCase('api', {
      hoge is 20 years old.
      </div>
      */
-    tempura.templates.person = "[{{name}}] is {{age}} years old.";
+    pot.templates.person = "[{{name}}] is {{age}} years old.";
     var options = {
       templates: {
         person: "{{name}} is {{age}} years old."
       }
     };
-    var template = tempura.prepare(this.html('template'), options);
+    var template = pot.prepare(this.html('template'), options);
     var result = template.render({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);
   },
@@ -69,8 +69,8 @@ TestCase('api', {
      [hoge] is 20 years old.
      </div>
      */
-    tempura.templates.person = "[{{name}}] is {{age}} years old.";
-    var template = tempura.prepare(this.html('template'));
+    pot.templates.person = "[{{name}}] is {{age}} years old.";
+    var template = pot.prepare(this.html('template'));
     var result = template.render({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);
   },
@@ -84,7 +84,7 @@ TestCase('api', {
      [hoge] is 20 years old.
      </div>
      */
-    tempura.processors.enclose = function (value) {
+    pot.processors.enclose = function (value) {
       return '%' + value + '%';
     };
     var options = {
@@ -94,7 +94,7 @@ TestCase('api', {
         }
       }
     };
-    var template = tempura.prepare(this.html('template'), options);
+    var template = pot.prepare(this.html('template'), options);
     var result = template.render({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);
   },
@@ -108,10 +108,10 @@ TestCase('api', {
      [hoge] is 20 years old.
      </div>
      */
-    tempura.processors.enclose = function (value) {
+    pot.processors.enclose = function (value) {
       return '[' + value + ']';
     };
-    var template = tempura.prepare(this.html('template'));
+    var template = pot.prepare(this.html('template'));
     var result = template.render({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);
   },
@@ -125,13 +125,13 @@ TestCase('api', {
      [hoge is not found] is 20 years old.
      </div>
      */
-    tempura.noSuchValue = function () {};
+    pot.noSuchValue = function () {};
     var options = {
       noSuchValue: function (name) {
         return '[' + name + ' is not found]';
       }
     };
-    var template = tempura.prepare(this.html('template'), options);
+    var template = pot.prepare(this.html('template'), options);
     var result = template.render({age: 20});
     assertSame(this.html('expected'), result);
   },
@@ -145,10 +145,10 @@ TestCase('api', {
      [hoge is not found] is 20 years old.
      </div>
      */
-    tempura.noSuchValue = function (name) {
+    pot.noSuchValue = function (name) {
       return '[' + name + ' is not found]';
     };
-    var template = tempura.prepare(this.html('template'));
+    var template = pot.prepare(this.html('template'));
     var result = template.render({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);
   },
@@ -162,13 +162,13 @@ TestCase('api', {
      [person is not found]
      </div>
      */
-    tempura.noSuchPartial = function () {};
+    pot.noSuchPartial = function () {};
     var options = {
       noSuchPartial: function (name) {
         return '[' + name + ' is not found]';
       }
     };
-    var template = tempura.prepare(this.html('template'), options);
+    var template = pot.prepare(this.html('template'), options);
     var result = template.render({});
     assertSame(this.html('expected'), result);
   },
@@ -182,10 +182,10 @@ TestCase('api', {
      [person is not found]
      </div>
      */
-    tempura.noSuchPartial = function (name) {
+    pot.noSuchPartial = function (name) {
       return '[' + name + ' is not found]';
     };
-    var template = tempura.prepare(this.html('template'));
+    var template = pot.prepare(this.html('template'));
     var result = template.render({});
     assertSame(this.html('expected'), result);
   },
@@ -199,13 +199,13 @@ TestCase('api', {
      [foo,hoge,name] is 20 years old.
      </div>
      */
-    tempura.noSuchProcessor = function () {};
+    pot.noSuchProcessor = function () {};
     var options = {
       noSuchProcessor: function (pipeName, value, valueName) {
         return '[' + pipeName + ',' + value + ',' + valueName + ']';
       }
     };
-    var template = tempura.prepare(this.html('template'), options);
+    var template = pot.prepare(this.html('template'), options);
     var result = template.render({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);
   },
@@ -219,10 +219,10 @@ TestCase('api', {
      [foo,hoge,name] is 20 years old.
      </div>
      */
-    tempura.noSuchProcessor = function (processorName, value, valueName) {
+    pot.noSuchProcessor = function (processorName, value, valueName) {
       return '[' + processorName + ',' + value + ',' + valueName + ']';
     };
-    var template = tempura.prepare(this.html('template'));
+    var template = pot.prepare(this.html('template'));
     var result = template.render({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);
   },
@@ -236,15 +236,15 @@ TestCase('api', {
      hoge is 20 years old.
      </div>
      */
-    var f = tempura.internal.core.compile(this.html('template'));
-    var template = tempura.prepare(f);
+    var f = pot.internal.core.compile(this.html('template'));
+    var template = pot.prepare(f);
     var result = template.render({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);
   },
 
   'test prepare and render: it should not accept illegal value': function () {
     assertException(function () {
-      tempura.prepare(10);
+      pot.prepare(10);
     });
   },
 
@@ -257,10 +257,10 @@ TestCase('api', {
      name=name, value=hoge, index=undefined, hasNext=undefined | name=age, value=20, index=undefined, hasNext=undefined
      </div>
      */
-    tempura.processors.describe = function (value, valueName, index, hasNext) {
+    pot.processors.describe = function (value, valueName, index, hasNext) {
       return 'name=' + valueName + ', value=' + value + ', index=' + index + ', hasNext=' + hasNext;
     };
-    var template = tempura.prepare(this.html('template'));
+    var template = pot.prepare(this.html('template'));
     var result = template.render({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);
   },
@@ -274,10 +274,10 @@ TestCase('api', {
      name=$this, value=aaa, index=0, hasNext=true | name=$this, value=bbb, index=1, hasNext=false
      </div>
      */
-    tempura.processors.describe = function (value, valueName, index, hasNext) {
+    pot.processors.describe = function (value, valueName, index, hasNext) {
       return 'name=' + valueName + ', value=' + value + ', index=' + index + ', hasNext=' + hasNext;
     };
-    var template = tempura.prepare(this.html('template'));
+    var template = pot.prepare(this.html('template'));
     var result = template.render({array:['aaa', 'bbb']});
     assertSame(this.html('expected'), result);
   }

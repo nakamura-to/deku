@@ -1,13 +1,13 @@
 TestCase('compiler', {
 
   'setUp': function () {
-    this.parser = tempura.internal.parser;
-    this.compiler = tempura.internal.compiler;
+    this.parser = pot.internal.parser;
+    this.compiler = pot.internal.compiler;
     this.templateContext = {
-      escape: tempura.internal.core.escape,
-      compile: tempura.internal.core.compile,
-      handleBlock: tempura.internal.core.handleBlock,
-      handleInverse: tempura.internal.core.handleInverse,
+      escape: pot.internal.core.escape,
+      compile: pot.internal.core.compile,
+      handleBlock: pot.internal.core.handleBlock,
+      handleInverse: pot.internal.core.handleInverse,
       templates: {},
       processors: {},
       prePipeline : function (value) {

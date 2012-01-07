@@ -1,7 +1,7 @@
 TestCase('core', {
 
   'setUp': function () {
-    this.core = tempura.internal.core;
+    this.core = pot.internal.core;
   },
 
   'test prepare: it should return a object': function () {

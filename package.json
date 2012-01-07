@@ -1,7 +1,7 @@
 {
-    "name"          : "tempura",
+    "name"          : "pot",
     "description"   : "simple templating library in javascript.",
-    "homepage"      : "http://nakamura-to.github.com/tempura/",
+    "homepage"      : "http://nakamura-to.github.com/pot/",
     "keywords"      : ["template", "mustache"],
     "author"        : "Toshihiro Nakamura <toshihiro.nakamura@gmail.com>",
     "contributors"  : [],
@@ -13,10 +13,10 @@
         "pegjs":     ">= 0.6.2",
         "uglify-js": ">= 1.2.3"
     },
-    "repository"    : {"type": "git", "url": "git@github.com:nakamura-to/tempura.git"},
-    "main"          : "./lib/tempura.js",
+    "repository"    : {"type": "git", "url": "git@github.com:nakamura-to/pot.git"},
+    "main"          : "./lib/pot.js",
     "bin"           : {
-        "tempura": "./bin/tempura-compiler"
+        "pot": "./bin/pot-compiler"
     },
     "version"       : "0.0.5dev"
 }
