@@ -1,7 +1,7 @@
-pot — simple templating library in javascript
-=================================================
+pot — Pipeline Oriented Templating library in javascrip
+=======================================================
 
-[pot](http://nakamura-to.github.com/pot/) is templating library inspired by [mustache.js](https://github.com/janl/mustache.js),
+pot is templating library inspired by [mustache.js](https://github.com/janl/mustache.js),
 [tempo](https://github.com/twigkit/tempo) and [handlebars.js](https://github.com/wycats/handlebars.js/).
 
 Some features are similar with mustache.js.
@@ -93,7 +93,7 @@ console.log(result); // [Joe!]
 You can define global pipe functions.
 
 ```js
-pot.settings.processors = {
+pot.processors = {
     yeah: function (value) {
         return value + '!';
     },
@@ -161,11 +161,11 @@ pot can handle the value missings.
 This feature is useful for debugging.
 
 ```js
-pot.settings.noSuchValue = function (name) {
+pot.noSuchValue = function (name) {
     console.warn('the value "' + name + '" is missing');
     return undefined;
 };
-pot.settings.noSuchProcessor = function (name, value) {
+pot.noSuchProcessor = function (name, value) {
     console.warn('the processor "' + name + '" is missing');
     return value;
 };
@@ -184,7 +184,7 @@ It's means you can check or convert erroneous values.
 (By the way, pot converts undefined values to empty string by default preRender function.)
 
 ```js
-pot.settings.postPipeline = function (value) {
+pot.postPipeline = function (value) {
     return value === null ? '***' : value;
 };
 
