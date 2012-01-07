@@ -240,12 +240,12 @@ TestCase('compiler', {
     assertSame(0, result.opcodes.length);
   },
 
-  'test JsCompiler: string: spike': function () {
+  'test JsCompiler: asString: spike': function () {
     var ast = this.parser.parse('{{#hoge}}{{test.aaa}}{{#foo}}bar{{/foo}}{{/hoge}}');
     var compiler = new this.compiler.Compiler();
     var environment = compiler.compile(ast);
     var jsCompiler = new this.compiler.JsCompiler(environment);
-    var result = jsCompiler.compile();
+    var result = jsCompiler.compile(true);
     assertNotUndefined(result);
     console.log(result);
   },

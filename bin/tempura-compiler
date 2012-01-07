@@ -1,0 +1,72 @@
+#!/usr/bin/env node
+
+var fs = require('fs');
+var path = require('path');
+var tempura = require('../lib/tempura');
+var optimist = require('optimist')
+  .usage('Compile tempura templates.\nUsage: tempura-compiler template ...', {
+    f: {
+      type: 'string',
+      description: 'Output file',
+      alias: 'file'
+    },
+    r: {
+      type: 'string',
+      description: 'Template root',
+      alias: 'root'
+    }
+  })
+  .check(function (argv) {
+    if (!argv._.length) {
+      throw new Error('Define at least one template or directory.');
+    }
+  })
+  .check(function (argv) {
+    argv._.forEach(function (filePath) {
+      try {
+        fs.statSync(filePath);
+      } catch (e) {
+        throw new Error('Unable open file "' + filePath + '". ' + e.message);
+      }
+    });
+  });
+var argv = optimist.argv;
+var buf = [];
+var content;
+var process = function process(filePath, root) {
+  var stat = fs.statSync(filePath);
+  var content;
+  var name;
+  if (stat.isDirectory()) {
+    fs.readdirSync(filePath).map(function (entry) {
+      var entryPath = path.join(filePath, entry);
+      if (path.extname(entryPath) === '.tempura' || fs.statSync(entryPath).isDirectory()) {
+        process(entryPath, root || filePath);
+      }
+    });
+  } else {
+    content = fs.readFileSync(filePath, 'utf-8');
+    if (!root) {
+      name = path.basename(filePath);
+    } else if (path.dirname(filePath).indexOf(root) === 0) {
+      name = filePath.slice(root.length + 1);
+    } else {
+      name = filePath;
+    }
+    name = name.replace(/\.tempura$/, '').replace(/¥/g, '/');
+    buf.push('tempura.templates["' + name + '"] = ' + tempura.internal.compiler.compile(content, true) + ';\n');
+  }
+};
+
+buf.push('(function () {\n');
+argv._.forEach(function (filePath) {
+  process(filePath, argv.root);
+});
+buf.push('\n}());');
+content = buf.join('');
+
+if (argv.file) {
+  fs.writeFileSync(argv.file, content, 'utf-8');
+} else {
+  console.log(content);
+}

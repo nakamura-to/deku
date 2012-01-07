@@ -5,7 +5,9 @@
     "keywords"      : ["template", "mustache"],
     "author"        : "Toshihiro Nakamura <toshihiro.nakamura@gmail.com>",
     "contributors"  : [],
-    "dependencies"  : [],
+    "dependencies"  : {
+        "optimist":  ">= 0.3.1"
+    },
     "devDependencies": {
         "jake":      ">= 0.1.22",
         "pegjs":     ">= 0.6.2",
@@ -13,5 +15,8 @@
     },
     "repository"    : {"type": "git", "url": "git@github.com:nakamura-to/tempura.git"},
     "main"          : "./lib/tempura.js",
+    "bin"           : {
+        "tempura": "./bin/tempura-compiler"
+    },
     "version"       : "0.0.5dev"
 }
