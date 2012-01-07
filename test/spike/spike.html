@@ -6,7 +6,7 @@
 <body>
     <script id="template" type="text/template">
         <div>
-            <h1 class='header'>{{@header}}</h1>
+            <h1 class='header'>{{header}}</h1>
             <h2 class='header2'>{{header2}}</h2>
             <h3 class='header3'>{{header3}}</h3>
             <h4 class='header4'>{{header4}}</h4>
@@ -20,7 +20,11 @@
         </div>
     </script>
     <div id="result"></div>
-    <script src="../../tempura.js"></script>
+    <script src="../../lib/internal/prelude.js"></script>
+    <script src="../../lib/internal/parser.js"></script>
+    <script src="../../lib/internal/compiler.js"></script>
+    <script src="../../lib/internal/core.js"></script>
+    <script src="../../lib/api.js"></script>
     <script>
       function el(id) {
         return document.getElementById(id);

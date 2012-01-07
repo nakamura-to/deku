@@ -1,0 +1,7 @@
+{{@header pkg}}
+// {{{preludeName}}}
+{{{prelude}}}
+// {{{coreName}}}
+{{{core}}}
+// {{{apiName}}}
+{{{api}}}

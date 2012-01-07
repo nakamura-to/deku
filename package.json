@@ -12,6 +12,6 @@
         "uglify-js": ">= 1.2.3"
     },
     "repository"    : {"type": "git", "url": "git@github.com:nakamura-to/tempura.git"},
-    "main"          : "tempura.js",
-    "version"       : "0.0.4"
+    "main"          : "./lib/tempura.js",
+    "version"       : "0.0.5dev"
 }

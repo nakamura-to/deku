@@ -1,0 +1,11 @@
+{{@header pkg}}
+// {{{preludeName}}}
+{{{prelude}}}
+// {{{parserName}}}
+{{{parser}}}
+// {{{compilerName}}}
+{{{compiler}}}
+// {{{coreName}}}
+{{{core}}}
+// {{{apiName}}}
+{{{api}}}

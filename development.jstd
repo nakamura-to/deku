@@ -1,0 +1,9 @@
+server: http://localhost:9876
+load:
+  - lib/internal/prelude.js
+  - lib/internal/parser.js
+  - lib/internal/compiler.js
+  - lib/internal/core.js
+  - lib/api.js
+test:
+  - test/browser/*.js

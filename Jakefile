@@ -1,19 +1,32 @@
 var util = require('util');
 var fs = require('fs');
-var path         = require("path");
-var childProcess = require("child_process");
-
+var path = require('path');
+var childProcess = require('child_process');
+var tempura = require('./lib/tempura');
 var pkg = JSON.parse(fs.readFileSync('./package.json').toString());
-var version = pkg.version;
 
 var SRC_DIR = './src';
 var DIST_DIR = './dist';
+var LIB_DIR = './lib';
+var TEMPLATES_DIR = './templates';
+
 var PEGJS_FILE = SRC_DIR + '/tempura.pegjs';
-var PARSER_FILE = DIST_DIR + '/parser.js';
-var TEMPURA_FILE = 'tempura.js';
-var TEMPURA_MIN_FILE = 'tempura-min.js';
-var TEMPURA_DIST_FILE = DIST_DIR + '/tempura.js';
-var TEMPURA_MIN_DIST_FILE = DIST_DIR + '/tempura-min.js';
+var GENERATED_PARSER_FILE = DIST_DIR + 'generated.parser.js';
+var TEMPURA_FILE = DIST_DIR + '/tempura-' + pkg.version + '.js';
+var TEMPURA_MIN_FILE = DIST_DIR + '/tempura-' + pkg.version + '.min.js';
+var TEMPURA_RUNTIME_FILE = DIST_DIR + '/tempura.runtime-' + pkg.version + '.js';
+var TEMPURA_RUNTIME_MIN_FILE = DIST_DIR + '/tempura.runtime-' + pkg.version + '.min.js';
+
+var PRELUDE_FILE = LIB_DIR + '/internal/prelude.js';
+var PARSER_FILE = LIB_DIR + '/internal/parser.js';
+var COMPILER_FILE = LIB_DIR + '/internal/compiler.js';
+var CORE_FILE = LIB_DIR + '/internal/core.js';
+var API_FILE = LIB_DIR + '/api.js';
+
+var PARSER_TEMPLATE_FILE = TEMPLATES_DIR + '/parser.tempura';
+var HEADER_TEMPLATE_FILE = TEMPLATES_DIR + '/header.tempura';
+var TEMPURA_TEMPLATE_FILE = TEMPLATES_DIR + '/tempura.tempura';
+var TEMPURA_RUNTIME_TEMPLATE_FILE = TEMPLATES_DIR + '/tempura.runtime.tempura';
 
 var mkdirUnlessExists = function (dir)  {
   try {
@@ -50,56 +63,75 @@ var removeDir = function (dir) {
   fs.rmdirSync(dir);
 };
 
-var copyFile = function (src, dest) {
-  fs.writeFileSync(dest, fs.readFileSync(src));
-};
-
-desc('Clean dist directory.');
 task('clean', function () {
   mkdirUnlessExists(DIST_DIR);
   cleanDir(DIST_DIR);
 });
 
-desc('Generate parser.js.');
-task('parser', ['clean'], function () {
-  var process = childProcess.spawn(
-    'pegjs',
-    ['-e', 'var parser', PEGJS_FILE, PARSER_FILE],
-    {customFds: [0, 1, 2]}
-  );
-  process.on('exit', function () { complete(); });
+task('makeParser', ['clean'], function () {
+  var process = childProcess.spawn('pegjs', ['-e', 'var parser', PEGJS_FILE, GENERATED_PARSER_FILE]);
+  process.on('exit', function () {
+    var template = tempura.prepare(fs.readFileSync(PARSER_TEMPLATE_FILE, 'utf-8'));
+    var data = {parser: fs.readFileSync(GENERATED_PARSER_FILE, 'utf-8')};
+    var content = template.render(data);
+    fs.writeFileSync(PARSER_FILE, content, 'utf-8');
+    fs.unlinkSync(GENERATED_PARSER_FILE);
+    complete();
+  });
 }, {async: true});
 
-desc('Generate tempura.js.');
-task('build', ['parser'], function () {
-  var parser = fs.readFileSync(PARSER_FILE, 'utf-8');
-  var tempura = fs.readFileSync(TEMPURA_FILE, 'utf-8');
-  tempura = tempura.replace(/(tempura\.js ).*/, '$1' + version);
-  tempura = tempura.replace(/(version: ').+?(',)/g, '$1' + version + '$2');
-  tempura = tempura.replace(/(\/\/ BEGIN PARSER\n)[\s\S]*?(\/\/ END PARSER)/g, '$1' + parser + '$2');
-  fs.writeFileSync(TEMPURA_DIST_FILE, tempura, 'utf-8');
-  fs.unlinkSync(PARSER_FILE);
+task('test', ['makeParser'], function () {
+  var process = childProcess.execFile('./test/node/run.js', function (error, stdout, stderr) {
+    console.log(stdout);
+    console.error(stderr);
+    if (error != null) {
+      console.error('error: ' + error);
+    }
+  });
+  process.on('exit', function () {
+    complete();
+  });
+}, {async: true});
+
+task('build', ['test'], function () {
+  var options = {
+    partials: {
+      header: fs.readFileSync(HEADER_TEMPLATE_FILE, 'utf-8')
+    }
+  };
+  var template = tempura.prepare(fs.readFileSync(TEMPURA_TEMPLATE_FILE, 'utf-8'), options);
+  var data = {
+    preludeName: PRELUDE_FILE,
+    prelude: fs.readFileSync(PRELUDE_FILE, 'utf-8'),
+    parserName: PARSER_FILE,
+    parser: fs.readFileSync(PARSER_FILE, 'utf-8'),
+    compilerName: COMPILER_FILE,
+    compiler: fs.readFileSync(COMPILER_FILE, 'utf-8'),
+    coreName: CORE_FILE,
+    core: fs.readFileSync(CORE_FILE, 'utf-8'),
+    apiName: API_FILE,
+    api: fs.readFileSync(API_FILE, 'utf-8'),
+    pkg: pkg
+  };
+  var content = template.render(data);
+  fs.writeFileSync(TEMPURA_FILE, content, 'utf-8');
+  template = tempura.prepare(fs.readFileSync(TEMPURA_RUNTIME_TEMPLATE_FILE, 'utf-8'), options);
+  content = template.render(data);
+  fs.writeFileSync(TEMPURA_RUNTIME_FILE, content, 'utf-8');
 });
 
-desc('Generate tempura-min.js.');
 task('minify', ['build'], function () {
-  var process = childProcess.spawn(
-    'uglifyjs',
-    ['-o', TEMPURA_MIN_DIST_FILE, TEMPURA_DIST_FILE],
-    { customFds: [0, 1, 2] }
-  );
-  process.on('exit', function () { complete(); });
+  var uglify = function(dest, src) {
+    return childProcess.spawn('uglifyjs', ['-o', dest, src]);
+  }
+  var process = uglify(TEMPURA_MIN_FILE, TEMPURA_FILE);
+  process.on('exit', function () {
+    var process = uglify(TEMPURA_RUNTIME_MIN_FILE, TEMPURA_RUNTIME_FILE);
+    process.on('exit', function () { complete(); });
+  });
 }, {async: true});
 
-//desc('Run test.');
-//task('test', function () {
-//  var process = childProcess.spawn('./test/it/run');
-//  process.on('exit', function () { complete(); });
-//}, {async: true});
-
-task('dist', ['minify', 'test'], function () {
-  copyFile(TEMPURA_DIST_FILE, TEMPURA_FILE);
-  copyFile(TEMPURA_MIN_DIST_FILE, TEMPURA_MIN_FILE);
+task('dist', ['minify'], function () {
   console.log('dist task done.');
 });
 

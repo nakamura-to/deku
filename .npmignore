@@ -1,6 +1,7 @@
 benchmark/
 dist/
 src/
+templates/
 test/
 Jakefile
-jsTestDriver.conf
+*.jstd

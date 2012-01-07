@@ -1,0 +1,12 @@
+(function (tempura) {
+// BEGIN PARSER
+{{{parser}}}
+// END PRASER
+
+  if (typeof module !== 'undefined') {
+    module.exports = parser;
+  } else {
+    tempura.internal.parser = parser;
+  }
+
+}(typeof module !== 'undefined' ? {} : tempura));

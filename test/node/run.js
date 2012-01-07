@@ -2,48 +2,47 @@
 
 var fs = require('fs');
 var assert = require('assert');
-var util = require('util');
-var tempura = require('../../tempura.js');
+var path = require('path');
+var tempura = require('../..');
 var compare = function (file, template, expected, data) {
   var message;
   var actual;
   try {
-    util.puts(file + ' Begun');
+    console.log(file + ' Begun');
     actual = tempura.prepare(template).render(data);
     assert.equal(actual, expected);
-    util.puts(file + ' Passed');
+    console.log(file + ' Passed');
   } catch (e) {
     message = e.name;
     if (e.message) {
       message += ': ' + e.message;
     }
-    util.error(file + ' FAILED');
-    util.error(message);
-    util.error('\nStack:\n\n' + e.stack);
+    console.error(file + ' FAILED');
+    console.error(message);
+    console.error('\nStack:\n\n' + e.stack);
     try {
-      util.error('\nActual[' + actual.length + ']:\n\n' + actual);
-      util.error('\nExpected[' + expected.length + ']:\n\n' + expected);
+      console.error('\nActual[' + actual.length + ']:\n\n' + actual);
+      console.error('\nExpected[' + expected.length + ']:\n\n' + expected);
     } catch (ignored) {
     }
     process.exit();
   }
 };
 
-tempura.settings.noSuchValue = function (name) {
-  throw new Error('noSuchValue: ' + name);
-};
-tempura.settings.noSuchPipe = function (name) {
-  throw new Error('noSuchPipe: ' + name);
-};
-
-fs.readdir('.', function (err, files) {
+fs.readdir(__dirname, function (err, files) {
+  if (err) throw err;
+  files = files.map(function (name) {
+    return path.join(__dirname, name);
+  });
   files.forEach(function (file) {
     var match = file.match(/^([\s\S]*)\.tempura$/);
     var base;
     var load = function (scope) {
       fs.readFile(file, 'utf8', function (err, template) {
+        if (err) throw err;
         fs.readFile(base + '.html', 'utf8', function (err, expected) {
-          compare(file, template, expected, scope);
+          if (err) throw err;
+          compare(path.basename(file), template, expected, scope);
         });
       });
     };

@@ -88,7 +88,35 @@ TestCase('core', {
     assertSame('123', this.core.escape(123));
     assertSame('', this.core.escape(null));
     assertSame('', this.core.escape(undefined));
+  },
+
+  'test isObject': function () {
+    var Person = function () {};
+    var person = new Person();
+    assertTrue(this.core.isObject(person));
+    assertTrue(this.core.isObject({}));
+    assertTrue(this.core.isObject([]));
+    assertTrue(this.core.isObject(function () {}));
+    assertFalse(this.core.isObject('aaa'));
+    assertFalse(this.core.isObject(1));
+    assertTrue(this.core.isObject(new Date()));
+    assertTrue(this.core.isObject(/aaa/));
+    assertFalse(this.core.isObject(null));
+    assertFalse(this.core.isObject(undefined));
+  },
+
+  'test isArray': function () {
+    assertTrue(this.core.isArray([]));
+    assertFalse(this.core.isArray({}));
+    assertFalse(this.core.isArray(function () {}));
+    assertFalse(this.core.isArray('aaa'));
+    assertFalse(this.core.isArray(1));
+    assertFalse(this.core.isArray(new Date()));
+    assertFalse(this.core.isArray(/aaa/));
+    assertFalse(this.core.isArray(null));
+    assertFalse(this.core.isArray(undefined));
   }
+
 
 
 });
