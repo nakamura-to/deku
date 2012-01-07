@@ -5,11 +5,11 @@ TestCase('compiler', {
     this.compiler = tempura.internal.compiler;
     this.templateContext = {
       escape: tempura.internal.core.escape,
-      compile: tempura.internal.compiler.compile,
+      compile: tempura.internal.core.compile,
       handleBlock: tempura.internal.core.handleBlock,
       handleInverse: tempura.internal.core.handleInverse,
       partials: {},
-      processors: {},
+      templates: {},
       noSuchValue: function () {
         return undefined;
       },
@@ -466,7 +466,7 @@ TestCase('compiler', {
     var fn = this.compiler.compile('{{name}} is {{@link}}');
     var data = {name:'foo', url: '/hoge', title: 'HOGE'};
     var result;
-    this.templateContext.partials.link = '<a href="{{url}}">{{title}}</a>';
+    this.templateContext.templates.link = '<a href="{{url}}">{{title}}</a>';
     result = fn.call(this.templateContext, data, [data]);
     assertSame('foo is <a href="/hoge">HOGE</a>', result);
   },
@@ -475,7 +475,7 @@ TestCase('compiler', {
     var fn = this.compiler.compile('{{name}} is {{@link link}}');
     var data = {name:'foo', link: {url: '/hoge', title: 'HOGE'}};
     var result;
-    this.templateContext.partials.link = '<a href="{{url}}">{{title}}</a>';
+    this.templateContext.templates.link = '<a href="{{url}}">{{title}}</a>';
     result = fn.call(this.templateContext, data, [data]);
     assertSame('foo is <a href="/hoge">HOGE</a>', result);
   },

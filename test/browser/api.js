@@ -8,7 +8,7 @@ TestCase('api', {
 
   'tearDown': function () {
     tempura.settings = {
-      partials: {},
+      templates: {},
       processors: {},
       prePipeline: function (value, valueName, index, hasNext) {
         return value;
@@ -55,9 +55,9 @@ TestCase('api', {
      hoge is 20 years old.
      </div>
      */
-    tempura.settings.partials.person = "[{{name}}] is {{age}} years old.";
+    tempura.settings.templates.person = "[{{name}}] is {{age}} years old.";
     var options = {
-      partials: {
+      templates: {
         person: "{{name}} is {{age}} years old."
       }
     };
@@ -75,7 +75,7 @@ TestCase('api', {
      [hoge] is 20 years old.
      </div>
      */
-    tempura.settings.partials.person = "[{{name}}] is {{age}} years old.";
+    tempura.settings.templates.person = "[{{name}}] is {{age}} years old.";
     var template = tempura.prepare(this.html('template'));
     var result = template.render({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);

@@ -101,7 +101,7 @@ task('test', ['makeParser', 'updateVersion'], function () {
 
 task('build', ['test'], function () {
   var options = {
-    partials: {
+    templates: {
       header: fs.readFileSync(HEADER_TEMPLATE_FILE, 'utf-8')
     }
   };
