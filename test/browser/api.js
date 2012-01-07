@@ -227,6 +227,27 @@ TestCase('api', {
     assertSame(this.html('expected'), result);
   },
 
+  'test prepare and render: it should accept a pre-compiled function': function () {
+    /*:DOC +=
+     <div id="template">
+     {{name}} is {{age}} years old.
+     </div>
+     <div id="expected">
+     hoge is 20 years old.
+     </div>
+     */
+    var f = tempura.internal.core.compile(this.html('template'));
+    var template = tempura.prepare(f);
+    var result = template.render({name: 'hoge', age: 20});
+    assertSame(this.html('expected'), result);
+  },
+
+  'test prepare and render: it should not accept illegal value': function () {
+    assertException(function () {
+      tempura.prepare(10);
+    });
+  },
+
   'test processors: it should accept valueInfo': function () {
     /*:DOC +=
      <div id="template">
