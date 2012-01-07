@@ -1,8 +1,8 @@
 {
     "name"          : "pot",
-    "description"   : "simple templating library in javascript.",
+    "description"   : "Pipeline Oriented Templating library in javascript.",
     "homepage"      : "http://nakamura-to.github.com/pot/",
-    "keywords"      : ["template", "mustache"],
+    "keywords"      : ["template", "mustache", "pipeline", "pot"],
     "author"        : "Toshihiro Nakamura <toshihiro.nakamura@gmail.com>",
     "contributors"  : [],
     "dependencies"  : {
