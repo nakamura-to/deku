@@ -5,6 +5,11 @@ var path = require('path');
 var tempura = require('../lib/tempura');
 var optimist = require('optimist')
   .usage('Compile tempura templates.\nUsage: tempura-compiler template ...', {
+    a: {
+      type: 'string',
+      description: 'AMD Mudule name for tampura',
+      alias: 'amd'
+    },
     f: {
       type: 'string',
       description: 'Output file',
@@ -36,6 +41,7 @@ var content;
 var process = function process(filePath, root) {
   var stat = fs.statSync(filePath);
   var content;
+  var dirname;
   var name;
   if (stat.isDirectory()) {
     fs.readdirSync(filePath).map(function (entry) {
@@ -45,24 +51,35 @@ var process = function process(filePath, root) {
       }
     });
   } else {
-    content = fs.readFileSync(filePath, 'utf-8');
+    dirname = path.dirname(filePath);
     if (!root) {
       name = path.basename(filePath);
-    } else if (path.dirname(filePath).indexOf(root) === 0) {
+    } else if (dirname !== '.' && dirname.indexOf(root) === 0) {
       name = filePath.slice(root.length + 1);
     } else {
       name = filePath;
     }
     name = name.replace(/\.tempura$/, '').replace(/¥/g, '/');
+    content = fs.readFileSync(filePath, 'utf-8');
     buf.push('tempura.templates["' + name + '"] = ' + tempura.internal.compiler.compile(content, true) + ';\n');
   }
 };
+var processAll = function () {
+  argv._.forEach(function (filePath) {
+    process(filePath, argv.root);
+  });
+};
 
-buf.push('(function () {\n');
-argv._.forEach(function (filePath) {
-  process(filePath, argv.root);
-});
-buf.push('\n}());');
+if (argv.amd) {
+  buf.push('define(["' + argv.amd + '"], function (tempura) {\n');
+  processAll();
+  buf.push('\n});');
+} else {
+  buf.push('(function () {\n');
+  processAll();
+  buf.push('\n}());');
+}
+
 content = buf.join('');
 
 if (argv.file) {
