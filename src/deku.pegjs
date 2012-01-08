@@ -149,14 +149,14 @@ Path
     }
 
 Id
-  = head:[^#^:!/{}|\.\n\r\t ] tail:[^{}|\.\n\r\t ]* {
-      var chars = head;
+  = chars:[a-zA-Z0-9_$%@?]+ {
+      var buf = '';
       var i;
-      var len = tail.length;
+      var len = chars.length;
       for (i = 0; i < len; i++) {
-        chars += tail[i];
+        buf += chars[i];
       }
-      return chars;
+      return buf;
     }
 _
   = Whitespace*
