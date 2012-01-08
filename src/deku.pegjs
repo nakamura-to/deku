@@ -147,7 +147,13 @@ Path
     }
 
 Id
-  = chars:[a-zA-Z0-9_$-%@!]+ {
+  = head:[^#^@!/{}|\.\n\r\t ] tail:[^{}|\.\n\r\t ]* {
+      var chars = [head];
+      var i;
+      var len = tail.length;
+      for (i = 0; i < len; i++) {
+        chars.push(tail[i]);
+      }
       return chars.join('');
     }
 _

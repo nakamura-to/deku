@@ -257,6 +257,13 @@ TestCase('compiler', {
     assertSame('hoge', result);
   },
 
+  'test compile: tag: japanese': function () {
+    var fn = this.compiler.compile('{{名前}}');
+    var data = {名前: 'hoge'};
+    var result = fn.call(this.templateContext, data, [data]);
+    assertSame('hoge', result);
+  },
+
   'test compile: tag: pathSeguments': function () {
     var fn = this.compiler.compile('{{aaa.bbb.ccc}}');
     var data = {aaa: {bbb: {ccc: 'hoge'}}};
