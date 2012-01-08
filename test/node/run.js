@@ -5,11 +5,14 @@ var assert = require('assert');
 var path = require('path');
 var pot = require('../..');
 
-var compare = function (file, template, expected, data) {
+var compare = function (file, template, expected, partialName, partial, data) {
   var message;
   var actual;
   try {
     console.log(file + ' Begun');
+    if (partial) {
+      pot.templates[partialName] = partial;
+    }
     actual = pot.prepare(template).render(data);
     assert.equal(actual, expected);
     console.log(file + ' Passed');
@@ -43,7 +46,10 @@ fs.readdir(__dirname, function (err, files) {
         if (err) throw err;
         fs.readFile(base + '.html', 'utf8', function (err, expected) {
           if (err) throw err;
-          compare(path.basename(file), template, expected, scope);
+          fs.readFile(base, 'utf8', function (err, partial) {
+            var partialName = path.basename(base);
+            compare(path.basename(file), template, expected, partialName, partial, scope);
+          });
         });
       });
     };

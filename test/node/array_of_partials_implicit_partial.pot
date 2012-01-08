@@ -1,0 +1,4 @@
+Here is some stuff!
+{{#numbers}}
+{{@array_of_partials_implicit_partial}}
+{{/numbers}}
