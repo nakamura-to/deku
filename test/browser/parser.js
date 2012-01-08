@@ -1,7 +1,7 @@
 TestCase('parser', {
 
   'setUp': function () {
-    this.parser = pot.internal.parser;
+    this.parser = deku.internal.parser;
   },
 
   'test whitespaces': function () {

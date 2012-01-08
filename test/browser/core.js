@@ -1,7 +1,7 @@
 TestCase('core', {
 
   'setUp': function () {
-    this.core = pot.internal.core;
+    this.core = deku.internal.core;
   },
 
   'test prepare: it should return a object': function () {

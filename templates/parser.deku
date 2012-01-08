@@ -1,4 +1,4 @@
-(function (pot) {
+(function (deku) {
 // BEGIN PARSER
 {{{parser}}}
 // END PRASER
@@ -6,7 +6,7 @@
   if (typeof module !== 'undefined') {
     module.exports = parser;
   } else {
-    pot.internal.parser = parser;
+    deku.internal.parser = parser;
   }
 
-}(typeof module !== 'undefined' ? {} : pot));
+}(typeof module !== 'undefined' ? {} : deku));

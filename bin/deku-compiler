@@ -2,9 +2,9 @@
 
 var fs = require('fs');
 var path = require('path');
-var pot = require('../lib/pot');
+var deku = require('../lib/deku');
 var optimist = require('optimist')
-  .usage('Compile pot templates.\nUsage: pot-compiler template ...', {
+  .usage('Compile deku templates.\nUsage: deku-compiler template ...', {
     a: {
       type: 'string',
       description: 'AMD Mudule name for tampura',
@@ -46,7 +46,7 @@ var process = function process(filePath, root) {
   if (stat.isDirectory()) {
     fs.readdirSync(filePath).map(function (entry) {
       var entryPath = path.join(filePath, entry);
-      if (path.extname(entryPath) === '.pot' || fs.statSync(entryPath).isDirectory()) {
+      if (path.extname(entryPath) === '.deku' || fs.statSync(entryPath).isDirectory()) {
         process(entryPath, root || filePath);
       }
     });
@@ -59,9 +59,9 @@ var process = function process(filePath, root) {
     } else {
       name = filePath;
     }
-    name = name.replace(/\.pot$/, '').replace(/¥/g, '/');
+    name = name.replace(/\.deku$/, '').replace(/¥/g, '/');
     content = fs.readFileSync(filePath, 'utf-8');
-    buf.push('pot.templates["' + name + '"] = ' + pot.internal.compiler.compile(content, true) + ';\n');
+    buf.push('deku.templates["' + name + '"] = ' + deku.internal.compiler.compile(content, true) + ';\n');
   }
 };
 var processAll = function () {
@@ -71,9 +71,9 @@ var processAll = function () {
 };
 
 if (argv.amd) {
-  buf.push('define(["' + argv.amd + '"], function (pot) {\n');
+  buf.push('define(["' + argv.amd + '"], function (deku) {\n');
   processAll();
-  buf.push('return pot.templates;');
+  buf.push('return deku.templates;');
   buf.push('\n});');
 } else {
   buf.push('(function () {\n');

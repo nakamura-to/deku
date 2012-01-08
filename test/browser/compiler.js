@@ -1,13 +1,13 @@
 TestCase('compiler', {
 
   'setUp': function () {
-    this.parser = pot.internal.parser;
-    this.compiler = pot.internal.compiler;
+    this.parser = deku.internal.parser;
+    this.compiler = deku.internal.compiler;
     this.templateContext = {
-      escape: pot.internal.core.escape,
-      compile: pot.internal.core.compile,
-      handleBlock: pot.internal.core.handleBlock,
-      handleInverse: pot.internal.core.handleInverse,
+      escape: deku.internal.core.escape,
+      compile: deku.internal.core.compile,
+      handleBlock: deku.internal.core.handleBlock,
+      handleInverse: deku.internal.core.handleInverse,
       templates: {},
       processors: {},
       prePipeline : function (value) {

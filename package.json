@@ -1,8 +1,8 @@
 {
-    "name"          : "pot",
-    "description"   : "Pipeline Oriented Templating library in javascript.",
-    "homepage"      : "http://nakamura-to.github.com/pot/",
-    "keywords"      : ["template", "mustache", "pipeline", "pot"],
+    "name"          : "deku",
+    "description"   : "pipeline supported templating library in javascrip.",
+    "homepage"      : "http://nakamura-to.github.com/deku/",
+    "keywords"      : ["template", "mustache", "pipeline", "deku"],
     "author"        : "Toshihiro Nakamura <toshihiro.nakamura@gmail.com>",
     "contributors"  : [],
     "dependencies"  : {
@@ -13,10 +13,10 @@
         "pegjs":     ">= 0.6.2",
         "uglify-js": ">= 1.2.3"
     },
-    "repository"    : {"type": "git", "url": "git@github.com:nakamura-to/pot.git"},
-    "main"          : "./lib/pot.js",
+    "repository"    : {"type": "git", "url": "git@github.com:nakamura-to/deku.git"},
+    "main"          : "./lib/deku.js",
     "bin"           : {
-        "pot": "./bin/pot-compiler"
+        "deku": "./bin/deku-compiler"
     },
     "version"       : "0.0.5dev"
 }

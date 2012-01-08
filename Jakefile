@@ -2,7 +2,7 @@ var util = require('util');
 var fs = require('fs');
 var path = require('path');
 var childProcess = require('child_process');
-var pot = require('./lib/pot');
+var deku = require('./lib/deku');
 var pkg = JSON.parse(fs.readFileSync('./package.json').toString());
 
 var SRC_DIR = './src';
@@ -10,12 +10,12 @@ var DIST_DIR = './dist';
 var LIB_DIR = './lib';
 var TEMPLATES_DIR = './templates';
 
-var PEGJS_FILE = SRC_DIR + '/pot.pegjs';
+var PEGJS_FILE = SRC_DIR + '/deku.pegjs';
 var GENERATED_PARSER_FILE = DIST_DIR + 'generated.parser.js';
-var pot_FILE = DIST_DIR + '/pot-' + pkg.version + '.js';
-var pot_MIN_FILE = DIST_DIR + '/pot-' + pkg.version + '.min.js';
-var pot_RUNTIME_FILE = DIST_DIR + '/pot.runtime-' + pkg.version + '.js';
-var pot_RUNTIME_MIN_FILE = DIST_DIR + '/pot.runtime-' + pkg.version + '.min.js';
+var deku_FILE = DIST_DIR + '/deku-' + pkg.version + '.js';
+var deku_MIN_FILE = DIST_DIR + '/deku-' + pkg.version + '.min.js';
+var deku_RUNTIME_FILE = DIST_DIR + '/deku.runtime-' + pkg.version + '.js';
+var deku_RUNTIME_MIN_FILE = DIST_DIR + '/deku.runtime-' + pkg.version + '.min.js';
 
 var PRELUDE_FILE = LIB_DIR + '/internal/prelude.js';
 var PARSER_FILE = LIB_DIR + '/internal/parser.js';
@@ -23,10 +23,10 @@ var COMPILER_FILE = LIB_DIR + '/internal/compiler.js';
 var CORE_FILE = LIB_DIR + '/internal/core.js';
 var API_FILE = LIB_DIR + '/api.js';
 
-var PARSER_TEMPLATE_FILE = TEMPLATES_DIR + '/parser.pot';
-var HEADER_TEMPLATE_FILE = TEMPLATES_DIR + '/header.pot';
-var pot_TEMPLATE_FILE = TEMPLATES_DIR + '/pot.pot';
-var pot_RUNTIME_TEMPLATE_FILE = TEMPLATES_DIR + '/pot.runtime.pot';
+var PARSER_TEMPLATE_FILE = TEMPLATES_DIR + '/parser.deku';
+var HEADER_TEMPLATE_FILE = TEMPLATES_DIR + '/header.deku';
+var deku_TEMPLATE_FILE = TEMPLATES_DIR + '/deku.deku';
+var deku_RUNTIME_TEMPLATE_FILE = TEMPLATES_DIR + '/deku.runtime.deku';
 
 var mkdirUnlessExists = function (dir)  {
   try {
@@ -71,7 +71,7 @@ task('clean', function () {
 task('makeParser', ['clean'], function () {
   var process = childProcess.spawn('pegjs', ['-e', 'var parser', PEGJS_FILE, GENERATED_PARSER_FILE]);
   process.on('exit', function () {
-    var template = pot.prepare(fs.readFileSync(PARSER_TEMPLATE_FILE, 'utf-8'));
+    var template = deku.prepare(fs.readFileSync(PARSER_TEMPLATE_FILE, 'utf-8'));
     var data = {parser: fs.readFileSync(GENERATED_PARSER_FILE, 'utf-8')};
     var content = template.render(data);
     fs.writeFileSync(PARSER_FILE, content, 'utf-8');
@@ -82,7 +82,7 @@ task('makeParser', ['clean'], function () {
 
 task('updateVersion', ['clean'], function () {
   var content = fs.readFileSync(API_FILE, 'utf-8');
-  content = content.replace(/(pot.version = ').+?(';)/g, '$1' + pkg.version + '$2');
+  content = content.replace(/(deku.version = ').+?(';)/g, '$1' + pkg.version + '$2');
   fs.writeFileSync(API_FILE, content, 'utf-8');
 });
 
@@ -105,7 +105,7 @@ task('build', ['test'], function () {
       header: fs.readFileSync(HEADER_TEMPLATE_FILE, 'utf-8')
     }
   };
-  var template = pot.prepare(fs.readFileSync(pot_TEMPLATE_FILE, 'utf-8'), options);
+  var template = deku.prepare(fs.readFileSync(deku_TEMPLATE_FILE, 'utf-8'), options);
   var data = {
     preludeName: PRELUDE_FILE,
     prelude: fs.readFileSync(PRELUDE_FILE, 'utf-8'),
@@ -120,19 +120,19 @@ task('build', ['test'], function () {
     pkg: pkg
   };
   var content = template.render(data);
-  fs.writeFileSync(pot_FILE, content, 'utf-8');
-  template = pot.prepare(fs.readFileSync(pot_RUNTIME_TEMPLATE_FILE, 'utf-8'), options);
+  fs.writeFileSync(deku_FILE, content, 'utf-8');
+  template = deku.prepare(fs.readFileSync(deku_RUNTIME_TEMPLATE_FILE, 'utf-8'), options);
   content = template.render(data);
-  fs.writeFileSync(pot_RUNTIME_FILE, content, 'utf-8');
+  fs.writeFileSync(deku_RUNTIME_FILE, content, 'utf-8');
 });
 
 task('minify', ['build'], function () {
   var uglify = function(dest, src) {
     return childProcess.spawn('uglifyjs', ['-o', dest, src]);
   }
-  var process = uglify(pot_MIN_FILE, pot_FILE);
+  var process = uglify(deku_MIN_FILE, deku_FILE);
   process.on('exit', function () {
-    var process = uglify(pot_RUNTIME_MIN_FILE, pot_RUNTIME_FILE);
+    var process = uglify(deku_RUNTIME_MIN_FILE, deku_RUNTIME_FILE);
     process.on('exit', function () { complete(); });
   });
 }, {async: true});

@@ -3,7 +3,7 @@
 var fs = require('fs');
 var assert = require('assert');
 var path = require('path');
-var pot = require('../..');
+var deku = require('../..');
 
 var compare = function (file, template, expected, partialName, partial, data) {
   var message;
@@ -11,9 +11,9 @@ var compare = function (file, template, expected, partialName, partial, data) {
   try {
     console.log(file + ' Begun');
     if (partial) {
-      pot.templates[partialName] = partial;
+      deku.templates[partialName] = partial;
     }
-    actual = pot.prepare(template).render(data);
+    actual = deku.prepare(template).render(data);
     assert.equal(actual, expected);
     console.log(file + ' Passed');
   } catch (e) {
@@ -39,7 +39,7 @@ fs.readdir(__dirname, function (err, files) {
     return path.join(__dirname, name);
   });
   files.forEach(function (file) {
-    var match = file.match(/^([\s\S]*)\.pot$/);
+    var match = file.match(/^([\s\S]*)\.deku$/);
     var base;
     var load = function (scope) {
       fs.readFile(file, 'utf8', function (err, template) {
