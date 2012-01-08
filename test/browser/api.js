@@ -268,10 +268,10 @@ TestCase('api', {
   'test processors: it should accept valueInfo in array': function () {
     /*:DOC +=
      <div id="template">
-     {{#array}}{{$this|describe}}{{#$hasNext}} | {{/$hasNext}}{{/array}}
+     {{#array}}{{@this|describe}}{{#@hasNext}} | {{/@hasNext}}{{/array}}
      </div>
      <div id="expected">
-     name=$this, value=aaa, index=0, hasNext=true | name=$this, value=bbb, index=1, hasNext=false
+     name=@this, value=aaa, index=0, hasNext=true | name=@this, value=bbb, index=1, hasNext=false
      </div>
      */
     deku.processors.describe = function (value, valueName, index, hasNext) {

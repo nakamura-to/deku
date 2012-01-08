@@ -1,7 +1,7 @@
 <!-- exciting part -->
 <h1>{{name}}</h1>
-<p>Authors: <ul>{{#authors}}<li>{{$this}}</li>{{/authors}}</ul></p>
-<p>Price: {{{price.currency.symbol}}}{{price.value}} {{#price.currency}}{{name}} <b>{{$root.availability.text}}</b>{{/price.currency}}</p>
+<p>Authors: <ul>{{#authors}}<li>{{@this}}</li>{{/authors}}</ul></p>
+<p>Price: {{{price.currency.symbol}}}{{price.value}} {{#price.currency}}{{name}} <b>{{@root.availability.text}}</b>{{/price.currency}}</p>
 <p>VAT: {{{price.currency.symbol}}}{{price.vat}}</p>
 <!-- boring part -->
 <h2>Test truthy false values:</h2>
