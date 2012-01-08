@@ -259,7 +259,7 @@ TestCase('compiler', {
 
   'test compile: tag: japanese': function () {
     var fn = this.compiler.compile('{{名前}}');
-    var data = {名前: 'hoge'};
+    var data = {'名前': 'hoge'};
     var result = fn.call(this.templateContext, data, [data]);
     assertSame('hoge', result);
   },
@@ -470,7 +470,7 @@ TestCase('compiler', {
   },
 
   'test compile: partial': function () {
-    var fn = this.compiler.compile('{{name}} | {{@link}}');
+    var fn = this.compiler.compile('{{name}} | {{:link}}');
     var data = {name:'foo', url: '/hoge', title: 'HOGE'};
     var result;
     this.templateContext.templates.link = '{{url}} : {{title}}';
@@ -479,7 +479,7 @@ TestCase('compiler', {
   },
 
   'test compile: partial: context': function () {
-    var fn = this.compiler.compile('{{name}} | {{@link link}}');
+    var fn = this.compiler.compile('{{name}} | {{:link link}}');
     var data = {name:'foo', link: {url: '/hoge', title: 'HOGE'}};
     var result;
     this.templateContext.templates.link = '{{url}} : {{title}}';
@@ -493,7 +493,7 @@ TestCase('compiler', {
       fail();
     } catch (e) {
       assertEquals('Error', e.name);
-      assertEquals('Expected \"{{!\", \"{{\", \"{{#\", \"{{/\", \"{{@\", \"{{^\", \"{{{\" or any character but end of input found. line=1. column=12.\n{{#aaa}}bbb', e.message);
+      assertEquals('Expected \"{{!\", \"{{\", \"{{#\", \"{{/\", \"{{:\", \"{{^\", \"{{{\" or any character but end of input found. line=1. column=12.\n{{#aaa}}bbb', e.message);
     }
   }
 

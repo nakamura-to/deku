@@ -43,7 +43,7 @@ TestCase('api', {
   'test prepare and render: it should use a "partials" option prior to a "partials" setting': function () {
     /*:DOC +=
      <div id="template">
-     {{=person}}
+     {{:person}}
      </div>
      <div id="expected">
      hoge is 20 years old.
@@ -63,7 +63,7 @@ TestCase('api', {
   'test prepare and render: it should use a "partials" setting, if a "partials" option does not exist': function () {
     /*:DOC +=
      <div id="template">
-     {{=person}}
+     {{:person}}
      </div>
      <div id="expected">
      [hoge] is 20 years old.
@@ -156,7 +156,7 @@ TestCase('api', {
   'test prepare and render: it should use a "noSuchPartial" option prior to a "noSuchPartial" setting': function () {
     /*:DOC +=
      <div id="template">
-     {{=person}}
+     {{:person}}
      </div>
      <div id="expected">
      [person is not found]

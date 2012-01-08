@@ -1,0 +1,30 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <title></title>
+  <script src="../../lib/internal/prelude.js"></script>
+  <script src="../../lib/internal/parser.js"></script>
+  <script src="../../lib/internal/compiler.js"></script>
+  <script src="../../lib/internal/core.js"></script>
+  <script src="../../lib/api.js"></script>
+  <script type="text/javascript">
+    var data = {
+      name: 'bar',
+      person: {
+        address: {
+          name: 'foo',
+          street: {
+            name: 'hoge'
+          }
+        }
+      }
+    };
+    var template = deku.prepare('{{#person.address.street}}{{$parent.name}}{{/person.address.street}}');
+    console.log(template.render(data));
+  </script>
+</head>
+<body>
+
+</body>
+</html>
