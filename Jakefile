@@ -2,7 +2,6 @@ var util = require('util');
 var fs = require('fs');
 var path = require('path');
 var childProcess = require('child_process');
-var deku = require('./lib/deku');
 var pkg = JSON.parse(fs.readFileSync('./package.json').toString());
 
 var SRC_DIR = './src';
@@ -99,6 +98,7 @@ task('test', ['makeParser', 'updateVersion'], function () {
 }, {async: true});
 
 task('build', ['test'], function () {
+  var deku =require('./lib/deku');
   var options = {
     templates: {
       header: fs.readFileSync(HEADER_TEMPLATE_FILE, 'utf-8')

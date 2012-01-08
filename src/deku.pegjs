@@ -1,4 +1,12 @@
 {
+  var defaultPartialContext = {
+    type: 'type_name',
+    path: '@0',
+    segments: ['@0'],
+    contextType: 'ref',
+    contextIndex: '0'
+  };
+
   function verifyMatch(open, close)  {
     if (open.path !== close.path) {
       var errorPosition = computeErrorPosition();
@@ -69,7 +77,7 @@ Partial
       return {
         type: 'type_partial',
         name: name,
-        context: contextDef[1]
+        context: contextDef[1] || defaultPartialContext
       };
     }
 
@@ -134,8 +142,8 @@ Content
     }
 
 Path
-  = head:Id tail:('.' Id)* {
-      var segments = [head];
+  = head:(ReservedId / Id) tail:('.' Id)* {
+      var segments = [head.id || head];
       var i;
       var len = tail.length;
       for (i = 0; i < len; i++) {
@@ -144,7 +152,50 @@ Path
       return {
         type: 'type_name',
         path: segments.join('.'),
-        segments: segments
+        segments: segments,
+        contextType: head.type || 'default',
+        contextIndex: head.index || '0'
+      };
+    }
+
+ReservedId
+  = '@root' {
+      return {
+        type: 'root',
+        id: '@root'
+      };
+    }
+  / '@index' {
+      return {
+        type: 'index',
+        id: '@index'
+      };  
+    }
+  / '@hasNext' {
+      return {
+        type: 'hasNext',
+        id: '@hasNext'
+      };
+    }
+  / '@' index:[0-9]+ {
+      return {
+        type: 'ref',
+        index: index,
+        id: '@' + index
+      };
+    }
+  / '@this' {
+      return {
+        type: 'ref',
+        index: 0,
+        id: '@this'
+      };
+    }
+  / '@parent' {
+      return {
+        type: 'ref',
+        index: 1,
+        id: '@parent'
       };
     }
 
