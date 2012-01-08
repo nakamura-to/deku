@@ -1,4 +1,5 @@
 var fs = require('fs');
+var assert = require('assert');
 var childProcess = require('child_process');
 var pkg = JSON.parse(fs.readFileSync('./package.json').toString());
 
@@ -86,16 +87,23 @@ task('test', ['makeParser', 'updateVersion'], function () {
   var process = childProcess.execFile('./test/spec/run.js', function (error, stdout, stderr) {
     console.log(stdout);
     console.error(stderr);
-    if (error != null) {
-      console.error('error: ' + error);
-    }
+    assert.ifError(error);
   });
   process.on('exit', function () {
     complete();
   });
 }, {async: true});
 
-task('build', ['test'], function () {
+task('test-compiler', [], function () {
+  var process = childProcess.execFile('./bin/deku-compiler', ['./test/spec/simple.deku'], function (error, stdout, stderr) {
+    assert.ifError(error);
+  });
+  process.on('exit', function () {
+    complete();
+  });
+}, {async: true});
+
+task('build', ['test', 'test-compiler'], function () {
   var deku =require('./lib/deku');
   var options = {
     templates: {
