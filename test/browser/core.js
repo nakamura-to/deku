@@ -117,6 +117,4 @@ TestCase('core', {
     assertFalse(this.core.isArray(undefined));
   }
 
-
-
 });
