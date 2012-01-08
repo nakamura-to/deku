@@ -43,21 +43,23 @@ Statement
   / Content
 
 Block
-  = '{{#' _ open:Path _ '}}' program:Program '{{/' _ close:Path _ '}}' {
+  = '{{#' _ open:Path processors:Pipeline _ '}}' program:Program '{{/' _ close:Path _ '}}' {
       verifyMatch(open, close);
       return {
         type: 'type_block',
         name: open,
+        processors: processors,
         program: program
       };
     }
 
 Inverse
-  = '{{^' _ open:Path _ '}}' program:Program '{{/' _ close:Path _ '}}' {
+  = '{{^' _ open:Path processors:Pipeline _ '}}' program:Program '{{/' _ close:Path _ '}}' {
       verifyMatch(open, close);
       return {
         type: 'type_inverse',
         name: open,
+        processors: processors,
         program: program
       };
     }
@@ -90,7 +92,7 @@ Mustache
     }
 
 Pipeline
-  = pipes:(_ '|' _ Id)* {
+  = pipes:(_ '|' _ Path)* {
       var processors = [];
       var i;
       var len = pipes.length;

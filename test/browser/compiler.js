@@ -31,86 +31,110 @@ TestCase('compiler', {
   'test Compiler: name': function () {
     var ast = this.parser.parse('{{hoge}}');
     var compiler = new this.compiler.Compiler();
-    var result = compiler.compile(ast);
+    var env = compiler.compile(ast);
 
-    assertSame(10, result.opcodes.length);
-    assertSame('op_lookupFromContext', result.opcodes[0]);
-    assertSame('hoge', result.opcodes[1]);
-    assertSame('op_evaluateValue', result.opcodes[2]);
-    assertSame('hoge', result.opcodes[3]);
-    assertSame('op_applyPrePipeline', result.opcodes[4]);
-    assertSame('hoge', result.opcodes[5]);
-    assertSame('op_applyPostPipeline', result.opcodes[6]);
-    assertSame('hoge', result.opcodes[7]);
-    assertSame('op_escape', result.opcodes[8]);
-    assertSame('op_append', result.opcodes[9]);
+    assertSame(12, env.opcodes.length);
+    assertSame('op_lookupFromContext', env.opcodes[0]);
+    assertSame('hoge', env.opcodes[1]);
+    assertSame('tmpContext', env.opcodes[2]);
+    assertSame('tmp', env.opcodes[3]);
+    assertSame('op_evaluateValue', env.opcodes[4]);
+    assertSame('hoge', env.opcodes[5]);
+    assertSame('op_applyPrePipeline', env.opcodes[6]);
+    assertSame('hoge', env.opcodes[7]);
+    assertSame('op_applyPostPipeline', env.opcodes[8]);
+    assertSame('hoge', env.opcodes[9]);
+    assertSame('op_escape', env.opcodes[10]);
+    assertSame('op_append', env.opcodes[11]);
   },
 
   'test Compiler: name: processor': function () {
     var ast = this.parser.parse('{{hoge|aaa}}');
     var compiler = new this.compiler.Compiler();
-    var result = compiler.compile(ast);
+    var env = compiler.compile(ast);
 
-    assertSame(13, result.opcodes.length);
-    assertSame('op_lookupFromContext', result.opcodes[0]);
-    assertSame('hoge', result.opcodes[1]);
-    assertSame('op_evaluateValue', result.opcodes[2]);
-    assertSame('hoge', result.opcodes[3]);
-    assertSame('op_applyPrePipeline', result.opcodes[4]);
-    assertSame('hoge', result.opcodes[5]);
-    assertSame('op_applyProcessor', result.opcodes[6]);
-    assertSame('aaa', result.opcodes[7]);
-    assertSame('hoge', result.opcodes[8]);
-    assertSame('op_applyPostPipeline', result.opcodes[9]);
-    assertSame('hoge', result.opcodes[10]);
-    assertSame('op_escape', result.opcodes[11]);
-    assertSame('op_append', result.opcodes[12]);
+    assertSame(19, env.opcodes.length);
+    assertSame('op_lookupFromContext', env.opcodes[0]);
+    assertSame('hoge', env.opcodes[1]);
+    assertSame('tmpContext', env.opcodes[2]);
+    assertSame('tmp', env.opcodes[3]);
+    assertSame('op_evaluateValue', env.opcodes[4]);
+    assertSame('hoge', env.opcodes[5]);
+    assertSame('op_applyPrePipeline', env.opcodes[6]);
+    assertSame('hoge', env.opcodes[7]);
+    assertSame('op_lookupFromContext', env.opcodes[8]);
+    assertSame('aaa', env.opcodes[9]);
+    assertSame('processorContext', env.opcodes[10]);
+    assertSame('processor', env.opcodes[11]);
+    assertSame('op_applyProcessor', env.opcodes[12]);
+    assertSame('aaa', env.opcodes[13]);
+    assertSame('hoge', env.opcodes[14]);
+    assertSame('op_applyPostPipeline', env.opcodes[15]);
+    assertSame('hoge', env.opcodes[16]);
+    assertSame('op_escape', env.opcodes[17]);
+    assertSame('op_append', env.opcodes[18]);
   },
 
   'test Compiler: name: multi processors': function () {
     var ast = this.parser.parse('{{hoge|aaa|bbb}}');
     var compiler = new this.compiler.Compiler();
-    var result = compiler.compile(ast);
+    var env = compiler.compile(ast);
 
-    assertSame(16, result.opcodes.length);
-    assertSame('op_lookupFromContext', result.opcodes[0]);
-    assertSame('hoge', result.opcodes[1]);
-    assertSame('op_evaluateValue', result.opcodes[2]);
-    assertSame('hoge', result.opcodes[3]);
-    assertSame('op_applyPrePipeline', result.opcodes[4]);
-    assertSame('hoge', result.opcodes[5]);
-    assertSame('op_applyProcessor', result.opcodes[6]);
-    assertSame('aaa', result.opcodes[7]);
-    assertSame('hoge', result.opcodes[8]);
-    assertSame('op_applyProcessor', result.opcodes[9]);
-    assertSame('bbb', result.opcodes[10]);
-    assertSame('hoge', result.opcodes[11]);
-    assertSame('op_applyPostPipeline', result.opcodes[12]);
-    assertSame('hoge', result.opcodes[13]);
-    assertSame('op_escape', result.opcodes[14]);
-    assertSame('op_append', result.opcodes[15]);
+    assertSame(26, env.opcodes.length);
+    assertSame('op_lookupFromContext', env.opcodes[0]);
+    assertSame('hoge', env.opcodes[1]);
+    assertSame('tmpContext', env.opcodes[2]);
+    assertSame('tmp', env.opcodes[3]);
+    assertSame('op_evaluateValue', env.opcodes[4]);
+    assertSame('hoge', env.opcodes[5]);
+    assertSame('op_applyPrePipeline', env.opcodes[6]);
+    assertSame('hoge', env.opcodes[7]);
+    assertSame('op_lookupFromContext', env.opcodes[8]);
+    assertSame('aaa', env.opcodes[9]);
+    assertSame('processorContext', env.opcodes[10]);
+    assertSame('processor', env.opcodes[11]);
+    assertSame('op_applyProcessor', env.opcodes[12]);
+    assertSame('aaa', env.opcodes[13]);
+    assertSame('hoge', env.opcodes[14]);
+    assertSame('op_lookupFromContext', env.opcodes[15]);
+    assertSame('bbb', env.opcodes[16]);
+    assertSame('processorContext', env.opcodes[17]);
+    assertSame('processor', env.opcodes[18]);
+    assertSame('op_applyProcessor', env.opcodes[19]);
+    assertSame('bbb', env.opcodes[20]);
+    assertSame('hoge', env.opcodes[21]);
+    assertSame('op_applyPostPipeline', env.opcodes[22]);
+    assertSame('hoge', env.opcodes[23]);
+    assertSame('op_escape', env.opcodes[24]);
+    assertSame('op_append', env.opcodes[25]);
   },
 
   'test Compiler: name: pathSegments': function () {
     var ast = this.parser.parse('{{aaa.bbb.ccc}}');
     var compiler = new this.compiler.Compiler();
-    var result = compiler.compile(ast);
+    var env = compiler.compile(ast);
 
-    assertSame(14, result.opcodes.length);
-    assertSame('op_lookupFromContext', result.opcodes[0]);
-    assertSame('aaa', result.opcodes[1]);
-    assertSame('op_lookupFromTmp', result.opcodes[2]);
-    assertSame('bbb', result.opcodes[3]);
-    assertSame('op_lookupFromTmp', result.opcodes[4]);
-    assertSame('ccc', result.opcodes[5]);
-    assertSame('op_evaluateValue', result.opcodes[6]);
-    assertSame('aaa.bbb.ccc', result.opcodes[7]);
-    assertSame('op_applyPrePipeline', result.opcodes[8]);
-    assertSame('aaa.bbb.ccc', result.opcodes[9]);
-    assertSame('op_applyPostPipeline', result.opcodes[10]);
-    assertSame('aaa.bbb.ccc', result.opcodes[11]);
-    assertSame('op_escape', result.opcodes[12]);
-    assertSame('op_append', result.opcodes[13]);
+    assertSame(20, env.opcodes.length);
+    assertSame('op_lookupFromContext', env.opcodes[0]);
+    assertSame('aaa', env.opcodes[1]);
+    assertSame('tmpContext', env.opcodes[2]);
+    assertSame('tmp', env.opcodes[3]);
+    assertSame('op_lookupFromTmp', env.opcodes[4]);
+    assertSame('bbb', env.opcodes[5]);
+    assertSame('tmpContext', env.opcodes[6]);
+    assertSame('tmp', env.opcodes[7]);
+    assertSame('op_lookupFromTmp', env.opcodes[8]);
+    assertSame('ccc', env.opcodes[9]);
+    assertSame('tmpContext', env.opcodes[10]);
+    assertSame('tmp', env.opcodes[11]);
+    assertSame('op_evaluateValue', env.opcodes[12]);
+    assertSame('aaa.bbb.ccc', env.opcodes[13]);
+    assertSame('op_applyPrePipeline', env.opcodes[14]);
+    assertSame('aaa.bbb.ccc', env.opcodes[15]);
+    assertSame('op_applyPostPipeline', env.opcodes[16]);
+    assertSame('aaa.bbb.ccc', env.opcodes[17]);
+    assertSame('op_escape', env.opcodes[18]);
+    assertSame('op_append', env.opcodes[19]);
   },
 
   'test Compiler: block': function () {
@@ -121,14 +145,20 @@ TestCase('compiler', {
 
     assertSame(2, env.context.allEnvironments.length);
     assertSame(env, env.context.allEnvironments[0]);
-    assertSame(7, env.opcodes.length);
+    assertSame(13, env.opcodes.length);
     assertSame('op_lookupFromContext', env.opcodes[0]);
     assertSame('hoge', env.opcodes[1]);
-    assertSame('op_evaluateValue', env.opcodes[2]);
-    assertSame('hoge', env.opcodes[3]);
-    assertSame('op_invokeProgram', env.opcodes[4]);
-    assertSame('program1', env.opcodes[5]);
-    assertSame('op_append', env.opcodes[6]);
+    assertSame('tmpContext', env.opcodes[2]);
+    assertSame('tmp', env.opcodes[3]);
+    assertSame('op_evaluateValue', env.opcodes[4]);
+    assertSame('hoge', env.opcodes[5]);
+    assertSame('op_applyPrePipeline', env.opcodes[6]);
+    assertSame('hoge', env.opcodes[7]);
+    assertSame('op_applyPostPipeline', env.opcodes[8]);
+    assertSame('hoge', env.opcodes[9]);
+    assertSame('op_invokeProgram', env.opcodes[10]);
+    assertSame('program1', env.opcodes[11]);
+    assertSame('op_append', env.opcodes[12]);
 
     descendant = env.context.allEnvironments[1];
     assertSame(2, descendant.opcodes.length);
@@ -144,21 +174,33 @@ TestCase('compiler', {
 
     assertSame(3, env.context.allEnvironments.length);
     assertSame(env, env.context.allEnvironments[0]);
-    assertSame(14, env.opcodes.length);
+    assertSame(26, env.opcodes.length);
     assertSame('op_lookupFromContext', env.opcodes[0]);
     assertSame('hoge', env.opcodes[1]);
-    assertSame('op_evaluateValue', env.opcodes[2]);
-    assertSame('hoge', env.opcodes[3]);
-    assertSame('op_invokeProgram', env.opcodes[4]);
-    assertSame('program1', env.opcodes[5]);
-    assertSame('op_append', env.opcodes[6]);
-    assertSame('op_lookupFromContext', env.opcodes[7]);
-    assertSame('foo', env.opcodes[8]);
-    assertSame('op_evaluateValue', env.opcodes[9]);
-    assertSame('foo', env.opcodes[10]);
-    assertSame('op_invokeProgram', env.opcodes[11]);
-    assertSame('program2', env.opcodes[12]);
-    assertSame('op_append', env.opcodes[13]);
+    assertSame('tmpContext', env.opcodes[2]);
+    assertSame('tmp', env.opcodes[3]);
+    assertSame('op_evaluateValue', env.opcodes[4]);
+    assertSame('hoge', env.opcodes[5]);
+    assertSame('op_applyPrePipeline', env.opcodes[6]);
+    assertSame('hoge', env.opcodes[7]);
+    assertSame('op_applyPostPipeline', env.opcodes[8]);
+    assertSame('hoge', env.opcodes[9]);
+    assertSame('op_invokeProgram', env.opcodes[10]);
+    assertSame('program1', env.opcodes[11]);
+    assertSame('op_append', env.opcodes[12]);
+    assertSame('op_lookupFromContext', env.opcodes[13]);
+    assertSame('foo', env.opcodes[14]);
+    assertSame('tmpContext', env.opcodes[15]);
+    assertSame('tmp', env.opcodes[16]);
+    assertSame('op_evaluateValue', env.opcodes[17]);
+    assertSame('foo', env.opcodes[18]);
+    assertSame('op_applyPrePipeline', env.opcodes[19]);
+    assertSame('foo', env.opcodes[20]);
+    assertSame('op_applyPostPipeline', env.opcodes[21]);
+    assertSame('foo', env.opcodes[22]);
+    assertSame('op_invokeProgram', env.opcodes[23]);
+    assertSame('program2', env.opcodes[24]);
+    assertSame('op_append', env.opcodes[25]);
 
     descendant = env.context.allEnvironments[1];
     assertSame(2, descendant.opcodes.length);
@@ -179,28 +221,40 @@ TestCase('compiler', {
 
     assertSame(3, env.context.allEnvironments.length);
     assertSame(env, env.context.allEnvironments[0]);
-    assertSame(7, env.opcodes.length);
+    assertSame(13, env.opcodes.length);
     assertSame('op_lookupFromContext', env.opcodes[0]);
     assertSame('hoge', env.opcodes[1]);
-    assertSame('op_evaluateValue', env.opcodes[2]);
-    assertSame('hoge', env.opcodes[3]);
-    assertSame('op_invokeProgram', env.opcodes[4]);
-    assertSame('program1', env.opcodes[5]);
-    assertSame('op_append', env.opcodes[6]);
-
+    assertSame('tmpContext', env.opcodes[2]);
+    assertSame('tmp', env.opcodes[3]);    
+    assertSame('op_evaluateValue', env.opcodes[4]);
+    assertSame('hoge', env.opcodes[5]);
+    assertSame('op_applyPrePipeline', env.opcodes[6]);
+    assertSame('hoge', env.opcodes[7]);
+    assertSame('op_applyPostPipeline', env.opcodes[8]);
+    assertSame('hoge', env.opcodes[9]);
+    assertSame('op_invokeProgram', env.opcodes[10]);
+    assertSame('program1', env.opcodes[11]);
+    assertSame('op_append', env.opcodes[12]);
+    
     descendant = env.context.allEnvironments[1];
-    assertSame(11, descendant.opcodes.length);
+    assertSame(17, descendant.opcodes.length);
     assertSame('op_appendContent', descendant.opcodes[0]);
     assertSame('abc', descendant.opcodes[1]);
     assertSame('op_lookupFromContext', descendant.opcodes[2]);
     assertSame('foo', descendant.opcodes[3]);
-    assertSame('op_evaluateValue', descendant.opcodes[4]);
-    assertSame('foo', descendant.opcodes[5]);
-    assertSame('op_invokeProgram', descendant.opcodes[6]);
-    assertSame('program2', descendant.opcodes[7]);
-    assertSame('op_append', descendant.opcodes[8]);
-    assertSame('op_appendContent', descendant.opcodes[9]);
-    assertSame('ghi', descendant.opcodes[10]);
+    assertSame('tmpContext', descendant.opcodes[4]);
+    assertSame('tmp', descendant.opcodes[5]);    
+    assertSame('op_evaluateValue', descendant.opcodes[6]);
+    assertSame('foo', descendant.opcodes[7]);
+    assertSame('op_applyPrePipeline', descendant.opcodes[8]);
+    assertSame('foo', descendant.opcodes[9]);
+    assertSame('op_applyPostPipeline', descendant.opcodes[10]);
+    assertSame('foo', descendant.opcodes[11]);
+    assertSame('op_invokeProgram', descendant.opcodes[12]);
+    assertSame('program2', descendant.opcodes[13]);
+    assertSame('op_append', descendant.opcodes[14]);
+    assertSame('op_appendContent', descendant.opcodes[15]);
+    assertSame('ghi', descendant.opcodes[16]);
 
     descendant = env.context.allEnvironments[2];
     assertSame(2, descendant.opcodes.length);
@@ -214,30 +268,36 @@ TestCase('compiler', {
     var env = compiler.compile(ast);
     assertSame(2, env.context.allEnvironments.length);
     assertSame(env, env.context.allEnvironments[0]);
-    assertSame(7, env.opcodes.length);
+    assertSame(13, env.opcodes.length);
     assertSame('op_lookupFromContext', env.opcodes[0]);
     assertSame('hoge', env.opcodes[1]);
-    assertSame('op_evaluateValue', env.opcodes[2]);
-    assertSame('hoge', env.opcodes[3]);
-    assertSame('op_invokeProgramInverse', env.opcodes[4]);
-    assertSame('program1', env.opcodes[5]);
-    assertSame('op_append', env.opcodes[6]);
+    assertSame('tmpContext', env.opcodes[2]);
+    assertSame('tmp', env.opcodes[3]);
+    assertSame('op_evaluateValue', env.opcodes[4]);
+    assertSame('hoge', env.opcodes[5]);
+    assertSame('op_applyPrePipeline', env.opcodes[6]);
+    assertSame('hoge', env.opcodes[7]);
+    assertSame('op_applyPostPipeline', env.opcodes[8]);
+    assertSame('hoge', env.opcodes[9]);
+    assertSame('op_invokeProgramInverse', env.opcodes[10]);
+    assertSame('program1', env.opcodes[11]);
+    assertSame('op_append', env.opcodes[12]);
   },
 
   'test Compiler: content': function () {
     var ast = this.parser.parse('hoge');
     var compiler = new this.compiler.Compiler();
-    var result = compiler.compile(ast);
-    assertSame(2, result.opcodes.length);
-    assertSame('op_appendContent', result.opcodes[0]);
-    assertSame('hoge', result.opcodes[1]);
+    var env = compiler.compile(ast);
+    assertSame(2, env.opcodes.length);
+    assertSame('op_appendContent', env.opcodes[0]);
+    assertSame('hoge', env.opcodes[1]);
   },
 
   'test Compiler: comment': function () {
     var ast = this.parser.parse('{{! comment }}');
     var compiler = new this.compiler.Compiler();
-    var result = compiler.compile(ast);
-    assertSame(0, result.opcodes.length);
+    var env = compiler.compile(ast);
+    assertSame(0, env.opcodes.length);
   },
 
   'test JsCompiler: asString: spike': function () {

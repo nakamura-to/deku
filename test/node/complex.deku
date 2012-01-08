@@ -5,9 +5,9 @@
   {{#current}}
   <li><strong>{{name}}</strong></li>
   {{/current}}
-  {{#$root.link}}
+  {{#$this|$root.link}}
   <li><a href="{{url}}">{{name}}</a></li>
-  {{/$root.link}}
+  {{/$this}}
   {{/item}}
   </ul>
 {{/list}}
