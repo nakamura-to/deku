@@ -11,11 +11,11 @@ var LIB_DIR = './lib';
 var TEMPLATES_DIR = './templates';
 
 var PEGJS_FILE = SRC_DIR + '/deku.pegjs';
-var GENERATED_PARSER_FILE = DIST_DIR + 'generated.parser.js';
-var deku_FILE = DIST_DIR + '/deku-' + pkg.version + '.js';
-var deku_MIN_FILE = DIST_DIR + '/deku-' + pkg.version + '.min.js';
-var deku_RUNTIME_FILE = DIST_DIR + '/deku.runtime-' + pkg.version + '.js';
-var deku_RUNTIME_MIN_FILE = DIST_DIR + '/deku.runtime-' + pkg.version + '.min.js';
+var GENERATED_PARSER_FILE = DIST_DIR + '/generated.parser.js';
+var DEKU_FILE = DIST_DIR + '/deku-' + pkg.version + '.js';
+var DEKU_MIN_FILE = DIST_DIR + '/deku-' + pkg.version + '.min.js';
+var DEKU_RUNTIME_FILE = DIST_DIR + '/deku.runtime-' + pkg.version + '.js';
+var DEKU_RUNTIME_MIN_FILE = DIST_DIR + '/deku.runtime-' + pkg.version + '.min.js';
 
 var PRELUDE_FILE = LIB_DIR + '/internal/prelude.js';
 var PARSER_FILE = LIB_DIR + '/internal/parser.js';
@@ -23,7 +23,6 @@ var COMPILER_FILE = LIB_DIR + '/internal/compiler.js';
 var CORE_FILE = LIB_DIR + '/internal/core.js';
 var API_FILE = LIB_DIR + '/api.js';
 
-var PARSER_TEMPLATE_FILE = TEMPLATES_DIR + '/parser.deku';
 var HEADER_TEMPLATE_FILE = TEMPLATES_DIR + '/header.deku';
 var deku_TEMPLATE_FILE = TEMPLATES_DIR + '/deku.deku';
 var deku_RUNTIME_TEMPLATE_FILE = TEMPLATES_DIR + '/deku.runtime.deku';
@@ -71,9 +70,9 @@ task('clean', function () {
 task('makeParser', ['clean'], function () {
   var process = childProcess.spawn('pegjs', ['-e', 'var parser', PEGJS_FILE, GENERATED_PARSER_FILE]);
   process.on('exit', function () {
-    var template = deku.prepare(fs.readFileSync(PARSER_TEMPLATE_FILE, 'utf-8'));
-    var data = {parser: fs.readFileSync(GENERATED_PARSER_FILE, 'utf-8')};
-    var content = template.render(data);
+    var content = fs.readFileSync(PARSER_FILE, 'utf-8');
+    var generatedContent = fs.readFileSync(GENERATED_PARSER_FILE, 'utf-8');
+    content = content.replace(/(\/\/ BEGIN PARSER\n)[\s\S]*?(\/\/ END PARSER)/g, '$1' + generatedContent + '$2');
     fs.writeFileSync(PARSER_FILE, content, 'utf-8');
     fs.unlinkSync(GENERATED_PARSER_FILE);
     complete();
@@ -120,19 +119,19 @@ task('build', ['test'], function () {
     pkg: pkg
   };
   var content = template.render(data);
-  fs.writeFileSync(deku_FILE, content, 'utf-8');
+  fs.writeFileSync(DEKU_FILE, content, 'utf-8');
   template = deku.prepare(fs.readFileSync(deku_RUNTIME_TEMPLATE_FILE, 'utf-8'), options);
   content = template.render(data);
-  fs.writeFileSync(deku_RUNTIME_FILE, content, 'utf-8');
+  fs.writeFileSync(DEKU_RUNTIME_FILE, content, 'utf-8');
 });
 
 task('minify', ['build'], function () {
   var uglify = function(dest, src) {
     return childProcess.spawn('uglifyjs', ['-o', dest, src]);
   }
-  var process = uglify(deku_MIN_FILE, deku_FILE);
+  var process = uglify(DEKU_MIN_FILE, DEKU_FILE);
   process.on('exit', function () {
-    var process = uglify(deku_RUNTIME_MIN_FILE, deku_RUNTIME_FILE);
+    var process = uglify(DEKU_RUNTIME_MIN_FILE, DEKU_RUNTIME_FILE);
     process.on('exit', function () { complete(); });
   });
 }, {async: true});
