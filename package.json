@@ -1,6 +1,6 @@
 {
     "name"          : "deku",
-    "description"   : "pipeline supported templating library in javascrip.",
+    "description"   : "javascript templating library focused on pipeline processing.",
     "homepage"      : "http://nakamura-to.github.com/deku/",
     "keywords"      : ["template", "mustache", "pipeline", "deku"],
     "author"        : "Toshihiro Nakamura <toshihiro.nakamura@gmail.com>",

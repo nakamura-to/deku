@@ -1,5 +1,5 @@
-deku — pipeline supported templating library in javascrip
-=========================================================
+deku — javascript templating library focused on pipeline processing
+===================================================================
 
 deku is templating library inspired by [mustache.js](https://github.com/janl/mustache.js),
 [tempo](https://github.com/twigkit/tempo) and [handlebars.js](https://github.com/wycats/handlebars.js/).
