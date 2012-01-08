@@ -148,8 +148,8 @@ TestCase('compiler', {
     var env = compiler.compile(ast);
     var descendant;
 
-    assertSame(2, env.context.allEnvironments.length);
-    assertSame(env, env.context.allEnvironments[0]);
+    assertSame(2, env.context.all.length);
+    assertSame(env, env.context.all[0]);
     assertSame(14, env.opcodes.length);
     assertSame('op_lookupHead', env.opcodes[0]);
     assertSame('hoge', env.opcodes[1]);
@@ -166,7 +166,7 @@ TestCase('compiler', {
     assertSame('program1', env.opcodes[12]);
     assertSame('op_append', env.opcodes[13]);
 
-    descendant = env.context.allEnvironments[1];
+    descendant = env.context.all[1];
     assertSame(2, descendant.opcodes.length);
     assertSame('op_appendContent', descendant.opcodes[0]);
     assertSame('abc', descendant.opcodes[1]);
@@ -178,8 +178,8 @@ TestCase('compiler', {
     var env = compiler.compile(ast);
     var descendant;
 
-    assertSame(3, env.context.allEnvironments.length);
-    assertSame(env, env.context.allEnvironments[0]);
+    assertSame(3, env.context.all.length);
+    assertSame(env, env.context.all[0]);
     assertSame(28, env.opcodes.length);
     assertSame('op_lookupHead', env.opcodes[0]);
     assertSame('hoge', env.opcodes[1]);
@@ -210,12 +210,12 @@ TestCase('compiler', {
     assertSame('program2', env.opcodes[26]);
     assertSame('op_append', env.opcodes[27]);
 
-    descendant = env.context.allEnvironments[1];
+    descendant = env.context.all[1];
     assertSame(2, descendant.opcodes.length);
     assertSame('op_appendContent', descendant.opcodes[0]);
     assertSame('abc', descendant.opcodes[1]);
 
-    descendant = env.context.allEnvironments[2];
+    descendant = env.context.all[2];
     assertSame(2, descendant.opcodes.length);
     assertSame('op_appendContent', descendant.opcodes[0]);
     assertSame('def', descendant.opcodes[1]);
@@ -227,8 +227,8 @@ TestCase('compiler', {
     var env = compiler.compile(ast);
     var descendant;
 
-    assertSame(3, env.context.allEnvironments.length);
-    assertSame(env, env.context.allEnvironments[0]);
+    assertSame(3, env.context.all.length);
+    assertSame(env, env.context.all[0]);
     assertSame(14, env.opcodes.length);
     assertSame('op_lookupHead', env.opcodes[0]);
     assertSame('hoge', env.opcodes[1]);
@@ -245,7 +245,7 @@ TestCase('compiler', {
     assertSame('program1', env.opcodes[12]);
     assertSame('op_append', env.opcodes[13]);
     
-    descendant = env.context.allEnvironments[1];
+    descendant = env.context.all[1];
     assertSame(18, descendant.opcodes.length);
     assertSame('op_appendContent', descendant.opcodes[0]);
     assertSame('abc', descendant.opcodes[1]);
@@ -266,7 +266,7 @@ TestCase('compiler', {
     assertSame('op_appendContent', descendant.opcodes[16]);
     assertSame('ghi', descendant.opcodes[17]);
 
-    descendant = env.context.allEnvironments[2];
+    descendant = env.context.all[2];
     assertSame(2, descendant.opcodes.length);
     assertSame('op_appendContent', descendant.opcodes[0]);
     assertSame('def', descendant.opcodes[1]);
@@ -276,8 +276,8 @@ TestCase('compiler', {
     var ast = this.parser.parse('{{^hoge}}abc{{/hoge}}');
     var compiler = new this.compiler.Compiler();
     var env = compiler.compile(ast);
-    assertSame(2, env.context.allEnvironments.length);
-    assertSame(env, env.context.allEnvironments[0]);
+    assertSame(2, env.context.all.length);
+    assertSame(env, env.context.all[0]);
     assertSame(14, env.opcodes.length);
     assertSame('op_lookupHead', env.opcodes[0]);
     assertSame('hoge', env.opcodes[1]);
