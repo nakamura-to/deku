@@ -1,2 +1,2 @@
 hey {{foo}}
-{{@empty_partial}}
+{{:empty_partial}}

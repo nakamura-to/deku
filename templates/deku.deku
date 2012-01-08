@@ -1,4 +1,4 @@
-{{@header pkg}}
+{{:header pkg}}
 // {{{preludeName}}}
 {{{prelude}}}
 // {{{parserName}}}

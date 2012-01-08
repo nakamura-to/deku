@@ -63,7 +63,7 @@ Inverse
     }
 
 Partial
-  = '{{@' _ name:Path contextDef:(Whitespace+ Path)? _ '}}' {
+  = '{{:' _ name:Path contextDef:(Whitespace+ Path)? _ '}}' {
       return {
         type: 'type_partial',
         name: name,
@@ -147,14 +147,14 @@ Path
     }
 
 Id
-  = head:[^#^@!/{}|\.\n\r\t ] tail:[^{}|\.\n\r\t ]* {
-      var chars = [head];
+  = head:[^#^:!/{}|\.\n\r\t ] tail:[^{}|\.\n\r\t ]* {
+      var chars = head;
       var i;
       var len = tail.length;
       for (i = 0; i < len; i++) {
-        chars.push(tail[i]);
+        chars += tail[i];
       }
-      return chars.join('');
+      return chars;
     }
 _
   = Whitespace*

@@ -1,4 +1,4 @@
 Here is some stuff!
 {{#numbers}}
-{{@array_of_partials_partial}}
+{{:array_of_partials_partial}}
 {{/numbers}}

@@ -1,4 +1,4 @@
 {{name}}
 {{#children}}
-{{@partial_recursion}}
+{{:partial_recursion}}
 {{/children}}
