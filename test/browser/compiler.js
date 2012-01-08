@@ -264,11 +264,29 @@ TestCase('compiler', {
     assertSame('hoge', result);
   },
 
-  'test compile: tag: pathSeguments': function () {
+  'test compile: tag: pathSegments': function () {
     var fn = this.compiler.compile('{{aaa.bbb.ccc}}');
     var data = {aaa: {bbb: {ccc: 'hoge'}}};
     var result = fn.call(this.templateContext, data, [data]);
     assertSame('hoge', result);
+  },
+
+  'test compile: tag: pathSegments: function': function () {
+    var fn = this.compiler.compile('{{aaa.bbb.getName}}');
+    var data = {
+      name: 'data',
+      aaa: {
+        name: 'aaa',
+        bbb: {
+          name: 'bbb',
+          getName: function () {
+            return this.name;
+          }
+        }
+      }
+    };
+    var result = fn.call(this.templateContext, data, [data]);
+    assertSame('bbb', result);
   },
 
   'test compile: tag: escape': function () {
