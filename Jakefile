@@ -1,6 +1,4 @@
-var util = require('util');
 var fs = require('fs');
-var path = require('path');
 var childProcess = require('child_process');
 var pkg = JSON.parse(fs.readFileSync('./package.json').toString());
 
@@ -85,7 +83,7 @@ task('updateVersion', ['clean'], function () {
 });
 
 task('test', ['makeParser', 'updateVersion'], function () {
-  var process = childProcess.execFile('./test/node/run.js', function (error, stdout, stderr) {
+  var process = childProcess.execFile('./test/spec/run.js', function (error, stdout, stderr) {
     console.log(stdout);
     console.error(stderr);
     if (error != null) {

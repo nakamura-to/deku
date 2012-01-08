@@ -6,4 +6,4 @@ load:
   - lib/internal/core.js
   - lib/api.js
 test:
-  - test/browser/*.js
+  - test/ut/*.js
