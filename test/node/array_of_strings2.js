@@ -1,1 +1,0 @@
-var data = {names: ['aaa', 'bbb', 'ccc']};

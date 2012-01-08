@@ -1,1 +1,1 @@
-var data = ['aaa', 'bbb', 'ccc'];
+var data = {array_of_strings: ['hello', 'world']};

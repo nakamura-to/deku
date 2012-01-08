@@ -1,0 +1,2 @@
+hey {{foo}}
+{{@empty_partial}}

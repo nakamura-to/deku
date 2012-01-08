@@ -25,11 +25,18 @@ var compare = function (file, template, expected, partialName, partial, data) {
     console.error(message);
     console.error('\nStack:\n\n' + e.stack);
     try {
-      console.error('\nActual[' + actual.length + ']:\n\n' + actual);
-      console.error('\nExpected[' + expected.length + ']:\n\n' + expected);
+      console.error('\nActual[' + actual.length + ']:\n\n' + actual.replace(/ /g, '_').replace(/\n/g, '\\n\n'));
+      console.error('\nExpected[' + expected.length + ']:\n\n' + expected.replace(/ /g, '_').replace(/\n/g, '\\n\n'));
     } catch (ignored) {
     }
     process.exit();
+  }
+};
+
+deku.processors.debug = function (value, valueName) {
+  var p;
+  for (p in value) {
+    console.log('[debug] name=%s, key=%s, value=', valueName, p, value[p]);
   }
 };
 
@@ -40,6 +47,7 @@ fs.readdir(__dirname, function (err, files) {
   });
   files.forEach(function (file) {
     var match = file.match(/^([\s\S]*)\.deku$/);
+    var ignore = file.match(/^([\s\S]*)\.deku\.ignore$/);
     var base;
     var load = function (scope) {
       fs.readFile(file, 'utf8', function (err, template) {
@@ -53,6 +61,9 @@ fs.readdir(__dirname, function (err, files) {
         });
       });
     };
+    if (ignore) {
+      console.log('[ignored] %s', file);
+    }
     if (!match) {
       return;
     }
