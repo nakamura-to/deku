@@ -1,17 +1,16 @@
 {
     "name"          : "deku",
-    "description"   : "javascript templating library focused on pipeline processing.",
-    "homepage"      : "http://nakamura-to.github.com/deku/",
+    "description"   : "Templating library focused on pipeline processing.",
     "keywords"      : ["template", "mustache", "pipeline", "deku"],
     "author"        : "Toshihiro Nakamura <toshihiro.nakamura@gmail.com>",
     "contributors"  : [],
     "dependencies"  : {
-        "optimist":  ">= 0.3.1"
+        "optimist":  "~0.3.1"
     },
     "devDependencies": {
-        "jake":      ">= 0.1.22",
-        "pegjs":     ">= 0.6.2",
-        "uglify-js": ">= 1.2.3"
+        "jake":      "~0.1.22",
+        "pegjs":     "~0.6.2",
+        "uglify-js": "~1.2.3"
     },
     "repository"    : {"type": "git", "url": "git@github.com:nakamura-to/deku.git"},
     "main"          : "./lib/deku.js",
