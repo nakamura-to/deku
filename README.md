@@ -446,13 +446,7 @@ Welcome, Joe! You just won $1000 (which is $600 after tax)
 
 ### Escaping and Unescaping
 
-Double mustaches like `{{value}}` always escape following characters:
-* &
-* "
-* '
-* <
-* >
-
+Double mustaches like `{{value}}` always escape following characters: `&` `"` `'` `<` `>`.
 To disable escaping, use triple mustaches like `{{{value}}}`.
 
 > input
