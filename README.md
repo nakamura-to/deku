@@ -239,6 +239,8 @@ There are several types of tags currently implemented in deku.js.
 
 ### Simple Tags
 
+Tags begin with `{{` and end with `}}`.
+
 > source
 
 ```
@@ -266,6 +268,9 @@ hello, Joe.
 ```
 
 ### Conditional Blocks
+
+Conditional blocks begin with `{{#condition}}` and end with `{{/condition}}`.
+When `condition` evaluates to true, the block is rendered.
 
 > input
 
@@ -296,6 +301,9 @@ var output = template.render(data);
 ```
 
 ### Enumerable Blocks
+
+Enumerable blocks begin with `{{#enumerable}}` and end with `{{/enumerable}}`. 
+The `enumerable` must be Array.
 
 > input
 
@@ -331,6 +339,9 @@ Joe$#39;s shopping card:
 ```
 
 ### Dereferencing Blocks
+
+Dereferencing blocks begin with `{{#object}}` and end with `{{/object}}`.
+The `object` must not be neither Array nor Function.
 
 > input
 
@@ -369,6 +380,9 @@ var output = template.render(data);
 
 ### Inverted Blocks
 
+Inverted blocks begin with `{{^condition}}` and end with `{{/condition}}`. 
+When `condition` evaluates to falth or `condition` is an empty array, the block is rendered.
+
 > input
 
 ```html
@@ -394,6 +408,11 @@ No repos :(
 ```
 
 ### Partials
+
+Partials begin with `{{:` and end with `}}`.
+The first argument is a partial template name.
+The second argument is a data context in the partial template. When the second argument is omitted, the current data context is used.
+The partial template is registered in advance.
 
 > input
 
@@ -427,6 +446,15 @@ Welcome, Joe! You just won $1000 (which is $600 after tax)
 
 ### Escaping and Unescaping
 
+Double mustaches like `{{value}}` always escape following characters:
+* &
+* "
+* '
+* <
+* >
+
+To disable escaping, use triple mustaches like `{{{value}}}`.
+
 > input
 
 ```html
@@ -448,4 +476,12 @@ var output = template.render(data);
 ```html
 escaping: &lt;span&gt;hello&lt;/span&gt;
 unescaping: <span>hello</span>
+```
+
+### Comments
+
+Comments begin with `{{!` and end with `}}`.
+
+```html
+{{! this is a comment }}
 ```
