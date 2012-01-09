@@ -161,7 +161,7 @@ deku.js provides following special identifiers to access data context.
 * @this : the reference to the current data context
 * @parent : the reference to the parent of @this
 * @root : the reference to the root data context
-* @0, @1, .. @n : @0 is same with @this and @1 is same with @parent). @2 is the parent of @1. @3 is .., and so on. 
+* @0, @1, .. @n : @0 is same with @this and @1 is same with @parent. @2 is the parent of @1. @3 is the parent of @2, and so on. 
 
 Given this object:
 
