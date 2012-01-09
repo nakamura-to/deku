@@ -203,6 +203,26 @@ var result = template.render(data);
 console.log(result); // Joe is *** years old.
 ```
 
+### Pre-compiling Templates
+
+deku provides the template compiling script. 
+
+> Installing
+
+The compiler script can be installed with the following command.
+
+```
+$ npm install -g deku
+```
+
+> Usage
+
+To compile, execute the following commmand.
+
+```
+$ deku templatefile_or_directory
+```
+
 ### Others
 
 Currently, deku doesn't support following features, which mustache.js has:
@@ -210,3 +230,22 @@ Currently, deku doesn't support following features, which mustache.js has:
 * Higher Order Sections
 * Streaming
 * Pragmas
+
+Features
+--------
+
+### Simple Tags
+
+### Conditional Blocks
+
+### Enumerable Blocks
+
+### Dereferencing Blocks
+
+### Inverted Blocks
+
+### Partials
+
+### Reserved Identifiers
+
+### Escaping
