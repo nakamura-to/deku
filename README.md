@@ -473,8 +473,8 @@ No repos :(
 
 Partials begin with `{{:` and end with `}}`.
 The first argument is a partial template name.
-The second argument is a data context in the partial template. When the second argument is omitted, the current data context is used.
-The partial template is registered in advance.
+The second argument is a data context in the partial template (When the second argument is omitted, the current data context is used) .
+The partial template must be registered in advance.
 
 > input
 
