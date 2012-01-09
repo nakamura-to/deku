@@ -3,7 +3,6 @@ deku — javascript templating library focused on pipeline processing
 
 deku.js is templating library inspired by [mustache.js](https://github.com/janl/mustache.js),
 [tempo](https://github.com/twigkit/tempo) and [handlebars.js](https://github.com/wycats/handlebars.js/).
-We deeply respect them.
 
 Most features are similar with mustache.js.
 
@@ -324,7 +323,7 @@ var input = ... // above content
 var template = deku.prepare(input);
 var data = {
     name: "Joe's shopping card",
-    itmes: ['bananas', 'apples'];
+    iteme: ['bananas', 'apples']
 };
 var output = template.render(data);
 ```
@@ -337,6 +336,37 @@ Joe$#39;s shopping card:
     <li>bananas</li>
     <li>apples</li>
 </ul>
+```
+
+#### Special Identifiers in Enumerable Blocks
+
+In enumerable blocks, following special identifiers are available:
+
+* @index : the index of the enumerated element
+* @hasNext : `true`, if the next element is existent
+
+> input
+
+```html
+{{#items}}{{@this}} {{@index}}{{#@hasNext}}, {{/@hasNext}}{{/items}}
+```
+
+> process
+
+```js
+var input = ... // above content
+var template = deku.prepare(input);
+var data = {
+    name: "Joe's shopping card",
+    items: ['bananas', 'apples']
+};
+var output = template.render(data);
+```
+
+> output
+
+```html
+bananas 0, apples 1
 ```
 
 ### Dereferencing Blocks
