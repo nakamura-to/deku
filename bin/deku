@@ -4,10 +4,10 @@ var fs = require('fs');
 var path = require('path');
 var deku = require('../lib/deku');
 var optimist = require('optimist')
-  .usage('Compile deku templates.\nUsage: deku-compiler template ...', {
+  .usage('Compile deku templates.\nUsage: deku template ...', {
     a: {
       type: 'string',
-      description: 'AMD Mudule name for tampura',
+      description: 'AMD mudule name for deku',
       alias: 'amd'
     },
     f: {

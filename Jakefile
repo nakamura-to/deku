@@ -95,7 +95,7 @@ task('test', ['makeParser', 'updateVersion'], function () {
 }, {async: true});
 
 task('test-compiler', [], function () {
-  var process = childProcess.execFile('./bin/deku-compiler', ['./test/spec/simple.deku'], function (error, stdout, stderr) {
+  var process = childProcess.execFile('./bin/deku', ['./test/spec/simple.deku'], function (error, stdout, stderr) {
     assert.ifError(error);
   });
   process.on('exit', function () {
