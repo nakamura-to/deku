@@ -3,8 +3,9 @@ deku — javascript templating library focused on pipeline processing
 
 deku.js is templating library inspired by [mustache.js](https://github.com/janl/mustache.js),
 [tempo](https://github.com/twigkit/tempo) and [handlebars.js](https://github.com/wycats/handlebars.js/).
+We deeply respect them.
 
-Some features are similar with mustache.js.
+Most features are similar with mustache.js.
 
 > Usage
 
@@ -336,8 +337,8 @@ Joe$#39;s shopping card:
 ```html
 <h1>Contact: {{name}}</h1>
 {{#address}}
-  <p>{{street}}</p>
-  <p>{{city}}, {{state}} {{zip}}</p>
+    <p>{{street}}</p>
+    <p>{{city}}, {{state}} {{zip}}</p>
 {{/address}}
 ```
 
@@ -362,14 +363,89 @@ var output = template.render(data);
 
 ```html
 <h1>Contact: Bill</h1>
-  <p>801 Streetly street</p>
-  <p>Boston, MA 02101</p>
+    <p>801 Streetly street</p>
+    <p>Boston, MA 02101</p>
 ```
 
 ### Inverted Blocks
 
+> input
+
+```html
+{{#repo}}<b>{{name}}</b>{{/repo}}
+{{^repo}}No repos :({{/repo}}
+```
+
+> process
+
+```js
+var input = ... // above content
+var template = deku.prepare(input);
+var data = {
+    repo: []
+};
+var output = template.render(data);
+```
+
+> output
+
+```html
+No repos :(
+```
+
 ### Partials
 
-### Reserved Identifiers
+> input
 
-### Escaping
+```html
+Welcome, {{name}}! {{:winningsMessage winnings}}
+```
+
+> process
+
+```js
+deku.templates.winningsMessage = 'You just won ${{value}} (which is ${{taxed_value}} after tax)';
+
+var input = ... // above content
+var template = deku.prepare(input);
+var data = {
+  name: 'Joe',
+  winnings: {
+    value: 1000,
+    taxed_value: function() {
+        return this.value - (this.value * 0.4);
+    }
+  }};
+var output = template.render(data);
+```
+
+> output
+
+```html
+Welcome, Joe! You just won $1000 (which is $600 after tax)
+```
+
+### Escaping and Unescaping
+
+> input
+
+```html
+escaping: {{value}}
+unescaping: {{{value}}}
+```
+
+> process
+
+```js
+var input = ... // above content
+var template = deku.prepare(input);
+var data = {value: '<span>hello</span>'}
+var output = template.render(data);
+```
+
+> output
+
+```html
+escaping: &lt;span&gt;hello&lt;/span&gt;
+unescaping: <span>hello</span>
+```
