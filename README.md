@@ -102,7 +102,7 @@ var result = template.render(data);
 console.log(result); // Joe's weight is 65kg, or 65000g.
 ```
 
-More than one pipe function are available.
+More than one processor are available.
 
 ```js
 var source = '{{name|yeah|enclose}}';
