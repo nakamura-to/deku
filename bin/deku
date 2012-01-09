@@ -59,7 +59,7 @@ var process = function process(filePath, root) {
     } else {
       name = filePath;
     }
-    name = name.replace(/\.deku$/, '').replace(/¥/g, '/');
+    name = name.replace(/\.deku$/, '').replace(/\\/g, '/');
     content = fs.readFileSync(filePath, 'utf-8');
     buf.push('deku.templates["' + name + '"] = ' + deku.internal.compiler.compile(content, true) + ';\n');
   }
