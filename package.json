@@ -1,6 +1,7 @@
 {
     "name"          : "deku",
     "description"   : "Templating library focused on pipeline processing.",
+    "homepage"      : "http://nakamura-to.github.com/deku/",
     "keywords"      : ["template", "mustache", "pipeline", "deku"],
     "author"        : "Toshihiro Nakamura <toshihiro.nakamura@gmail.com>",
     "contributors"  : [],
