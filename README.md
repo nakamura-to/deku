@@ -26,9 +26,9 @@ var result = template.render(data);
 console.log(result); // Joe spends 4200
 ```
 
-### Quick Example with JQuery
+### Quick Example with jQuery
 
-Below is the typical usage with JQuery.
+Below is the typical usage with jQuery.
 
 > html
 
