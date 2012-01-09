@@ -266,9 +266,9 @@ hello, Joe.
 
 ### Conditional Blocks
 
-> source
+> input
 
-```
+```html
 {{#condition}}
   I will be visible if condition is true
 {{/condition}}
@@ -277,18 +277,18 @@ hello, Joe.
 > process
 
 ```js
-var source = ... // above content
-var template = deku.prepare(source);
+var input = ... // above content
+var template = deku.prepare(input);
 var data = {
     condition: function() {
         // [...your code goes here...]
         return true;
     };
 };
-var result = template.render(data);
+var output = template.render(data);
 ```
 
-> result
+> output
 
 ```
   I will be visible if condition is true
@@ -296,7 +296,75 @@ var result = template.render(data);
 
 ### Enumerable Blocks
 
+> input
+
+```html
+{{name}}:
+<ul>
+{{#items}}
+    <li>{{@this}}</li>
+{{/items}}
+</ul>
+```
+
+> process
+
+```js
+var input = ... // above content
+var template = deku.prepare(input);
+var data = {
+    name: "Joe's shopping card",
+    itmes: ['bananas', 'apples'];
+};
+var output = template.render(data);
+```
+
+> output
+
+```html
+Joe$#39;s shopping card:
+<ul>
+    <li>bananas</li>
+    <li>apples</li>
+</ul>
+```
+
 ### Dereferencing Blocks
+
+> input
+
+```html
+<h1>Contact: {{name}}</h1>
+{{#address}}
+  <p>{{street}}</p>
+  <p>{{city}}, {{state}} {{zip}}</p>
+{{/address}}
+```
+
+> process
+
+```js
+var input = ... // above content
+var template = deku.prepare(input);
+var data = {
+    name: 'Bill',
+    address: {
+        street: '801 Streetly street',
+        city: 'Boston',
+        state: 'MA',
+        zip: '02101'
+    }
+};
+var output = template.render(data);
+```
+
+> output
+
+```html
+<h1>Contact: Bill</h1>
+  <p>801 Streetly street</p>
+  <p>Boston, MA 02101</p>
+```
 
 ### Inverted Blocks
 
