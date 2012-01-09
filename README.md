@@ -13,7 +13,6 @@ Below is quick example how to use deku:
 ```js
 var source = '{{name}} spends {{calc}}';
 var template = deku.prepare(source);
-
 var data = {
     name: 'Joe',
     calc: function () {
@@ -37,7 +36,7 @@ $ npm install deku
 
 ### Browser
 
-[Download](https://github.com/nakamura-to/deku/tags) the deku.js and include it in your web page using the script tag.
+[Download](https://github.com/nakamura-to/deku/downloads) the deku.js and include it in your web page using the script tag.
 
 Differences Between deku and mustache.js
 -------------------------------------------
@@ -48,26 +47,59 @@ The most unique feature in deku is the pipeline processing.
 This feature is useful for formatting and coversion.
 
 ```js
-var source = '{{name}} spends {{calc|dollar}}';
+var source = "{{name}}'s weight is {{weight|kg}}, or {{weight|g}}.";
 var template = deku.prepare(source);
-
 var data = {
     name: 'Joe',
-    calc: function () {
-        return 200 + 4000;
+    weight: 65,
+    kg: function (value) {
+        return value + 'kg';
     },
-    dollar: function (value) {
-        var regex = /(\d+)(\d{3})/;
-        var s = String(value);
-        while (s.match(regex)) {
-          s = s.replace(regex, '$1' + ',' + '$2');
-        }
-        return '$' + s;
+    g: function (value) {
+        return value * 1000 + 'g';
     }
 };
 var result = template.render(data);
 
-console.log(result); // Joe spends $4,200
+console.log(result); // Joe's weight is 65kg, or 65000g.
+```
+
+You can separate pipeline processing functions(processors) from data.
+
+```js
+var options = {
+    processors: {
+        kg : function (value) {
+            return value + 'kg';
+        },
+        g : function (value) {
+            return value * 1000 + 'g';
+        } 
+    }
+};
+var source = "{{name}}'s weight is {{weight|kg}}, or {{weight|g}}.";
+var template = deku.prepare(source, options);
+var data = {name: 'Joe', weight: 65};
+var result = template.render(data);
+
+console.log(result); // Joe's weight is 65kg, or 65000g.
+```
+
+You can define processors globaly.
+
+```js
+deku.processors.kg = function (value) {
+    return value + 'kg';
+};
+deku.processors.g = function (value) {
+    return value * 1000 + 'g';
+};
+var source = "{{name}}'s weight is {{weight|kg}}, or {{weight|g}}.";
+var template = deku.prepare(source);
+var data = {name: 'Joe', weight: 65};
+var result = template.render(data);
+
+console.log(result); // Joe's weight is 65kg, or 65000g.
 ```
 
 More than one pipe function are available.
@@ -75,7 +107,6 @@ More than one pipe function are available.
 ```js
 var source = '{{name|yeah|enclose}}';
 var template = deku.prepare(source);
-
 var data = {
     name: 'Joe',
     yeah: function (value) {
@@ -90,34 +121,14 @@ var result = template.render(data);
 console.log(result); // [Joe!]
 ```
 
-You can define global pipe functions.
-
-```js
-deku.processors = {
-    yeah: function (value) {
-        return value + '!';
-    },
-    enclose: function (value) {
-        return '[' + value + ']';
-    }
-};
-
-var source = '{{name|yeah|enclose}}';
-var template = deku.prepare(source);
-
-var data = {name: 'Joe'};
-var result = template.render(data);
-
-console.log(result); // [Joe!]
-```
 
 ### Data Context Access
 
 deku provides following special identifiers to access data context.
 
-* $root : the reference to the root data context
-* $parent : the reference to the parent data context
-* $this : the reference to the current object
+* @root : the reference to the root data context
+* @parent : the reference to the parent data context
+* @this : the reference to the current object
 
 Given this object:
 
@@ -140,7 +151,7 @@ And this template:
 <ul>
 {{#parent}} 
   {{#children}}
-  <li>{{$root.rootName}}/{{$parent.parentName}}/{{$this}}</li>
+  <li>{{@root.rootName}}/{{@parent.parentName}}/{{@this}}</li>
   {{/children}}
 {{/parent}}
 </ul>
@@ -161,18 +172,15 @@ deku can handle the value missings.
 This feature is useful for debugging.
 
 ```js
-deku.noSuchValue = function (name) {
-    console.warn('the value "' + name + '" is missing');
-    return undefined;
+deku.noSuchValue = function (valueName) {
+    console.warn('the value "' + valueName + '" is missing.');
 };
-deku.noSuchProcessor = function (name, value) {
-    console.warn('the processor "' + name + '" is missing');
+deku.noSuchProcessor = function (processorName, value, valueName) {
+    console.warn('the processor "' + processorName + '" is missing for the value "' + valueName + '".');
     return value;
 };
-
-var source = '{{name|unknownPipe1}} is {{unkonwnValue|unknownPipe2}}';
+var source = '{{name|unknownProcessor}} is {{unkonwnValue}}';
 var template = deku.prepare(source);
-
 var data = {name: 'Joe'};
 var result = template.render(data);
 
@@ -181,20 +189,17 @@ console.log(result); // Joe is
 
 deku provides a hook point to handle all values before and after applying pipeline functions.
 It's means you can check or convert erroneous values.
-(By the way, deku converts undefined values to empty string by default preRender function.)
 
 ```js
 deku.postPipeline = function (value) {
     return value === null ? '***' : value;
 };
-
-var source = 'name is {{name}}';
+var source = '{{name}} is {{age}} years old.';
 var template = deku.prepare(source);
-
-var data = {name: null};
+var data = {name: 'Joe', age: null};
 var result = template.render(data);
 
-console.log(result); // name is ***
+console.log(result); // Joe is *** years old.
 ```
 
 ### Others
