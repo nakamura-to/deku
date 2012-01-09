@@ -1,14 +1,14 @@
 deku — javascript templating library focused on pipeline processing
 ===================================================================
 
-deku is templating library inspired by [mustache.js](https://github.com/janl/mustache.js),
+deku.js is templating library inspired by [mustache.js](https://github.com/janl/mustache.js),
 [tempo](https://github.com/twigkit/tempo) and [handlebars.js](https://github.com/wycats/handlebars.js/).
 
 Some features are similar with mustache.js.
 
 > Usage
 
-Below is quick example how to use deku:
+Below is quick example how to use deku.js:
 
 ```js
 var source = '{{name}} spends {{calc}}';
@@ -39,12 +39,12 @@ $ npm install deku
 
 [Download](https://github.com/nakamura-to/deku/downloads) the deku.js and include it in your web page using the script tag.
 
-Differences Between deku and mustache.js
+Differences Between deku.js and mustache.js
 -------------------------------------------
 
 ### Pipeline Processing
 
-The most unique feature in deku is the pipeline processing.
+The most unique feature in deku.js is the pipeline processing.
 This feature is useful for formatting and conversion.
 
 ```js
@@ -125,7 +125,7 @@ console.log(result); // [Joe!]
 
 ### Data Context Access
 
-deku provides following special identifiers to access data context.
+deku.js provides following special identifiers to access data context.
 
 * @root : the reference to the root data context
 * @parent : the reference to the parent data context
@@ -169,7 +169,7 @@ We'll get this output:
 
 ### Error Handling
 
-deku can handle the value missings.
+deku.js can handle the value missings.
 This feature is useful for debugging.
 
 ```js
@@ -188,7 +188,7 @@ var result = template.render(data);
 console.log(result); // Joe is
 ```
 
-deku provides a hook point to handle all values before and after applying pipeline functions.
+deku.js provides a hook point to handle all values before and after applying pipeline functions.
 It's means you can check or convert erroneous values.
 
 ```js
@@ -205,11 +205,11 @@ console.log(result); // Joe is *** years old.
 
 ### Pre-compiling Templates
 
-deku provides the template compiling script. 
+deku.js provides the template compiling script. 
 
 > Installing
 
-The compiler script can be installed with the following command.
+The compiling script can be installed with the following command.
 
 ```
 $ npm install -g deku
@@ -225,18 +225,74 @@ $ deku templatefile_or_directory
 
 ### Others
 
-Currently, deku doesn't support following features, which mustache.js has:
+Currently, deku.js doesn't support following features, which mustache.js has:
 
 * Higher Order Sections
 * Streaming
 * Pragmas
 
-Features
---------
+Templating Tag Types
+--------------------
+
+There are several types of tags currently implemented in deku.js.
 
 ### Simple Tags
 
+> source
+
+```
+{{sayHello}}, {{name}}.
+```
+
+> process
+
+```js
+var source = ... // above content ;
+var template = deku.prepare(source);
+var data = {
+    name: 'Joe', 
+    sayHello: function () {
+        return 'hello';
+    }
+};
+var result = template.render(data);
+```
+
+> result
+
+```
+hello, Joe.
+```
+
 ### Conditional Blocks
+
+> source
+
+```
+{{#condition}}
+  I will be visible if condition is true
+{{/condition}}
+```
+
+> process
+
+```js
+var source = ... // above content
+var template = deku.prepare(source);
+var data = {
+    condition: function() {
+        // [...your code goes here...]
+        return true;
+    };
+};
+var result = template.render(data);
+```
+
+> result
+
+```
+  I will be visible if condition is true
+```
 
 ### Enumerable Blocks
 
