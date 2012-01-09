@@ -6,7 +6,9 @@ deku.js is templating library inspired by [mustache.js](https://github.com/janl/
 
 Most features are similar with mustache.js.
 
-> Usage
+## Usage
+
+### Quick Example
 
 Below is quick example how to use deku.js:
 
@@ -22,6 +24,35 @@ var data = {
 var result = template.render(data);
 
 console.log(result); // Joe spends 4200
+```
+
+### Quick Example with JQuery
+
+Below is the typical usage with JQuery.
+
+> html
+
+```html
+<script src="http://nakamura-to.github.com/deku/deku-latest.js"></script>
+<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+<script id="template" type="text/template">
+{{name}} spends {{calc}}
+</script>
+<div id="result"></div>
+```
+
+> javascript
+
+```js
+var source = $('#template').html();
+var template = deku.prepare(source);
+var data = {
+    name: 'Joe',
+    calc: function () {
+        return 200 + 4000;
+    }
+};
+$('#result').html(template.render(data)); // Joe spends 4200
 ```
 
 Installing
@@ -127,10 +158,10 @@ console.log(result); // [Joe!]
 
 deku.js provides following special identifiers to access data context.
 
-* @root : the reference to the root data context
-* @parent : the reference to the parent data context
 * @this : the reference to the current data context
-* @0, @1, ... @n : @0 is same with @this. @1 is same with @parent. @2 indicates the parent of @1, and so on. 
+* @parent : the reference to the parent of @this
+* @root : the reference to the root data context
+* @0, @1, .. @n : @0 is same with @this and @1 is same with @parent). @2 is the parent of @1. @3 is .., and so on. 
 
 Given this object:
 
