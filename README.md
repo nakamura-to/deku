@@ -362,7 +362,7 @@ var output = template.render(data);
 > output
 
 ```html
-Joe$#39;s shopping card:
+Joe&#39;s shopping card:
 <ul>
     <li>bananas</li>
     <li>apples</li>
