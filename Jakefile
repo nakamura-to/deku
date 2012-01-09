@@ -104,7 +104,7 @@ task('test-compiler', [], function () {
 }, {async: true});
 
 task('build', ['test', 'test-compiler'], function () {
-  var deku =require('./lib/deku');
+  var deku =require('deku');
   var options = {
     templates: {
       header: fs.readFileSync(HEADER_TEMPLATE_FILE, 'utf-8')
