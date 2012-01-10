@@ -7,7 +7,7 @@ var optimist = require('optimist')
   .usage('Compile deku templates.\nUsage: deku template ...', {
     a: {
       type: 'string',
-      description: 'AMD mudule name for deku',
+      description: 'AMD mudule name for deku.js',
       alias: 'amd'
     },
     f: {
@@ -19,7 +19,12 @@ var optimist = require('optimist')
       type: 'string',
       description: 'Template root',
       alias: 'root'
-    }
+    },
+    s: {
+      type: 'string',
+      description: 'Separator used in template names instead of "/"',
+      alias: 'separator'
+    }    
   })
   .check(function (argv) {
     if (!argv._.length) {
@@ -60,6 +65,9 @@ var process = function process(filePath, root) {
       name = filePath;
     }
     name = name.replace(/\.deku$/, '').replace(/\\/g, '/');
+    if (argv.separator) {
+      name = name.replace(/\//, argv.separator);
+    }
     content = fs.readFileSync(filePath, 'utf-8');
     buf.push('deku.templates["' + name + '"] = ' + deku.internal.compiler.compile(content, true) + ';\n');
   }
