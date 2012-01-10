@@ -1,7 +1,7 @@
 var fs = require('fs');
 var assert = require('assert');
 var childProcess = require('child_process');
-var pkg = JSON.parse(fs.readFileSync('./package.json').toString());
+var pkg = require('./package.json');
 
 var SRC_DIR = './src';
 var DIST_DIR = './dist';
