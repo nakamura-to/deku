@@ -16,5 +16,5 @@
     "repository"    : {"type": "git", "url": "git@github.com:nakamura-to/deku.git"},
     "main"          : "./lib/deku.js",
     "bin"           : "./bin/deku",
-    "version"       : "0.0.5dev"
+    "version"       : "0.0.5"
 }
