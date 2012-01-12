@@ -116,6 +116,41 @@ TestCase('api', {
     assertSame(this.html('expected'), result);
   },
 
+  'test prepare and render: it should use a "values" option prior to a "values" setting': function () {
+    /*:DOC +=
+     <div id="template">
+     {{name}} is {{age}} years old.
+     </div>
+     <div id="expected">
+     hoge is 20 years old.
+     </div>
+     */
+    deku.values.name = 'foo';
+    var options = {
+      values: {
+        name: 'hoge'
+      }
+    };
+    var template = deku.prepare(this.html('template'), options);
+    var result = template.render({age: 20});
+    assertSame(this.html('expected'), result);
+  },
+
+  'test prepare and render: it should use a "values" setting, if a "values" option does not exist': function () {
+    /*:DOC +=
+     <div id="template">
+     {{name}} is {{age}} years old.
+     </div>
+     <div id="expected">
+     foo is 20 years old.
+     </div>
+     */
+    deku.processors.name = 'foo';
+    var template = deku.prepare(this.html('template'));
+    var result = template.render({age: 20});
+    assertSame(this.html('expected'), result);
+  },
+
   'test prepare and render: it should use a "noSuchValue" option prior to a "noSuchValue" setting': function () {
     /*:DOC +=
      <div id="template">
