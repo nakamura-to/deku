@@ -85,6 +85,9 @@ TestCase('core', {
     assertSame('a&amp;b&quot;c&#39;d&lt;e&gt;f', this.core.escape('a&b"c\'d<e>f'));
     assertSame('abc', this.core.escape('abc'));
     assertSame('123', this.core.escape(123));
+    assertSame('true', this.core.escape(true));
+    assertSame('false', this.core.escape(false));
+    assertSame('NaN', this.core.escape(NaN));
     assertSame('', this.core.escape(null));
     assertSame('', this.core.escape(undefined));
   },
