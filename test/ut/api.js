@@ -4,29 +4,33 @@ TestCase('api', {
     this.html = function (id) {
       return document.getElementById(id).innerHTML;
     };
-    this.preseved = {};
-    this.preseved.prePipeline = deku.prePipeline;
-    this.preseved.postPipeline = deku.postPipeline;
-    this.preseved.noSuchValue = deku.noSuchValue;
-    this.preseved.noSuchPartial = deku.noSuchPartial;
-    this.preseved.noSuchProcessor = deku.noSuchProcessor;
+    this.preserved = {};
+    this.preserved.prePipeline = deku.prePipeline;
+    this.preserved.postPipeline = deku.postPipeline;
+    this.preserved.noSuchValue = deku.noSuchValue;
+    this.preserved.noSuchPartial = deku.noSuchPartial;
+    this.preserved.noSuchProcessor = deku.noSuchProcessor;
+    this.preserved.partialResolver = deku.partialResolver;
   },
 
   'tearDown': function () {
+    deku.values = {};
+    deku.partials = {};
     deku.templates = {};
     deku.processors = {};
-    deku.prePipeline = this.preseved.prePipeline;
-    deku.postPipeline = this.preseved.postPipeline;
-    deku.noSuchValue = this.preseved.noSuchValue;
-    deku.noSuchPartial = this.preseved.noSuchPartial;
-    deku.noSuchProcessor = this.preseved.noSuchProcessor;
+    deku.prePipeline = this.preserved.prePipeline;
+    deku.postPipeline = this.preserved.postPipeline;
+    deku.noSuchValue = this.preserved.noSuchValue;
+    deku.noSuchPartial = this.preserved.noSuchPartial;
+    deku.noSuchProcessor = this.preserved.noSuchProcessor;
+    deku.partialResolver = this.preserved.partialResolver;
   },
 
   'test version': function () {
     assertNotUndefined(deku.version);
   },
 
-  'test prepare and render: it shoud accept an object': function () {
+  'test compile: it shoud accept an object': function () {
     /*:DOC +=
      <div id="template">
      {{name}} is {{age}} years old.
@@ -35,12 +39,12 @@ TestCase('api', {
      hoge is 20 years old.
      </div>
      */
-    var template = deku.prepare(this.html('template'));
-    var result = template.render({name: 'hoge', age: 20});
+    var template = deku.compile(this.html('template'));
+    var result = template({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);
   },
 
-  'test prepare and render: it should use a "partials" option prior to a "partials" setting': function () {
+  'test compile: it should use a "partials" option prior to a "partials" setting': function () {
     /*:DOC +=
      <div id="template">
      {{:person}}
@@ -55,12 +59,12 @@ TestCase('api', {
         person: "{{name}} is {{age}} years old."
       }
     };
-    var template = deku.prepare(this.html('template'), options);
-    var result = template.render({name: 'hoge', age: 20});
+    var template = deku.compile(this.html('template'), options);
+    var result = template({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);
   },
 
-  'test prepare and render: it should use a "partials" setting, if a "partials" option does not exist': function () {
+  'test compile: it should use a "partials" setting, if a "partials" option does not exist': function () {
     /*:DOC +=
      <div id="template">
      {{:person}}
@@ -70,12 +74,12 @@ TestCase('api', {
      </div>
      */
     deku.templates.person = "[{{name}}] is {{age}} years old.";
-    var template = deku.prepare(this.html('template'));
-    var result = template.render({name: 'hoge', age: 20});
+    var template = deku.compile(this.html('template'));
+    var result = template({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);
   },
 
-  'test prepare and render: it should use a "processors" option prior to a "processors" setting': function () {
+  'test compile: it should use a "processors" option prior to a "processors" setting': function () {
     /*:DOC +=
      <div id="template">
      {{name|enclose}} is {{age}} years old.
@@ -94,12 +98,12 @@ TestCase('api', {
         }
       }
     };
-    var template = deku.prepare(this.html('template'), options);
-    var result = template.render({name: 'hoge', age: 20});
+    var template = deku.compile(this.html('template'), options);
+    var result = template({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);
   },
 
-  'test prepare and render: it should use a "processors" setting, if a "processors" option does not exist': function () {
+  'test compile: it should use a "processors" setting, if a "processors" option does not exist': function () {
     /*:DOC +=
      <div id="template">
      {{name|enclose}} is {{age}} years old.
@@ -111,12 +115,12 @@ TestCase('api', {
     deku.processors.enclose = function (value) {
       return '[' + value + ']';
     };
-    var template = deku.prepare(this.html('template'));
-    var result = template.render({name: 'hoge', age: 20});
+    var template = deku.compile(this.html('template'));
+    var result = template({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);
   },
 
-  'test prepare and render: it should use a "values" option prior to a "values" setting': function () {
+  'test compile: it should use a "values" option prior to a "values" setting': function () {
     /*:DOC +=
      <div id="template">
      {{name}} is {{age}} years old.
@@ -131,12 +135,12 @@ TestCase('api', {
         name: 'hoge'
       }
     };
-    var template = deku.prepare(this.html('template'), options);
-    var result = template.render({age: 20});
+    var template = deku.compile(this.html('template'), options);
+    var result = template({age: 20});
     assertSame(this.html('expected'), result);
   },
 
-  'test prepare and render: it should use a "values" setting, if a "values" option does not exist': function () {
+  'test compile: it should use a "values" setting, if a "values" option does not exist': function () {
     /*:DOC +=
      <div id="template">
      {{name}} is {{age}} years old.
@@ -145,13 +149,13 @@ TestCase('api', {
      foo is 20 years old.
      </div>
      */
-    deku.processors.name = 'foo';
-    var template = deku.prepare(this.html('template'));
-    var result = template.render({age: 20});
+    deku.values.name = 'foo';
+    var template = deku.compile(this.html('template'));
+    var result = template({age: 20});
     assertSame(this.html('expected'), result);
   },
 
-  'test prepare and render: it should use a "noSuchValue" option prior to a "noSuchValue" setting': function () {
+  'test compile: it should use a "noSuchValue" option prior to a "noSuchValue" setting': function () {
     /*:DOC +=
      <div id="template">
      {{hoge}} is {{age}} years old.
@@ -166,12 +170,12 @@ TestCase('api', {
         return '[' + name + ' is not found]';
       }
     };
-    var template = deku.prepare(this.html('template'), options);
-    var result = template.render({age: 20});
+    var template = deku.compile(this.html('template'), options);
+    var result = template({age: 20});
     assertSame(this.html('expected'), result);
   },
 
-  'test prepare and render: it should use a "noSuchValue" setting, if a "noSuchValue" option does not exitst': function () {
+  'test compile: it should use a "noSuchValue" setting, if a "noSuchValue" option does not exitst': function () {
     /*:DOC +=
      <div id="template">
      {{hoge}} is {{age}} years old.
@@ -183,12 +187,12 @@ TestCase('api', {
     deku.noSuchValue = function (name) {
       return '[' + name + ' is not found]';
     };
-    var template = deku.prepare(this.html('template'));
-    var result = template.render({name: 'hoge', age: 20});
+    var template = deku.compile(this.html('template'));
+    var result = template({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);
   },
 
-  'test prepare and render: it should use a "noSuchPartial" option prior to a "noSuchPartial" setting': function () {
+  'test compile: it should use a "noSuchPartial" option prior to a "noSuchPartial" setting': function () {
     /*:DOC +=
      <div id="template">
      {{:person}}
@@ -203,12 +207,12 @@ TestCase('api', {
         return '[' + name + ' is not found]';
       }
     };
-    var template = deku.prepare(this.html('template'), options);
-    var result = template.render({});
+    var template = deku.compile(this.html('template'), options);
+    var result = template({});
     assertSame(this.html('expected'), result);
   },
 
-  'test prepare and render: it should use a "noSuchPartial" setting, if a "noSuchPartial" option does not exitst': function () {
+  'test compile: it should use a "noSuchPartial" setting, if a "noSuchPartial" option does not exitst': function () {
     /*:DOC +=
      <div id="template">
      {{:person}}
@@ -220,12 +224,12 @@ TestCase('api', {
     deku.noSuchPartial = function (name) {
       return '[' + name + ' is not found]';
     };
-    var template = deku.prepare(this.html('template'));
-    var result = template.render({});
+    var template = deku.compile(this.html('template'));
+    var result = template({});
     assertSame(this.html('expected'), result);
   },
 
-  'test prepare and render: it should use a "noSuchProcessor" option prior to a "noSuchProcessor" setting': function () {
+  'test compile: it should use a "noSuchProcessor" option prior to a "noSuchProcessor" setting': function () {
     /*:DOC +=
      <div id="template">
      {{name|foo}} is {{age}} years old.
@@ -240,12 +244,12 @@ TestCase('api', {
         return '[' + pipeName + ',' + value + ',' + valueName + ']';
       }
     };
-    var template = deku.prepare(this.html('template'), options);
-    var result = template.render({name: 'hoge', age: 20});
+    var template = deku.compile(this.html('template'), options);
+    var result = template({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);
   },
 
-  'test prepare and render: it should use a "noSuchProcessor" setting, if a "noSuchProcessor" option does not exitst': function () {
+  'test compile: it should use a "noSuchProcessor" setting, if a "noSuchProcessor" option does not exitst': function () {
     /*:DOC +=
      <div id="template">
      {{name|foo}} is {{age}} years old.
@@ -257,12 +261,12 @@ TestCase('api', {
     deku.noSuchProcessor = function (processorName, value, valueName) {
       return '[' + processorName + ',' + value + ',' + valueName + ']';
     };
-    var template = deku.prepare(this.html('template'));
-    var result = template.render({name: 'hoge', age: 20});
+    var template = deku.compile(this.html('template'));
+    var result = template({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);
   },
 
-  'test prepare and render: it should accept a pre-compiled function': function () {
+  'test compile: it should accept a pre-compiled function': function () {
     /*:DOC +=
      <div id="template">
      {{name}} is {{age}} years old.
@@ -272,15 +276,33 @@ TestCase('api', {
      </div>
      */
     var f = deku.internal.core.compile(this.html('template'));
-    var template = deku.prepare(f);
-    var result = template.render({name: 'hoge', age: 20});
+    var template = deku.compile(f);
+    var result = template({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);
   },
 
-  'test prepare and render: it should not accept illegal value': function () {
+  'test compile: it should not accept illegal value': function () {
     assertException(function () {
-      deku.prepare(10);
+      deku.compile(10);
     });
+  },
+
+  'test use: it should accept a template name': function () {
+    /*:DOC +=
+     <div id="template">
+     {{name}} is {{age}} years old.
+     </div>
+     <div id="expected">
+     hoge is 20 years old.
+     </div>
+     */
+    var f = deku.internal.core.compile(this.html('template'));
+    var template;
+    var result;
+    deku.templates['foo'] = deku.compile(f);
+    template = deku.use('foo');    
+    result = template({name: 'hoge', age: 20});
+    assertSame(this.html('expected'), result);
   },
 
   'test processors: it should accept valueInfo': function () {
@@ -295,8 +317,8 @@ TestCase('api', {
     deku.processors.describe = function (value, valueName, index, hasNext) {
       return 'name=' + valueName + ', value=' + value + ', index=' + index + ', hasNext=' + hasNext;
     };
-    var template = deku.prepare(this.html('template'));
-    var result = template.render({name: 'hoge', age: 20});
+    var template = deku.compile(this.html('template'));
+    var result = template({name: 'hoge', age: 20});
     assertSame(this.html('expected'), result);
   },
 
@@ -312,8 +334,8 @@ TestCase('api', {
     deku.processors.describe = function (value, valueName, index, hasNext) {
       return 'name=' + valueName + ', value=' + value + ', index=' + index + ', hasNext=' + hasNext;
     };
-    var template = deku.prepare(this.html('template'));
-    var result = template.render({array:['aaa', 'bbb']});
+    var template = deku.compile(this.html('template'));
+    var result = template({array:['aaa', 'bbb']});
     assertSame(this.html('expected'), result);
   }
 

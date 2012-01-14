@@ -14,14 +14,14 @@ Below is quick example how to use deku.js:
 
 ```js
 var source = '{{name}} spends {{calc}}';
-var template = deku.prepare(source);
+var template = deku.compile(source);
 var data = {
     name: 'Joe',
     calc: function () {
         return 200 + 4000;
     }
 };
-var result = template.render(data);
+var result = template(data);
 
 console.log(result); // Joe spends 4200
 ```
@@ -45,14 +45,14 @@ Below is the typical usage with jQuery.
 
 ```js
 var source = $('#template').html();
-var template = deku.prepare(source);
+var template = deku.compile(source);
 var data = {
     name: 'Joe',
     calc: function () {
         return 200 + 4000;
     }
 };
-$('#result').html(template.render(data)); // Joe spends 4200
+$('#result').html(template(data)); // Joe spends 4200
 ```
 
 Installing
@@ -80,7 +80,7 @@ This feature is useful for formatting and conversion.
 
 ```js
 var source = "{{name}}'s weight is {{weight|kg}}, or {{weight|g}}.";
-var template = deku.prepare(source);
+var template = deku.compile(source);
 var data = {
     name: 'Joe',
     weight: 65,
@@ -91,7 +91,7 @@ var data = {
         return value * 1000 + 'g';
     }
 };
-var result = template.render(data);
+var result = template(data);
 
 console.log(result); // Joe's weight is 65kg, or 65000g.
 ```
@@ -110,9 +110,9 @@ var options = {
     }
 };
 var source = "{{name}}'s weight is {{weight|kg}}, or {{weight|g}}.";
-var template = deku.prepare(source, options);
+var template = deku.compile(source, options);
 var data = {name: 'Joe', weight: 65};
-var result = template.render(data);
+var result = template(data);
 
 console.log(result); // Joe's weight is 65kg, or 65000g.
 ```
@@ -127,9 +127,9 @@ deku.processors.g = function (value) {
     return value * 1000 + 'g';
 };
 var source = "{{name}}'s weight is {{weight|kg}}, or {{weight|g}}.";
-var template = deku.prepare(source);
+var template = deku.compile(source);
 var data = {name: 'Joe', weight: 65};
-var result = template.render(data);
+var result = template(data);
 
 console.log(result); // Joe's weight is 65kg, or 65000g.
 ```
@@ -138,7 +138,7 @@ More than one processor are available.
 
 ```js
 var source = '{{name|yeah|enclose}}';
-var template = deku.prepare(source);
+var template = deku.compile(source);
 var data = {
     name: 'Joe',
     yeah: function (value) {
@@ -148,7 +148,7 @@ var data = {
         return '[' + value + ']';
     }
 };
-var result = template.render(data);
+var result = template(data);
 
 console.log(result); // [Joe!]
 ```
@@ -213,9 +213,9 @@ deku.noSuchProcessor = function (processorName, value, valueName) {
     return value;
 };
 var source = '{{name|unknownProcessor}} is {{unkonwnValue}}';
-var template = deku.prepare(source);
+var template = deku.compile(source);
 var data = {name: 'Joe'};
-var result = template.render(data);
+var result = template(data);
 
 console.log(result); // Joe is
 ```
@@ -228,9 +228,9 @@ deku.postPipeline = function (value) {
     return value === null ? '***' : value;
 };
 var source = '{{name}} is {{age}} years old.';
-var template = deku.prepare(source);
+var template = deku.compile(source);
 var data = {name: 'Joe', age: null};
-var result = template.render(data);
+var result = template(data);
 
 console.log(result); // Joe is *** years old.
 ```
@@ -282,14 +282,14 @@ Tags begin with `{{` and end with `}}`.
 
 ```js
 var source = ... // above content ;
-var template = deku.prepare(source);
+var template = deku.compile(source);
 var data = {
     name: 'Joe', 
     sayHello: function () {
         return 'hello';
     }
 };
-var result = template.render(data);
+var result = template(data);
 ```
 
 > result
@@ -315,14 +315,14 @@ When `condition` evaluates to true, the block is rendered.
 
 ```js
 var input = ... // above content
-var template = deku.prepare(input);
+var template = deku.compile(input);
 var data = {
     condition: function() {
         // [...your code goes here...]
         return true;
     };
 };
-var output = template.render(data);
+var output = template(data);
 ```
 
 > output
@@ -351,12 +351,12 @@ The `enumerable` must be Array.
 
 ```js
 var input = ... // above content
-var template = deku.prepare(input);
+var template = deku.compile(input);
 var data = {
     name: "Joe's shopping card",
     iteme: ['bananas', 'apples']
 };
-var output = template.render(data);
+var output = template(data);
 ```
 
 > output
@@ -386,12 +386,12 @@ In enumerable blocks, following special identifiers are available:
 
 ```js
 var input = ... // above content
-var template = deku.prepare(input);
+var template = deku.compile(input);
 var data = {
     name: "Joe's shopping card",
     items: ['bananas', 'apples']
 };
-var output = template.render(data);
+var output = template(data);
 ```
 
 > output
@@ -419,7 +419,7 @@ The `object` must not be neither Array nor Function.
 
 ```js
 var input = ... // above content
-var template = deku.prepare(input);
+var template = deku.compile(input);
 var data = {
     name: 'Bill',
     address: {
@@ -429,7 +429,7 @@ var data = {
         zip: '02101'
     }
 };
-var output = template.render(data);
+var output = template(data);
 ```
 
 > output
@@ -456,11 +456,11 @@ When `condition` evaluates to falth or `condition` is an empty array, the block 
 
 ```js
 var input = ... // above content
-var template = deku.prepare(input);
+var template = deku.compile(input);
 var data = {
     repo: []
 };
-var output = template.render(data);
+var output = template(data);
 ```
 
 > output
@@ -488,7 +488,7 @@ Welcome, {{name}}! {{:winningsMessage winnings}}
 deku.templates.winningsMessage = 'You just won ${{value}} (which is ${{taxed_value}} after tax)';
 
 var input = ... // above content
-var template = deku.prepare(input);
+var template = deku.compile(input);
 var data = {
   name: 'Joe',
   winnings: {
@@ -497,7 +497,7 @@ var data = {
         return this.value - (this.value * 0.4);
     }
   }};
-var output = template.render(data);
+var output = template(data);
 ```
 
 > output
@@ -522,9 +522,9 @@ unescaping: {{{value}}}
 
 ```js
 var input = ... // above content
-var template = deku.prepare(input);
+var template = deku.compile(input);
 var data = {value: '<span>hello</span>'}
-var output = template.render(data);
+var output = template(data);
 ```
 
 > output

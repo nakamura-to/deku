@@ -8,23 +8,17 @@ TestCase('compiler', {
       compile: deku.internal.core.compile,
       handleBlock: deku.internal.core.handleBlock,
       handleInverse: deku.internal.core.handleInverse,
+      handlePartial: deku.internal.core.handlePartial,
+      values: {},
+      partials: {},
       templates: {},
       processors: {},
-      prePipeline : function (value) {
-        return value;
-      },
-      postPipeline: function (value) {
-        return value == null ? '': value;
-      },
-      noSuchValue: function (valueName) {
-        throw new Error('The value "' + valueName + '" is not found.');
-      },
-      noSuchPartial: function (partialName) {
-        throw new Error('The partial "' + partialName + '" is not found.');
-      },
-      noSuchProcessor: function (processorName, value, valueName) {
-        throw new Error('The processor "' + processorName + '" for the value "' + valueName + '" is not found.');
-      }
+      prePipeline : deku.prePipeline,
+      postPipeline: deku.postPipeline,
+      noSuchValue: deku.noSuchValue,
+      noSuchPartial: deku.noSuchPartial,
+      noSuchProcessor: deku.noSuchProcessor,
+      partialResolver: deku.partialResolver
     };
   },
 
@@ -578,8 +572,8 @@ TestCase('compiler', {
     var fn = this.compiler.compile('{{name}} | {{:link}}');
     var data = {name:'foo', url: '/hoge', title: 'HOGE'};
     var result;
-    this.templateContext.templates.link = '{{url}} : {{title}}';
-    result = fn.call(this.templateContext, data, [data]);
+    this.templateContext.partials.link = '{{url}} : {{title}}';
+    result = fn.call(this.templateContext, data);
     assertSame('foo | /hoge : HOGE', result);
   },
 
@@ -587,7 +581,7 @@ TestCase('compiler', {
     var fn = this.compiler.compile('{{name}} | {{:link link}}');
     var data = {name:'foo', link: {url: '/hoge', title: 'HOGE'}};
     var result;
-    this.templateContext.templates.link = '{{url}} : {{title}}';
+    this.templateContext.partials.link = '{{url}} : {{title}}';
     result = fn.call(this.templateContext, data, [data]);
     assertSame('foo | /hoge : HOGE', result);
   },

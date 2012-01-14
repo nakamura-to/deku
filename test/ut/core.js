@@ -4,10 +4,9 @@ TestCase('core', {
     this.core = deku.internal.core;
   },
 
-  'test prepare: it should return a object': function () {
+  'test prepare: it should return a function': function () {
     var template = this.core.prepare('', {});
-    assertObject(template);
-    assertFunction(template.render);
+    assertFunction(template);
   },
 
   'test handleBlock: it should accept array and handle each element in the handler': function () {

@@ -13,7 +13,7 @@ var compare = function (file, template, expected, partialName, partial, data) {
     if (partial) {
       deku.templates[partialName] = partial;
     }
-    actual = deku.prepare(template).render(data);
+    actual = deku.compile(template)(data);
     assert.equal(actual, expected);
     console.log(file + ' Passed');
   } catch (e) {
