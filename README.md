@@ -164,7 +164,7 @@ var result = template(data);
 console.log(result); // Joe's weight is 65kg, or 65000g.
 ```
 
-You can chain processors with pipes (`|`).
+You can chain multiple processors with pipes.
 
 ```js
 var source = '{{name | yeah | enclose}}';
@@ -503,9 +503,10 @@ No repos :(
 ### Partials
 
 Partials begin with `{{:` and end with `}}`.
-The first argument is a partial template name.
-The second argument is a data context in the partial template (When the second argument is omitted, the current data context is used) .
-The partial template must be registered in advance.
+This tag accepts 2 arguments.
+The first argument is a partial template name and the second argument is a data context in the partial template (When the second argument is omitted, the current data context is used) .
+The partial template can be registered in advance.
+Alternatively, you can resolve partials on demand if you replace the `deku.partialResolver` function with your own implementation.
 
 > input
 
@@ -516,7 +517,7 @@ Welcome, {{name}}! {{:winningsMessage winnings}}
 > process
 
 ```js
-deku.templates.winningsMessage = 'You just won ${{value}} (which is ${{taxed_value}} after tax)';
+deku.partials.winningsMessage = 'You just won ${{value}} (which is ${{taxed_value}} after tax)';
 
 var input = ... // above content
 var template = deku.compile(input);
