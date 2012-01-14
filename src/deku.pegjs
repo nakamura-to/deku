@@ -128,17 +128,28 @@ Comment
     }
 
 Content
-  = chars:(!'{{' .)+  {
+  = chars:(ContentChars)+  {
       var content = '';
       var i;
       var len = chars.length;
       for (i = 0; i < len; i++) {
-        content += chars[i][1];
+        content += chars[i];
       }
       return {
         type: 'type_content',
         content: content
       };
+    }
+
+ContentChars
+  = '\\' backslash:'\\' &'{{' {
+      return backslash;
+    }
+  / '\\' open:'{{' {
+      return open;
+    }
+  / !'{{' char:. {
+      return char;
     }
 
 Path
