@@ -586,6 +586,24 @@ TestCase('compiler', {
     assertSame('foo | /hoge : HOGE', result);
   },
 
+  'test compile: partial: index': function () {
+    var fn = this.compiler.compile('{{name}} | {{:link link}}');
+    var data = {name:'foo', link: {url: '/hoge', title: 'HOGE'}};
+    var result;
+    this.templateContext.partials.link = '{{url}} : {{title}}, {{@index}}';
+    result = fn.call(this.templateContext, data, [data], 10);
+    assertSame('foo | /hoge : HOGE, 10', result);
+  },
+
+  'test compile: partial: hasNext': function () {
+    var fn = this.compiler.compile('{{name}} | {{:link link}}');
+    var data = {name:'foo', link: {url: '/hoge', title: 'HOGE'}};
+    var result;
+    this.templateContext.partials.link = '{{url}} : {{title}}, {{@hasNext}}';
+    result = fn.call(this.templateContext, data, [data], 10, true);
+    assertSame('foo | /hoge : HOGE, true', result);
+  },
+
   'test parse: error': function () {
     try {
       this.compiler.parse('{{#aaa}}bbb');
