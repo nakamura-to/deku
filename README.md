@@ -375,6 +375,7 @@ In enumerable blocks, following special identifiers are available:
 
 * @index : the index of the enumerated element
 * @hasNext : `true`, if the next element is existent
+* @length : the length of the enumerable array
 
 > input
 
