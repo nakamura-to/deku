@@ -177,6 +177,12 @@ ReservedId
         id: '@hasNext'
       };
     }
+  / '@length' {
+      return {
+        type: 'length',
+        id: '@length'
+      };
+    }
   / '@' index:[0-9]+ {
       return {
         type: 'ref',

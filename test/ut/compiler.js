@@ -478,6 +478,13 @@ TestCase('compiler', {
     assertSame('aaa-bbb', result);
   },
 
+  'test compile: block: array: @length': function () {
+    var fn = this.compiler.compile('{{#array}}{{@this}}({{@index}}:{{@length}}){{/array}}');
+    var data = {array: ['aaa', 'bbb']};
+    var result = fn.call(this.templateContext, data, [data]);
+    assertSame('aaa(0:2)bbb(1:2)', result);
+  },
+
   'test compile: block: array: @root': function () {
     var fn = this.compiler.compile(
       [ '{{#container1}}',
@@ -602,6 +609,15 @@ TestCase('compiler', {
     this.templateContext.partials.link = '{{url}} : {{title}}, {{@hasNext}}';
     result = fn.call(this.templateContext, data, [data], 10, true);
     assertSame('foo | /hoge : HOGE, true', result);
+  },
+
+  'test compile: partial: length': function () {
+    var fn = this.compiler.compile('{{name}} | {{:link link}}');
+    var data = {name:'foo', link: {url: '/hoge', title: 'HOGE'}};
+    var result;
+    this.templateContext.partials.link = '{{url}} : {{title}}, {{@length}}';
+    result = fn.call(this.templateContext, data, [data], 10, true, 20);
+    assertSame('foo | /hoge : HOGE, 20', result);
   },
 
   'test parse: error': function () {
