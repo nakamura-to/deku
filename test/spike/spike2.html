@@ -21,8 +21,8 @@
       }
     };
     deku.templates.hoge = '{{name}}';
-    var template = deku.prepare('{{#person.address.street}}{{:hoge}}{{@parent.name}}{{/person.address.street}}');
-    console.log(template.render(data));
+    var template = deku.compile('{{#person.address.street}}{{:hoge}}{{@parent.name}}{{/person.address.street}}');
+    console.log(template(data));
   </script>
 </head>
 <body>

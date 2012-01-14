@@ -36,8 +36,8 @@
         return el(id).innerHTML = html;
       };
 
-      var template = deku.prepare(getHtml('template'));
-      var result = template.render({
+      var template = deku.compile(getHtml('template'));
+      var result = template({
         header: "Header",
         header2: "Header2",
         header3: "Header3",
