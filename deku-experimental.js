@@ -2487,7 +2487,7 @@ var parser = (function(){
         }
         switch (typeof value) {
           case 'string': break;
-          case 'number': return value + '';
+          case 'number': return value;
           default: value = value.toString();
         }
         if (!checkRegex.test(value)) {
