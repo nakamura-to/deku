@@ -24,7 +24,7 @@ The compiling available both at runtime and at deploy time.
 ### Declarative
 
 From the view of maintenance, value fromatting and conversion should be represented declaratively.
-deku.js allow you to chain formatters and converters flexibly.
+deku.js allows you to chain formatters and converters flexibly.
 
 ## Usage
 
@@ -100,10 +100,13 @@ app.set('view engine', 'deku');
 Differences Between deku.js and mustache.js
 -------------------------------------------
 
-### Pipeline Processing
+### Pipeline
 
-The most unique feature in deku.js is the pipeline processing.
+The most unique feature in deku.js is the pipeline.
+The pipeline allows you to apply functions to a value.
 This feature is useful for formatting and conversion.
+
+To use the pipeline, specify a pipe (`|`) after the value, and then specify the function after the pipe.
 
 ```js
 var source = "{{name}}'s weight is {{weight|kg}}, or {{weight|g}}.";
@@ -123,7 +126,7 @@ var result = template(data);
 console.log(result); // Joe's weight is 65kg, or 65000g.
 ```
 
-You can separate pipeline processing functions(processors) from data.
+You can separate functions (we call them processors) from data.
 
 ```js
 var options = {
@@ -161,10 +164,10 @@ var result = template(data);
 console.log(result); // Joe's weight is 65kg, or 65000g.
 ```
 
-More than one processor are available.
+You can chain processors with pipes (`|`).
 
 ```js
-var source = '{{name|yeah|enclose}}';
+var source = '{{name | yeah | enclose}}';
 var template = deku.compile(source);
 var data = {
     name: 'Joe',
