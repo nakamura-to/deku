@@ -217,15 +217,21 @@ ReservedId
     }
 
 Id
-  = chars:[a-zA-Z0-9_$%@?]+ {
-      var buf = '';
+  = head:IdStartChar tail:IdPartChar* {
+      var buf = head;
       var i;
-      var len = chars.length;
+      var len = tail.length;
       for (i = 0; i < len; i++) {
-        buf += chars[i];
+        buf += tail[i];
       }
       return buf;
     }
+
+IdStartChar
+  = [^\x00-\x20\x7F{#^!:|/.]
+
+IdPartChar
+  = [^\x00-\x20\x7F}|.]
 _
   = Whitespace*
 
