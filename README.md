@@ -4,7 +4,27 @@ deku — javascript templating library focused on pipeline processing
 deku.js is templating library inspired by [mustache.js](https://github.com/janl/mustache.js),
 [tempo](https://github.com/twigkit/tempo) and [handlebars.js](https://github.com/wycats/handlebars.js/).
 
-Most features are similar with mustache.js.
+## Why deku.js ?
+
+Templating libraries should be *secure*, *performant* and *declarative*.
+
+### Secure
+
+In this context, "secure" means preventing XSS. 
+deku.js escapes html characters which would cause XSS by default.
+
+### Performant
+
+Parsing and transforming templates many times are high cost.  
+To reduce the cost, deku.js compiles templates to javascript programs once, and then executes them.
+The compiling available both at runtime and at deploy time.
+
+[Comparison with other templating libraries](http://jsperf.com/deku-vs-other-templating-engines/3)
+
+### Declarative
+
+From the view of maintenance, value fromatting and conversion should be represented declaratively.
+deku.js allow you to chain formatters and converters flexibly.
 
 ## Usage
 
@@ -58,7 +78,7 @@ $('#result').html(template(data)); // Joe spends 4200
 Installing
 ----------
 
-> Node.js
+### Node.js
 
 If you're developing with Node.js, just use NPM to add the deku package.
 
@@ -66,7 +86,14 @@ If you're developing with Node.js, just use NPM to add the deku package.
 $ npm install deku
 ```
 
-> Browser
+deku.js is [Express](http://expressjs.com/) compliant out of the box. 
+Below setting is required in Express.
+
+```js
+app.set('view engine', 'deku');
+```
+
+### Browser
 
 [Download](https://github.com/nakamura-to/deku/downloads) the deku.js and include it in your web page using the script tag.
 
