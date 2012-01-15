@@ -155,6 +155,21 @@ TestCase('api', {
     assertSame(this.html('expected'), result);
   },
 
+  'test compile: it should call the value in "values", if the value is function': function () {
+    /*:DOC +=
+     <div id="template">
+     {{name}} is {{age}} years old.
+     </div>
+     <div id="expected">
+     foo is 20 years old.
+     </div>
+     */
+    deku.values.name = function () { return 'foo'; };
+    var template = deku.compile(this.html('template'));
+    var result = template({age: 20});
+    assertSame(this.html('expected'), result);
+  },
+
   'test compile: it should use a "noSuchValue" option prior to a "noSuchValue" setting': function () {
     /*:DOC +=
      <div id="template">

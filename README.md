@@ -365,7 +365,9 @@ deku.templates["hello"] = function (context, contextStack, index, hasNext, lengt
   if (typeof value === "function") { value = value.call(valueContext); }
   else if (value === void 0) {
     value = values["name"];
-    if (value === void 0) { value = noSuchValue.call(context, "name"); } }
+    if (typeof value === "function") { value = value.call(context); }
+    else if (value === void 0) {
+       value = noSuchValue.call(context, "name"); } }
   value = prePipeline.call(context, value, "name", index, hasNext, length);
   processorContext = context;
   processor = processorContext["upper"];
