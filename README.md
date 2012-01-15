@@ -97,6 +97,12 @@ app.set('view engine', 'deku');
 
 [Download](https://github.com/nakamura-to/deku/downloads) the deku.js and include it in your web page using the script tag.
 
+For trial use, latest version is available by adding the following script.
+
+```html
+<script src="http://nakamura-to.github.com/deku/deku-latest.js"></script>
+```
+
 Differences Between deku.js and mustache.js
 -------------------------------------------
 
@@ -183,7 +189,7 @@ var result = template(data);
 console.log(result); // [Joe!]
 ```
 
-deku.js provides a hook point before and after applying processors.
+deku.js provides hook points before and after applying processors.
 
 > javascript
 
@@ -229,7 +235,7 @@ JOE lives in ***.
 
 ### Data Context Access
 
-deku.js provides following special identifiers to access data context.
+deku.js provides following special identifiers to access data contexts.
 
 * @this : the reference to the current data context
 * @parent : the reference to the parent of @this
@@ -274,8 +280,8 @@ We'll get this output:
 
 ### Error Handling
 
-deku.js can handle the value missings.
-This feature is useful for debugging.
+deku.js can handle value/processor/partial missings.
+This features are useful for debugging.
 
 > javascript
 
@@ -310,9 +316,9 @@ Joe is
 
 ### Pre-compiling Templates
 
-deku.js provides the template compiling script. 
+deku provides the template compiling script. 
 
-> Installing
+#### Installing
 
 The compiling script can be installed with the following command.
 
@@ -320,12 +326,89 @@ The compiling script can be installed with the following command.
 $ npm install -g deku
 ```
 
-> Usage
+#### Usage
 
-To compile, execute the following commmand.
+Execute the following commmand.
 
 ```
 $ deku templatefile_or_directory
+```
+
+##### Quick Example
+
+Make a template file.
+
+> hello.deku
+
+```
+hello {{name | upper}} !!!
+```
+
+Execute the compiling script.
+
+```
+$ deku -f hello.js hello.deku
+```
+
+Check the compiled result.
+
+> hello.js
+
+```js
+(function () {
+deku.templates["hello"] = function (context, contextStack, index, hasNext, length) {
+  var self = this, value, valueContext, buffer = "", contextStack = contextStack || [context], escape = this.escape, handleBlock = this.handleBlock, handleInverse = this.handleInverse, handlePartial = this.handlePartial, noSuchValue = this.noSuchValue, noSuchProcessor = this.noSuchProcessor, prePipeline = this.prePipeline, postPipeline = this.postPipeline, processors = this.processors, processor, processorContext, values = this.values;
+
+  buffer += "hello ";
+  valueContext = context;
+  value = valueContext["name"];
+  if (typeof value === "function") { value = value.call(valueContext); }
+  else if (value === void 0) {
+    value = values["name"];
+    if (value === void 0) { value = noSuchValue.call(context, "name"); } }
+  value = prePipeline.call(context, value, "name", index, hasNext, length);
+  processorContext = context;
+  processor = processorContext["upper"];
+  if (typeof processor === "function") { value = processor.call(processorContext, value, "name", index, hasNext, length); }
+  else { processor = processors["upper"];
+    if (typeof processor === "function") { value = processor.call(context, value, "name", index, hasNext, length); }
+    else { value = noSuchProcessor.call(context, "upper", value, "name"); }}
+  value = postPipeline.call(context, value, "name", index, hasNext, length);
+  value = escape(value);
+  buffer += value;
+  buffer += " !!!";
+  return buffer;
+};
+
+}());
+```
+
+Use the compiled result file. 
+For example, include it in your web page using the script tag.
+
+> html
+
+```html
+<script src="http://nakamura-to.github.com/deku/deku-latest.js"></script>
+<!-- HERE -->
+<script src="hello.js"></script>
+<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+<div id="result"></div>
+```
+
+In javascript, call `deku.use` function to get the compiled template.
+
+> javascript
+
+```js
+var template = deku.use('hello');
+var data = {
+    name: 'Joe', 
+    upper: function(value) { 
+        return value.toUpperCase(); 
+    }
+};
+$('#result').html(template(data)); // hello JOE !!!
 ```
 
 Templating Tag Types
