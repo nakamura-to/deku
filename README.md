@@ -691,3 +691,90 @@ Comments begin with `{{!` and end with `}}`.
 ```html
 {{! this is a comment }}
 ```
+
+Settings and Options
+--------------------
+
+Settings are global parameters for all templates.
+They are represented as properties of `deku`.
+
+Options are local parameters for specific  templates.
+They are represented as parameters of `deku.compile` or `deku.use`.
+
+If a same value is found in both, the value found in options is used.
+
+### values
+When the value is not found in the data passed for the template, deku try to find the value from the `values` object. 
+
+### partials
+This is an object retains partial template and compiled partial template.
+deku try to find partial templates from this.
+
+### templates
+This is an object retains compiled template.
+`deku.use` try to find compiled template functions from this.
+
+### processors
+When the processor is not found in the data passed for the template, 
+deku try to find the processor from the `processors` object. 
+
+### prePipeline
+This is a function invoked before pipeline processing. 
+
+### postPipeline
+This is a function invoked after pipeline processing. 
+
+### noSuchValue
+This is a function invoked when the value is not found.
+
+### noSuchPartial
+This is a function invoked when the partial is not found.
+
+### noSuchProcessor
+This is a function invoked when the processor is not found.
+
+### partialResolver
+This is a function invoked to find partial templates.
+
+#### Quick Example
+
+> javascript
+
+```js
+deku.prePipeline = function (value, valueName) {
+    console.log('"' + valueName + '" is processing.');
+    return value;
+};
+deku.postPipeline = function (value, valueName) {
+    console.log('"' + valueName + '" is processed.');
+    return value;
+};
+var options = {
+    processors: {
+        date : function(value) {
+            switch (value.getDay()) {
+                case 0: return 'Sun.';
+                case 1: return 'Man.';
+                case 2: return 'Tue.';
+                case 3: return 'Wed.';
+                case 4: return 'Thu.';
+                case 5: return 'Fri.';
+                case 6: return 'Sat.';
+            }
+        }
+    }
+};
+var template = deku.compile('Hello {{name}}. Today is {{now | date}}', options);
+var result = template({name: 'Joe', now: new Date()});
+console.log(result);
+```
+
+> output
+
+```
+"name" is processing.
+"name" is processed.
+"now" is processing.
+"now" is processed.
+Hello Joe. Today is Sun.
+```
