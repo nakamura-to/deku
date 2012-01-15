@@ -109,7 +109,7 @@ This feature is useful for formatting and conversion.
 To use the pipeline, specify a pipe (`|`) after the value, and then specify the function after the pipe.
 
 ```js
-var source = "{{name}}'s weight is {{weight|kg}}, or {{weight|g}}.";
+var source = "{{name}}'s weight is {{weight | kg}}, or {{weight | g}}.";
 var template = deku.compile(source);
 var data = {
     name: 'Joe',
@@ -139,7 +139,7 @@ var options = {
         } 
     }
 };
-var source = "{{name}}'s weight is {{weight|kg}}, or {{weight|g}}.";
+var source = "{{name}}'s weight is {{weight | kg}}, or {{weight | g}}.";
 var template = deku.compile(source, options);
 var data = {name: 'Joe', weight: 65};
 var result = template(data);
@@ -183,6 +183,49 @@ var result = template(data);
 console.log(result); // [Joe!]
 ```
 
+deku.js provides a hook point before and after applying processors.
+
+> javascript
+
+```js
+deku.prePipeline = function (value, valueName) {
+    console.log('prePipeline is invoked for the "%s".', valueName);
+    return value === null ? '***' : value;
+};
+deku.postPipeline = function (value, valueName) {
+    console.log('postPipeline is invoked for the "%s".', valueName);
+    return value;
+};
+var source = '{{name | upper}} lives in {{city | lower}}.';
+var template = deku.compile(source);
+var data = {
+    name: 'Joe',
+    city: null,
+    upper: function (value, valueName) {
+        console.log('upper is invoked for the "%s".', valueName);
+        return value.toUpperCase();
+    },
+    lower: function (value, valueName) {
+        console.log('lower is invoked for the "%s".', valueName);
+        return value.toLowerCase();
+    }
+};
+var result = template(data);
+
+console.log(result);
+```
+
+> output
+
+```
+prePipeline is invoked for the "name".
+upper is invoked for the "name".
+postPipeline is invoked for the "name".
+prePipeline is invoked for the "city".
+lower is invoked for the "city".
+postPipeline is invoked for the "city".
+JOE lives in ***.
+```
 
 ### Data Context Access
 
@@ -191,7 +234,7 @@ deku.js provides following special identifiers to access data context.
 * @this : the reference to the current data context
 * @parent : the reference to the parent of @this
 * @root : the reference to the root data context
-* @0, @1, .. @n : @0 is same with @this and @1 is same with @parent. @2 is the parent of @1. @3 is the parent of @2, and so on. 
+* @0, @1, @2.. @n : the reference indexes. @0 is same as @this. @1 is same as @parent. @2 is the parent of @1. @3 is the parent of @2, and so on. 
 
 Given this object:
 
@@ -234,35 +277,35 @@ We'll get this output:
 deku.js can handle the value missings.
 This feature is useful for debugging.
 
+> javascript
+
 ```js
 deku.noSuchValue = function (valueName) {
-    console.warn('the value "' + valueName + '" is missing.');
+    console.log('the value "' + valueName + '" is not found.');
 };
 deku.noSuchProcessor = function (processorName, value, valueName) {
-    console.warn('the processor "' + processorName + '" is missing for the value "' + valueName + '".');
+    console.log('the processor "' + processorName + '" is not found for the value "' + valueName + '".');
     return value;
 };
-var source = '{{name|unknownProcessor}} is {{unkonwnValue}}';
+deku.noSuchPartial = function (partialName) {
+    console.log('the partial "' + partialName + '" is not found.');
+    return '';
+};
+var source = '{{name|unknownProcessor}} is {{unknownValue}} {{:unknownPartial}}';
 var template = deku.compile(source);
 var data = {name: 'Joe'};
 var result = template(data);
 
-console.log(result); // Joe is
+console.log(result);
 ```
 
-deku.js provides a hook point to handle all values before and after applying pipeline functions.
-It's means you can check or convert erroneous values.
+> output
 
-```js
-deku.postPipeline = function (value) {
-    return value === null ? '***' : value;
-};
-var source = '{{name}} is {{age}} years old.';
-var template = deku.compile(source);
-var data = {name: 'Joe', age: null};
-var result = template(data);
-
-console.log(result); // Joe is *** years old.
+```
+the processor "unknownProcessor" is not found for the value "name".
+the value "unknownValue" is not found.
+the partial "unknownPartial" is not found.
+Joe is
 ```
 
 ### Pre-compiling Templates
@@ -284,14 +327,6 @@ To compile, execute the following commmand.
 ```
 $ deku templatefile_or_directory
 ```
-
-### Others
-
-Currently, deku.js doesn't support following features, which mustache.js has:
-
-* Higher Order Sections
-* Streaming
-* Pragmas
 
 Templating Tag Types
 --------------------
@@ -538,7 +573,7 @@ var output = template(data);
 Welcome, Joe! You just won $1000 (which is $600 after tax)
 ```
 
-### Escaping and Unescaping
+### HTML Escaping and Unescaping
 
 Double mustaches like `{{value}}` always escape following characters: `&` `"` `'` `<` `>`.
 To disable escaping, use triple mustaches like `{{{value}}}`.
