@@ -720,22 +720,22 @@ This is an object retains compiled template.
 When the processor is not found in the data passed for the template, 
 deku try to find the processor from the `processors` object. 
 
-### prePipeline
+### prePipeline(value, valueName, index, hasNext, length)
 This is a function invoked before pipeline processing. 
 
-### postPipeline
+### postPipeline(value, valueName, index, hasNext, length)
 This is a function invoked after pipeline processing. 
 
-### noSuchValue
+### noSuchValue(valueName)
 This is a function invoked when the value is not found.
 
-### noSuchPartial
+### noSuchPartial(partialName, context)
 This is a function invoked when the partial is not found.
 
-### noSuchProcessor
+### noSuchProcessor(processorName, value, valueName)
 This is a function invoked when the processor is not found.
 
-### partialResolver
+### partialResolver(partialName)
 This is a function invoked to find partial templates.
 
 #### Quick Example
