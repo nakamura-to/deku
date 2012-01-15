@@ -162,7 +162,7 @@ deku.processors.kg = function (value) {
 deku.processors.g = function (value) {
     return value * 1000 + 'g';
 };
-var source = "{{name}}'s weight is {{weight|kg}}, or {{weight|g}}.";
+var source = "{{name}}'s weight is {{weight | kg}}, or {{weight | g}}.";
 var template = deku.compile(source);
 var data = {name: 'Joe', weight: 65};
 var result = template(data);
