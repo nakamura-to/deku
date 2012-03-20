@@ -13,7 +13,7 @@
         "pegjs":     "~0.6.2",
         "uglify-js": "~1.2.3"
     },
-    "repository"    : {"type": "git", "url": "git@github.com:nakamura-to/deku.git"},
+    "repository"    : {"type": "git", "url": "git://github.com/nakamura-to/deku.git"},
     "main"          : "./lib/deku.js",
     "bin"           : "./bin/deku",
     "version"       : "0.0.6"
