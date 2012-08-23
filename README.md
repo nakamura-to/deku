@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/nakamura-to/deku.png)](http://travis-ci.org/nakamura-to/deku)
 deku — javascript templating library focused on pipeline processing
 ===================================================================
 
